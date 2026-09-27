@@ -87,15 +87,17 @@
         </select>
     </div>
 
-    <!-- 3. Chọn thêm giờ -->
+    <!-- 3. Thuê thêm giờ -->
     <div class="form-group">
-        <label>3. Thuê thêm giờ (Phụ thu 40.000đ/giờ):</label>
+        <label>3. Thuê thêm giờ (40.000đ/giờ - 20.000đ/30p):</label>
         <select id="extraHours" onchange="handleExtraHoursChange()">
             <option value="0">Không thêm giờ (0h)</option>
-            <option value="1">Thêm 1 giờ </option>
-            <option value="2">Thêm 2 giờ </option>
-            <option value="3">Thêm 3 giờ </option>
-            <option value="4">Thêm 4 giờ </option>
+            <option value="0.5">Thêm 30 phút (+20.000đ)</option>
+            <option value="1">Thêm 1 giờ (+40.000đ)</option>
+            <option value="1.5">Thêm 1 giờ 30 phút (+60.000đ)</option>
+            <option value="2">Thêm 2 giờ (+80.000đ)</option>
+            <option value="2.5">Thêm 2 giờ 30 phút (+100.000đ)</option>
+            <option value="3">Thêm 3 giờ (+120.000đ)</option>
         </select>
     </div>
 
@@ -124,7 +126,7 @@
             </div>
         </div>
         <p id="hourlyNote" style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
-            ✨ <i>Khách đặt theo giờ chỉ chọn trong khung từ 11:00 đến 21:00 nhé.</i>
+            ✨ <i>Khách đặt theo giờ chọn từ 11:00 đến 21:00 (Cần 1 tiếng dọn dẹp giữa các ca).</i>
         </p>
     </div>
 
@@ -180,16 +182,14 @@
         weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
 
-    const EXTRA_RATE = 40000;
+    const HOURLY_RATE = 40000; // 40k/giờ
 
-    // Helper đổi "HH:MM" -> Phút
     function timeToMins(tStr) {
         if (!tStr || !tStr.includes(':')) return 0;
         const [h, m] = tStr.split(':').map(Number);
         return h * 60 + m;
     }
 
-    // Helper đổi Phút -> "HH:MM"
     function minsToTime(mins) {
         let m = mins % (24 * 60);
         if (m < 0) m += 24 * 60;
@@ -198,7 +198,6 @@
         return `${h.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
     }
 
-    // Tạo danh sách giờ chọn
     function generateTimeOptions(isHourlyOnly = true) {
         const checkInSelect = document.getElementById('checkInTime');
         const checkOutSelect = document.getElementById('checkOutTime');
@@ -210,7 +209,7 @@
         checkOutSelect.innerHTML = '<option value="">-- Chọn giờ --</option>';
 
         const startH = isHourlyOnly ? 11 : 0;
-        const endH = isHourlyOnly ? 23 : 23;
+        const endH = isHourlyOnly ? 21 : 23;
 
         for (let h = startH; h <= endH; h++) {
             const hourStr = h.toString().padStart(2, '0');
@@ -226,45 +225,36 @@
         if ([...checkOutSelect.options].some(o => o.value === oldOut)) checkOutSelect.value = oldOut;
     }
 
-    // Lấy tổng số giờ của gói thuê hiện tại
-    function getPackageTargetHours() {
+    function getPackageBaseHours() {
         const type = document.getElementById('rentalType').value;
-        const extra = parseInt(document.getElementById('extraHours').value) || 0;
-        if (type === 'combo2h') return 2 + extra;
-        if (type === 'combo4h') return 4 + extra;
-        return 0; // Các gói cố định khác
+        if (type === 'combo2h') return 2;
+        if (type === 'combo4h') return 4;
+        return 0;
     }
 
-    // Cập nhật lại Check-out tự động khi thay đổi Combo hoặc Thuê thêm giờ
     function autoAdjustCheckOut() {
         const type = document.getElementById('rentalType').value;
         const inSelect = document.getElementById('checkInTime');
         const outSelect = document.getElementById('checkOutTime');
 
         if (type === 'overnight') {
-            inSelect.value = "22:00";
-            outSelect.value = "10:00";
-            return;
+            inSelect.value = "22:00"; outSelect.value = "10:00"; return;
         } else if (type === 'fullday') {
-            inSelect.value = "11:00";
-            outSelect.value = "21:00";
-            return;
+            inSelect.value = "11:00"; outSelect.value = "21:00"; return;
         } else if (type === 'nightday') {
-            inSelect.value = "16:00";
-            outSelect.value = "10:00";
-            return;
+            inSelect.value = "16:00"; outSelect.value = "10:00"; return;
         }
 
-        // Nếu là combo theo giờ
-        const targetHours = getPackageTargetHours();
-        if (!inSelect.value) {
-            inSelect.value = "11:00";
-        }
+        const baseHours = getPackageBaseHours();
+        const extraHours = parseFloat(document.getElementById('extraHours').value) || 0;
+        const totalHours = baseHours + extraHours;
+
+        if (!inSelect.value) inSelect.value = "11:00";
 
         let inMins = timeToMins(inSelect.value);
-        let outMins = inMins + targetHours * 60;
-
+        let outMins = inMins + totalHours * 60;
         let calculatedOutTime = minsToTime(outMins);
+
         if ([...outSelect.options].some(o => o.value === calculatedOutTime)) {
             outSelect.value = calculatedOutTime;
         }
@@ -291,36 +281,28 @@
         calculatePrice();
     }
 
-    // Xử lý khi khách tự bấm chọn giờ Check-in / Check-out trên giao diện
     function onUserSelectTime() {
         const inStr = document.getElementById('checkInTime').value;
         const outStr = document.getElementById('checkOutTime').value;
         const type = document.getElementById('rentalType').value;
 
-        if (type === 'combo2h' || type === 'combo4h') {
-            if (inStr && outStr) {
-                let inMins = timeToMins(inStr);
-                let outMins = timeToMins(outStr);
-                if (outMins <= inMins) outMins += 24 * 60;
+        if ((type === 'combo2h' || type === 'combo4h') && inStr && outStr) {
+            let inMins = timeToMins(inStr);
+            let outMins = timeToMins(outStr);
+            if (outMins <= inMins) outMins += 24 * 60;
 
-                let diffHours = (outMins - inMins) / 60;
+            let diffMins = outMins - inMins;
+            let diffHours = diffMins / 60;
 
-                // Tự động chuyển gói Combo phù hợp theo số giờ khách chọn
-                if (diffHours === 2) {
-                    document.getElementById('rentalType').value = 'combo2h';
-                    document.getElementById('extraHours').value = '0';
-                } else if (diffHours === 3) {
-                    document.getElementById('rentalType').value = 'combo2h';
-                    document.getElementById('extraHours').value = '1';
-                } else if (diffHours === 4) {
-                    document.getElementById('rentalType').value = 'combo4h';
-                    document.getElementById('extraHours').value = '0';
-                } else if (diffHours > 4) {
-                    document.getElementById('rentalType').value = 'combo4h';
-                    document.getElementById('extraHours').value = Math.min(4, Math.floor(diffHours - 4)).toString();
-                }
-            } else if (inStr && !outStr) {
-                autoAdjustCheckOut();
+            // Tự động phân bổ Combo + Thuê thêm giờ
+            if (diffHours <= 3.5) {
+                document.getElementById('rentalType').value = 'combo2h';
+                let extra = Math.max(0, diffHours - 2);
+                document.getElementById('extraHours').value = extra.toString();
+            } else {
+                document.getElementById('rentalType').value = 'combo4h';
+                let extra = Math.max(0, diffHours - 4);
+                document.getElementById('extraHours').value = extra.toString();
             }
         }
 
@@ -352,17 +334,18 @@
     function calculatePrice() {
         const dateVal = document.getElementById('checkDate').value;
         const type = document.getElementById('rentalType').value;
-        const extra = parseInt(document.getElementById('extraHours').value) || 0;
+        const extraHours = parseFloat(document.getElementById('extraHours').value) || 0;
 
         const rates = isWeekend(dateVal) ? pricing.weekend : pricing.normal;
         const basePrice = rates[type];
-        const extraPrice = extra * EXTRA_RATE;
+        const extraPrice = extraHours * HOURLY_RATE; // 0.5h = 20k
         const totalPrice = basePrice + extraPrice;
 
         document.getElementById('totalPrice').innerText = totalPrice.toLocaleString('vi-VN') + "đ";
         
-        if (extra > 0) {
-            document.getElementById('priceDetail').innerText = `Gói: ${basePrice.toLocaleString('vi-VN')}đ + Thêm ${extra}h (${extraPrice.toLocaleString('vi-VN')}đ)`;
+        if (extraHours > 0) {
+            let extraLabel = extraHours === 0.5 ? "30 phút" : `${extraHours} giờ`;
+            document.getElementById('priceDetail').innerText = `Gói: ${basePrice.toLocaleString('vi-VN')}đ + Thêm ${extraLabel} (+${extraPrice.toLocaleString('vi-VN')}đ)`;
         } else {
             document.getElementById('priceDetail').innerText = "(Đã áp dụng bảng giá tương ứng theo ngày)";
         }
@@ -370,13 +353,12 @@
         return totalPrice;
     }
 
-    // --- KIỂM TRA LỊCH KHẢ DỤNG TỪ FIREBASE REALTIME DATABASE ---
+    // --- KIỂM TRA LỊCH CÓ DỌN PHÒNG 1 TIẾNG TỪ FIREBASE REALTIME DATABASE ---
     function checkScheduleAvailability(showAlert = false, callback = null) {
         const dateVal = document.getElementById('checkDate').value;
         const inTimeStr = document.getElementById('checkInTime').value;
         const outTimeStr = document.getElementById('checkOutTime').value;
         const alertBox = document.getElementById('alertBox');
-        const type = document.getElementById('rentalType').value;
 
         if (!dateVal || !inTimeStr || !outTimeStr) {
             if (showAlert) {
@@ -388,34 +370,17 @@
             return;
         }
 
-        // Kiểm tra khớp số giờ chọn và gói thuê
-        if (type === 'combo2h' || type === 'combo4h') {
-            let inMins = timeToMins(inTimeStr);
-            let outMins = timeToMins(outTimeStr);
-            if (outMins <= inMins) outMins += 24 * 60;
-            let actualDuration = (outMins - inMins) / 60;
-            let targetDuration = getPackageTargetHours();
-
-            if (actualDuration !== targetDuration) {
-                alertBox.className = "alert-box alert-error";
-                alertBox.innerHTML = `⚠️ <b>Khung giờ chưa khớp với gói!</b><br>Gói bạn chọn tổng là <b>${targetDuration} tiếng</b>, nhưng khoảng giờ bạn chọn từ ${inTimeStr} đến ${outTimeStr} là <b>${actualDuration} tiếng</b>. Vui lòng chọn lại giờ check-out!`;
-                alertBox.style.display = "block";
-                if (callback) callback(false);
-                return;
-            }
-        }
-
-        const dateParts = dateVal.split('-'); // YYYY-MM-DD
+        const dateParts = dateVal.split('-'); 
         const year = parseInt(dateParts[0]);
         const month = parseInt(dateParts[1]);
         const day = parseInt(dateParts[2]);
 
-        const checkinHour = parseInt(inTimeStr.split(':')[0]);
-        let checkoutHour = parseInt(outTimeStr.split(':')[0]);
+        const checkinMins = timeToMins(inTimeStr);
+        let checkoutMins = timeToMins(outTimeStr);
+        if (checkoutMins <= checkinMins) checkoutMins += 24 * 60;
 
-        if (checkoutHour <= checkinHour) {
-            checkoutHour += 24; 
-        }
+        const startHour = Math.floor(checkinMins / 60);
+        const endHour = Math.ceil(checkoutMins / 60);
 
         if (showAlert) {
             alertBox.style.display = "block";
@@ -423,24 +388,49 @@
             alertBox.innerText = "⏳ Đang kiểm tra lịch thực tế từ hệ thống...";
         }
 
-        // Truy vấn CSDL Firebase
-        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
-            const savedData = snapshot.val() || {};
-            let isBusy = false;
-            let busyHours = [];
+        // Lấy danh sách lịch bận và đơn khách đã chốt để kiểm tra khoảng dọn dẹp
+        db.ref().once('value', (snapshot) => {
+            const dbVal = snapshot.val() || {};
+            const savedData = dbVal.schedules ? (dbVal.schedules[`${year}_${month}`] || {}) : {};
+            const customersData = dbVal.customers || {};
 
-            for (let h = checkinHour; h < checkoutHour; h++) {
+            let isBusy = false;
+            let busyReason = "";
+
+            // 1. Kiểm tra từng ô giờ trên bảng lịch
+            for (let h = startHour; h < endHour; h++) {
                 let actualHour = h % 24;
                 const key = `d${day}_h${actualHour}`;
                 if (savedData[key] === true) {
                     isBusy = true;
-                    busyHours.push(`${actualHour}:00`);
+                    busyReason = `Khung giờ ${actualHour}:00 đã có khách đặt!`;
+                    break;
                 }
+            }
+
+            // 2. Kiểm tra quy tắc đệm 1 tiếng dọn phòng từ các đơn khách trước
+            if (!isBusy) {
+                const dateFormatted = `${day.toString().padStart(2,'0')}/${month.toString().padStart(2,'0')}/${year}`;
+                Object.values(customersData).forEach(item => {
+                    if (item.checkout && item.checkout.includes(dateFormatted)) {
+                        let prevOutStr = item.checkout.split(' - ')[0]; // Lấy "13:30"
+                        if (prevOutStr && prevOutStr.includes(':')) {
+                            let prevOutMins = timeToMins(prevOutStr);
+                            let cleanupEndMins = prevOutMins + 60; // Cộng thêm 60 phút dọn phòng
+
+                            // Nếu Check-in mới nhảy vào khung dọn dẹp
+                            if (checkinMins >= prevOutMins && checkinMins < cleanupEndMins) {
+                                isBusy = true;
+                                busyReason = `Ca trước trả phòng lúc ${prevOutStr}. Cần 1 tiếng dọn dẹp phòng (đến ${minsToTime(cleanupEndMins)})!`;
+                            }
+                        }
+                    }
+                });
             }
 
             if (isBusy) {
                 alertBox.className = "alert-box alert-error";
-                alertBox.innerHTML = `❌ <b>Khung giờ này đã có khách đặt trên hệ thống!</b><br>Khung giờ bận: ${busyHours.join(', ')}`;
+                alertBox.innerHTML = `❌ <b>Không thể đặt khung giờ này!</b><br>${busyReason}`;
                 alertBox.style.display = "block";
                 if (callback) callback(false);
             } else {
@@ -464,7 +454,7 @@
         const date = document.getElementById('checkDate').value;
         const typeSelect = document.getElementById('rentalType');
         const rentalName = typeSelect.options[typeSelect.selectedIndex].text;
-        const extra = parseInt(document.getElementById('extraHours').value) || 0;
+        const extraHours = parseFloat(document.getElementById('extraHours').value) || 0;
         const inTime = document.getElementById('checkInTime').value;
         const outTime = document.getElementById('checkOutTime').value;
 
@@ -473,19 +463,18 @@
             return;
         }
 
-        // Kiểm tra lịch Firebase trước khi chốt đơn
         checkScheduleAvailability(true, function(isAvailable) {
             if (!isAvailable) return;
 
             const price = calculatePrice();
             const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
 
-            const dateFormatted = date.split('-').reverse().join('/'); // Chuyển dạng DD/MM/YYYY
+            const dateFormatted = date.split('-').reverse().join('/'); 
             const todayStr = new Date().toLocaleDateString('vi-VN');
 
-            currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
+            currentOrder = { name, phone, date, rentalName, extraHours, inTime, outTime, price, memo };
 
-            // TỰ ĐỘNG ĐẨY ĐƠN ĐẶT PHÒNG VÀO DANH SÁCH KHÁCH HÀNG TRÊN FIREBASE
+            // TỰ ĐỘNG LƯU VÀO FIREBASE DB
             const newCustomerData = {
                 name: name + ` (${phone})`,
                 checkin: `${inTime} - ${dateFormatted}`,
@@ -499,7 +488,24 @@
 
             db.ref('customers').push(newCustomerData);
 
-            // Tạo QR Thanh Toán VietQR
+            // Tự động khóa các ô giờ trên bảng lịch Admin
+            const dateParts = date.split('-');
+            const yr = parseInt(dateParts[0]);
+            const mo = parseInt(dateParts[1]);
+            const dy = parseInt(dateParts[2]);
+
+            let inM = timeToMins(inTime);
+            let outM = timeToMins(outTime);
+            if (outM <= inM) outM += 24 * 60;
+
+            let stH = Math.floor(inM / 60);
+            let edH = Math.ceil(outM / 60);
+
+            for (let h = stH; h < edH; h++) {
+                db.ref(`schedules/${yr}_${mo}/d${dy}_h${h%24}`).set(true);
+            }
+
+            // Tạo mã VietQR
             const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
             
             document.getElementById('qrImage').src = qrUrl;
@@ -513,7 +519,10 @@
     }
 
     function sendInstagram() {
-        const extraStr = currentOrder.extra > 0 ? `${currentOrder.extra} giờ (+${(currentOrder.extra * EXTRA_RATE).toLocaleString('vi-VN')}đ)` : "Không";
+        let extraStr = "Không";
+        if (currentOrder.extraHours > 0) {
+            extraStr = currentOrder.extraHours === 0.5 ? "30 phút (+20.000đ)" : `${currentOrder.extraHours} giờ (+${(currentOrder.extraHours * HOURLY_RATE).toLocaleString('vi-VN')}đ)`;
+        }
         
         const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏳ Thêm giờ: ${extraStr}\n⏰ Check-in: ${currentOrder.inTime}\n⌛ Check-out: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
         
