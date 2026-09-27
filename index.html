@@ -16,6 +16,7 @@
         .nav-link.active { background: var(--primary); color: white; }
 
         .header { text-align: center; padding: 20px 15px 10px; }
+        .header .logo-img { width: 70px; height: 70px; object-fit: contain; border-radius: 50%; }
         .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
         
         .section { padding: 15px 20px; }
@@ -29,12 +30,12 @@
         .gallery-card img { width: 100%; height: 140px; object-fit: cover; }
         .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 5px; }
 
-        .btn-booking { display: block; background: var(--primary); color: white; text-align: center; padding: 14px; border-radius: 15px; text-decoration: none; font-weight: 700; margin: 10px 20px 0; font-size: 16px; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
-
-        /* Style bổ sung cho bản đồ */
+        /* Style bản đồ & liên hệ */
         .map-box { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; height: 180px; margin-bottom: 10px; }
         .map-box iframe { width: 100%; height: 100%; border: 0; }
         .btn-map { display: block; background: #4285F4; color: white; text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(66,133,244,0.25); }
+        
+        .contact-box { background: #fff0f3; border: 1px dashed #ffd0d7; border-radius: 15px; padding: 12px 15px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -47,12 +48,10 @@
     </div>
 
     <div class="header">
-        <div style="font-size: 32px;">🎀</div>
+        <img src="logo.png" alt="Nana Homestay Logo" class="logo-img">
         <h1>Nana Homestay</h1>
         <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">📍 37 ngõ 435 đường Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
     </div>
-
-    <a href="dat-phong.html" class="btn-booking">✨ ĐẶT PHÒNG NGAY TẠI ĐÂY</a>
 
     <div class="section">
         <div class="section-title">✨ Tiện nghi căn hộ</div>
@@ -60,7 +59,7 @@
             <div class="amenity-item">📽️ Máy chiếu Netflix</div>
             <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
             <div class="amenity-item">🏰 Phòng decor Mickey</div>
-            <div class="amenity-item">🚿 WC khép kín </div>
+            <div class="amenity-item">🚿 WC khép kín</div>
             <div class="amenity-item">🔑 Check-in tự động</div>
             <div class="amenity-item">🅿️ Chỗ đỗ xe miễn phí</div>
         </div>
@@ -88,7 +87,7 @@
         </div>
     </div>
 
-    <!-- Mục Bản đồ được thêm vào bên dưới -->
+    <!-- Mục Bản đồ chỉ đường -->
     <div class="section">
         <div class="section-title">🗺️ Bản đồ chỉ đường</div>
         <div class="map-box">
@@ -99,16 +98,15 @@
             </iframe>
         </div>
         <a href="https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7" target="_blank" class="btn-map">📍 Mở Chỉ Đường Trên Google Maps</a>
-    </div>
-</div>
 
-    <!-- Thông tin liên hệ -->
-    <div class="card-section">
-        <div class="card-title">📞 Liên Hệ & Hỗ Trợ</div>
-        <p style="font-size: 12.5px; line-height: 1.6; color: #5a3d42;">
-            • <b>Hotline/Zalo:</b> 0836859883/0962292229<br>
-            • <b>Instagram:</b> @nana.homestayy<br>
-        </p>
+        <!-- Thông tin liên hệ nằm dưới bản đồ và đặt trong khung giao diện -->
+        <div class="contact-box">
+            <div class="section-title" style="margin-bottom: 5px; border-left: none; padding-left: 0;">📞 Liên Hệ & Hỗ Trợ</div>
+            <p style="font-size: 12.5px; line-height: 1.6; color: #5a3d42;">
+                • <b>Hotline/Zalo:</b> 0836859883 / 0962292229<br>
+                • <b>Instagram:</b> @nana.homestayy
+            </p>
+        </div>
     </div>
 </div>
 
