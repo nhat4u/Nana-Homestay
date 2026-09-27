@@ -3,301 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Đặt Phòng Tự Động</title>
+    <title>Nana Homestay - Trang Chủ</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #d17a85;
-            --bg-color: #fff0f3;
-            --card-bg: #ffffff;
-            --text-color: #5a3d42;
-        }
+        :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
+        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
+        
+        /* Navigation Bar */
+        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); }
+        .nav-link { flex: 1; text-align: center; padding: 12px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 14px; }
+        .nav-link.active { background: var(--primary); color: white; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Quicksand', sans-serif;
-        }
+        .header { text-align: center; padding: 20px; }
+        .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
+        
+        .section { padding: 15px 20px; }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 8px; }
+        
+        .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+        .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            padding: 10px;
-        }
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .gallery img { width: 100%; height: 120px; object-fit: cover; border-radius: 12px; }
 
-        .app-container {
-            width: 100%;
-            max-width: 430px;
-            background: var(--card-bg);
-            border-radius: 25px;
-            box-shadow: 0 10px 25px rgba(209, 122, 133, 0.2);
-            overflow: hidden;
-            padding-bottom: 20px;
-        }
-
-        /* Header */
-        .header {
-            background: #ffe3e8;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px dashed var(--primary-color);
-        }
-
-        .header h1 {
-            color: var(--primary-color);
-            font-size: 24px;
-            margin-top: 5px;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: #8a626a;
-        }
-
-        /* Content Sections */
-        .section {
-            padding: 15px 20px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Booking Options */
-        .option-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .option-card {
-            border: 2px solid #ffd0d7;
-            border-radius: 15px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-            background: #fff9fa;
-        }
-
-        .option-card.active {
-            border-color: var(--primary-color);
-            background: #ffe8ec;
-        }
-
-        .option-title {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .option-price {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-top: 5px;
-        }
-
-        /* Form Inputs */
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ffd0d7;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        /* Total & QR */
-        .payment-box {
-            background: #fff0f3;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .qr-img {
-            width: 180px;
-            height: 180px;
-            margin: 10px auto;
-            border-radius: 10px;
-            border: 2px solid var(--primary-color);
-        }
-
-        /* Buttons */
-        .btn {
-            display: block;
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            margin-top: 10px;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .amenities-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .tag {
-            background: #ffe3e8;
-            padding: 5px 10px;
-            border-radius: 8px;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
+        .btn-booking { display: block; background: var(--primary); color: white; text-align: center; padding: 14px; border-radius: 15px; text-decoration: none; font-weight: 700; margin: 15px 20px 0; font-size: 16px; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
+        .rules-list { font-size: 13px; line-height: 1.6; color: #666; padding-left: 18px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="container">
+    <!-- Thanh điều hướng -->
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
+        <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>
+    </div>
+
     <!-- Header -->
     <div class="header">
-        <div style="font-size: 30px;">🎀</div>
+        <div style="font-size: 32px;">🎀</div>
         <h1>Nana Homestay</h1>
-        <p class="subtitle">37 ngõ 435 Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
+        <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">37 ngõ 435 đường Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
     </div>
 
-    <!-- Tiện ích -->
-    <div class="section">
-        <div class="section-title">✨ Tiện nghi căn hộ</div>
-        <div class="amenities-list">
-            <span class="tag">📽️ Máy chiếu giải trí</span>
-            <span class="tag">🍳 Bếp đầy đủ dụng cụ</span>
-            <span class="tag">🅿️ Chỗ đỗ xe rộng rãi</span>
-            <span class="tag">🔑 Check-in tự động</span>
-        </div>
-    </div>
+    <!-- Nút chuyển tới đặt phòng -->
+    <a href="dat-phong.html" class="btn-booking">✨ ĐẶT PHÒNG NGAY TẠI ĐÂY</a>
 
-    <!-- Chọn gói đặt phòng -->
+    <!-- Tiện nghi -->
     <div class="section">
-        <div class="section-title">⏰ Chọn khung giờ đặt phòng</div>
-        <div class="option-grid">
-            <div class="option-card active" onclick="selectOption(this, 150000, 'Combo 2 giờ')">
-                <div class="option-title">Combo 2h</div>
-                <div class="option-price">150.000đ</div>
-            </div>
-            <div class="option-card" onclick="selectOption(this, 210000, 'Combo 4 giờ')">
-                <div class="option-title">Combo 4h</div>
-                <div class="option-price">210.000đ</div>
-            </div>
-            <div class="option-card" onclick="selectOption(this, 300000, 'Giá đêm (22h-10h)')">
-                <div class="option-title">Qua đêm (T2-T5)</div>
-                <div class="option-price">300.000đ</div>
-            </div>
-            <div class="option-card" onclick="selectOption(this, 450000, 'Ngày đêm (15h-10h)')">
-                <div class="option-title">Ngày đêm (T2-T5)</div>
-                <div class="option-price">450.000đ</div>
-            </div>
+        <div class="section-title">✨ Tiện nghi tại Nana Homestay</div>
+        <div class="amenities">
+            <div class="amenity-item">📽️ Máy chiếu giải trí</div>
+            <div class="amenity-item">🍳 Bếp nấu ăn đầy đủ</div>
+            <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
+            <div class="amenity-item">🔑 Check-in tự động</div>
+            <div class="amenity-item">📶 Wi-Fi tốc độ cao</div>
+            <div class="amenity-item">❄️ Điều hòa Casper 2 chiều</div>
         </div>
     </div>
 
-    <!-- Thông tin khách đặt -->
+    <!-- Ảnh không gian -->
     <div class="section">
-        <div class="section-title">📝 Thông tin người đặt</div>
-        <div class="form-group">
-            <label>Họ và tên:</label>
-            <input type="text" id="fullname" placeholder="Nhập tên của bạn">
-        </div>
-        <div class="form-group">
-            <label>Số điện thoại:</label>
-            <input type="tel" id="phone" placeholder="Nhập số điện thoại">
-        </div>
-        <div class="form-group">
-            <label>Ngày nhận phòng:</label>
-            <input type="date" id="booking-date">
+        <div class="section-title">🖼️ Không gian phòng</div>
+        <p style="font-size: 12px; color: #777;">Phòng decor tone xinh xắn, chuẩn phong cách cute dễ thương.</p>
+        <div class="gallery">
+            <img src="https://via.placeholder.com/200x150/ffdae0/d17a85?text=Goc+Giuong+Ngu" alt="Góc giường">
+            <img src="https://via.placeholder.com/200x150/ffdae0/d17a85?text=Goc+May+Chieu" alt="Góc máy chiếu">
+            <img src="https://via.placeholder.com/200x150/ffdae0/d17a85?text=Goc+Bep" alt="Góc bếp">
+            <img src="https://via.placeholder.com/200x150/ffdae0/d17a85?text=Khu+Vuc+Chung" alt="Khu vực chung">
         </div>
     </div>
 
-    <!-- Thanh toán -->
+    <!-- Nội quy Homestay -->
     <div class="section">
-        <div class="payment-box">
-            <div>Tổng thanh toán:</div>
-            <div class="option-price" id="total-price" style="font-size: 22px;">150.000đ</div>
-            <p style="font-size: 12px; color: #777; margin: 5px 0;">Quét mã VietQR để thanh toán giữ phòng</p>
-
-            <!-- Mã QR động tự sinh từ VietQR -->
-            <img id="qr-code" class="qr-img" src="https://img.vietqr.io/image/Techcombank-6803072005-compact2.png?amount=150000&addInfo=Nana%20Homestay" alt="Mã QR Thanh Toán">
-
-            <p style="font-size: 12px; font-weight: bold;">Chủ TK: DUONG MINH NHAT</p>
-        </div>
-
-        <button class="btn" onclick="sendBooking()">Xác Nhận & Gửi Đơn Qua Zalo</button>
-        <a href="tel:0836859883" class="btn btn-outline">📞 Gọi Hotline Hỗ Trợ</a>
+        <div class="section-title">📌 Nội quy Homestay</div>
+        <ul class="rules-list">
+            <li>Giữ vệ sinh chung, rửa sạch bát đĩa sau khi sử dụng bếp.</li>
+            <li>Vui lòng không hút thuốc trong phòng kín.</li>
+            <li>Tắt các thiết bị điện (máy chiếu, điều hòa) khi rời khỏi phòng.</li>
+            <li>Giữ trật tự sau 23:00 đêm.</li>
+        </ul>
     </div>
 </div>
-
-<script>
-    let selectedPrice = 150000;
-    let selectedPackage = 'Combo 2 giờ';
-
-    function selectOption(element, price, packageName) {
-        document.querySelectorAll('.option-card').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-        selectedPrice = price;
-        selectedPackage = packageName;
-
-        // Cập nhật giá
-        document.getElementById('total-price').innerText = price.toLocaleString('vi-VN') + 'đ';
-
-        // Cập nhật QR Code động
-        const qrUrl = `https://img.vietqr.io/image/Techcombank-6803072005-compact2.png?amount=${price}&addInfo=Nana%20Homestay%20${encodeURIComponent(packageName)}`;
-        document.getElementById('qr-code').src = qrUrl;
-    }
-
-    function sendBooking() {
-        const name = document.getElementById('fullname').value;
-        const phone = document.getElementById('phone').value;
-        const date = document.getElementById('booking-date').value;
-
-        if(!name || !phone || !date) {
-            alert('Vui lòng điền đầy đủ thông tin tên, SĐT và ngày nhận phòng!');
-            return;
-        }
-
-        const message = `Chào Nana Homestay! Tôi muốn đặt phòng:%0A- Họ tên: ${name}%0A- SĐT: ${phone}%0A- Ngày: ${date}%0A- Gói: ${selectedPackage}%0A- Tổng tiền: ${selectedPrice.toLocaleString('vi-VN')}đ`;
-        
-        // Chuyển hướng gửi tin nhắn tới Hotline Zalo
-        window.open(`https://zalo.me/0836859883?text=${message}`, '_blank');
-    }
-
-    // Tự động chọn ngày hôm nay
-    document.getElementById('booking-date').valueAsDate = new Date();
-</script>
 
 </body>
 </html>
