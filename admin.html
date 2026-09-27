@@ -18,7 +18,7 @@
         .btn-home-login { display: inline-block; margin-top: 15px; color: #8a626a; font-size: 13px; text-decoration: none; font-weight: 600; }
 
         /* Dashboard Admin */
-        .admin-dashboard { display: none; max-width: 1200px; margin: 0 auto; }
+        .admin-dashboard { display: none; max-width: 1400px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header h1 { color: var(--primary); font-size: 20px; }
         .header-btns { display: flex; gap: 10px; }
@@ -30,20 +30,22 @@
         .tab-btn { padding: 10px 20px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .tab-content { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+        .tab-content { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .tab-content.active { display: block; }
 
-        /* Thống kê thu tiền */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: #fff0f3; padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary); }
-        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 5px; }
-        .stat-card .val { font-size: 22px; font-weight: 700; color: var(--primary); }
+        /* Bộ chọn Tháng / Năm */
+        .month-picker-box { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #fff0f3; padding: 10px 15px; border-radius: 12px; border: 1px dashed var(--primary); width: fit-content; }
+        .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 14px; }
+        .month-picker-box select { padding: 6px 12px; border-radius: 8px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
 
-        /* Bảng Lịch 24h */
-        table.sched-table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: center; font-size: 13px; }
-        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 8px; }
-        table.sched-table th { background: #ffe3e8; color: var(--primary); }
-        .status-btn { padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; border: none; cursor: pointer; }
+        /* Bảng Lịch Cuộn Ngang */
+        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 12px; }
+        table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
+        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 6px 8px; white-space: nowrap; }
+        table.sched-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
+        table.sched-table td.time-col { background: #f9f9f9; font-weight: 700; color: #555; position: sticky; left: 0; z-index: 2; }
+        
+        .status-btn { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; border: none; cursor: pointer; }
         .btn-free { background: #e8f5e9; color: #2e7d32; }
         .btn-busy { background: #ffebee; color: #c62828; }
 
@@ -51,6 +53,12 @@
         table.cust-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
         table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
         table.cust-table th { background: #f5f5f5; color: #333; }
+
+        /* Thống kê thu tiền */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff0f3; padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary); }
+        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 5px; }
+        .stat-card .val { font-size: 22px; font-weight: 700; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -76,31 +84,43 @@
 
     <!-- Thanh chuyển Tab -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Giờ</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Tháng</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Tiền</button>
     </div>
 
-    <!-- TAB 1: LỊCH BẤM ĐỔI TRẠNG THÁI -->
+    <!-- TAB 1: LỊCH BẤM ĐỔI TRẠNG THÁI THEO THÁNG -->
     <div id="tabSchedule" class="tab-content active">
-        <h3 style="margin-bottom:15px; color: var(--primary);">Bấm vào ô để đổi nhanh giữa 🟢 Trống & 🔴 Đã có khách</h3>
-        <table class="sched-table" id="scheduleTable">
-            <thead>
-                <tr>
-                    <th>Khung giờ</th>
-                    <th>Thứ 2</th>
-                    <th>Thứ 3</th>
-                    <th>Thứ 4</th>
-                    <th>Thứ 5</th>
-                    <th>Thứ 6</th>
-                    <th>Thứ 7</th>
-                    <th>Chủ Nhật</th>
-                </tr>
-            </thead>
-            <tbody id="scheduleBody">
-                <!-- Tự động sinh danh sách 24 khung giờ -->
-            </tbody>
-        </table>
+        <div class="month-picker-box">
+            <label for="selectMonth">📅 Chọn Tháng Quản Lý:</label>
+            <select id="selectMonth" onchange="renderMonthlySchedule()">
+                <option value="10" selected>Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+            </select>
+            <select id="selectYear" onchange="renderMonthlySchedule()">
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+            </select>
+        </div>
+
+        <p style="font-size:12px; color:#8a626a; margin-bottom:10px;">👉 Bấm vào từng ô để đổi nhanh giữa 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
+        
+        <div class="table-container">
+            <table class="sched-table" id="scheduleTable">
+                <thead>
+                    <tr id="scheduleHeader">
+                        <th class="time-col">Khung giờ</th>
+                        <!-- Tự động sinh danh sách Thứ (Ngày/Tháng) -->
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                    <!-- Tự động sinh danh sách 24 khung giờ -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
@@ -130,7 +150,7 @@
     <div id="tabStats" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>TỔNG DOANH THU DỰ DỰ KIẾN</h3>
+                <h3>TỔNG DOANH THU DỰ KIẾN</h3>
                 <div class="val" id="statTotalBill">0đ</div>
             </div>
             <div class="stat-card">
@@ -147,13 +167,14 @@
 
 <script>
     const ADMIN_PASSWORD = "nana123"; // Mật khẩu truy cập Admin
+    const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     function checkAdminLogin() {
         const pass = document.getElementById('adminPass').value;
         if (pass === ADMIN_PASSWORD) {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
-            renderMockSchedule();
+            renderMonthlySchedule();
         } else {
             alert("Mật khẩu Admin không chính xác!");
         }
@@ -171,19 +192,38 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    function renderMockSchedule() {
+    // Tự động tính số ngày trong tháng và sinh tiêu đề "Thứ X (Ngày/Tháng)"
+    function renderMonthlySchedule() {
+        const month = parseInt(document.getElementById('selectMonth').value);
+        const year = parseInt(document.getElementById('selectYear').value);
+        
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        const headerRow = document.getElementById('scheduleHeader');
+        headerRow.innerHTML = '<th class="time-col">Khung giờ</th>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month - 1, day);
+            const dayOfWeek = dayNames[dateObj.getDay()];
+            
+            const th = document.createElement('th');
+            th.innerText = `${dayOfWeek} (${day}/${month})`;
+            headerRow.appendChild(th);
+        }
+
+        // Tạo 24 khung giờ
         const tbody = document.getElementById('scheduleBody');
         tbody.innerHTML = "";
 
         for (let h = 0; h < 24; h++) {
             const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
             let tr = document.createElement('tr');
-            tr.innerHTML = `<b>${timeStr}</b>`;
+            tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
 
-            for (let day = 1; day <= 7; day++) {
+            for (let day = 1; day <= daysInMonth; day++) {
                 tr.innerHTML += `
                     <td>
-                        <button class="status-btn btn-free" onclick="toggleStatus(this, ${h}, ${day})">Trống</button>
+                        <button class="status-btn btn-free" onclick="toggleStatus(this, ${h}, ${day}, ${month})">Trống</button>
                     </td>
                 `;
             }
@@ -191,7 +231,7 @@
         }
     }
 
-    function toggleStatus(btn, hour, day) {
+    function toggleStatus(btn, hour, day, month) {
         if (btn.classList.contains('btn-free')) {
             btn.classList.remove('btn-free');
             btn.classList.add('btn-busy');
