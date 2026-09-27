@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Homestay - Trang Admin Quản Lý</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #d17a85; --bg: #f8f9fa; --card: #ffffff; --text: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; }
+
+        /* Màn hình đăng nhập */
+        .login-box { max-width: 360px; margin: 80px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .login-box h2 { color: var(--primary); margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; text-align: center; }
+        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+
+        /* Dashboard Admin */
+        .admin-dashboard { display: none; max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header h1 { color: var(--primary); font-size: 20px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .tab-content { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+        .tab-content.active { display: block; }
+
+        /* Thống kê thu tiền */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff0f3; padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary); }
+        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 5px; }
+        .stat-card .val { font-size: 22px; font-weight: 700; color: var(--primary); }
+
+        /* Bảng Lịch 24h */
+        table.sched-table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: center; font-size: 13px; }
+        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 8px; }
+        table.sched-table th { background: #ffe3e8; color: var(--primary); }
+        .status-btn { padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; border: none; cursor: pointer; }
+        .btn-free { background: #e8f5e9; color: #2e7d32; }
+        .btn-busy { background: #ffebee; color: #c62828; }
+
+        /* Bảng Danh Sách Khách */
+        table.cust-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
+        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        table.cust-table th { background: #f5f5f5; color: #333; }
+    </style>
+</head>
+<body>
+
+<!-- Màn hình Đăng Nhập Admin -->
+<div class="login-box" id="loginBox">
+    <h2>🔐 Admin Nana Homestay</h2>
+    <input type="password" id="adminPass" placeholder="Nhập mật khẩu Admin">
+    <button onclick="checkAdminLogin()">Đăng Nhập</button>
+</div>
+
+<!-- Dashboard Admin -->
+<div class="admin-dashboard" id="adminDashboard">
+    <div class="header">
+        <h1>🏠 Nana Homestay - Admin Control Panel</h1>
+        <button onclick="logout()" style="background:#eee; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">Đăng xuất</button>
+    </div>
+
+    <!-- Thanh chuyển Tab -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tabSchedule')">📅 1. Quản Lý Lịch Theo Giờ</button>
+        <button class="tab-btn" onclick="switchTab('tabCustomers')">👥 2. Danh Sách Khách Book</button>
+        <button class="tab-btn" onclick="switchTab('tabStats')">💰 3. Thống Kê Thu Tiền</button>
+    </div>
+
+    <!-- TAB 1: LỊCH BẤM ĐỔI TRẠNG THÁI -->
+    <div id="tabSchedule" class="tab-content active">
+        <h3 style="margin-bottom:15px; color: var(--primary);">Bấm vào ô để đổi nhanh giữa 🟢 Trống & 🔴 Đã có khách</h3>
+        <table class="sched-table" id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Khung giờ</th>
+                    <th>Thứ 2</th>
+                    <th>Thứ 3</th>
+                    <th>Thứ 4</th>
+                    <th>Thứ 5</th>
+                    <th>Thứ 6</th>
+                    <th>Thứ 7</th>
+                    <th>Chủ Nhật</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <!-- Tự động sinh danh sách 24 khung giờ -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
+    <div id="tabCustomers" class="tab-content">
+        <h3 style="margin-bottom:15px; color: var(--primary);">Lịch sử khách chốt phòng</h3>
+        <table class="cust-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên khách</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Ngày book</th>
+                    <th>Mini bar</th>
+                    <th>Tổng bill</th>
+                    <th>Đã CK</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody id="customerBody">
+                <tr><td colspan="9" style="text-align:center;">Đang tải dữ liệu khách hàng...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TAB 3: THỐNG KÊ DOANH THU -->
+    <div id="tabStats" class="tab-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>TỔNG DOANH THU DỰ DỰ KIẾN</h3>
+                <div class="val" id="statTotalBill">0đ</div>
+            </div>
+            <div class="stat-card">
+                <h3>ĐÃ THANH TOÁN (ĐÃ CK)</h3>
+                <div class="val" style="color: #2e7d32;" id="statTotalPaid">0đ</div>
+            </div>
+            <div class="stat-card">
+                <h3>CÒN LẠI CẦN THU</h3>
+                <div class="val" style="color: #c62828;" id="statTotalRemain">0đ</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ADMIN_PASSWORD = "nana123"; // Mật khẩu truy cập Admin của bạn
+    const API_URL = "DÁN_LINK_GOOGLE_APPS_SCRIPT_CỦA_BẠN_VÀO_ĐÂY"; // Link nhận được ở Bước 1
+
+    function checkAdminLogin() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === ADMIN_PASSWORD) {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            renderMockSchedule(); // Khởi tạo giao diện lịch 24h
+        } else {
+            alert("Mật khẩu Admin không chính xác!");
+        }
+    }
+
+    function logout() {
+        location.reload();
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Hiển thị khung lịch 24 giờ dạng lưới (từ 00h đến 23h)
+    function renderMockSchedule() {
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = "";
+
+        for (let h = 0; h < 24; h++) {
+            const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<b>${timeStr}</b>`;
+
+            for (let day = 1; day <= 7; day++) {
+                tr.innerHTML += `
+                    <td>
+                        <button class="status-btn btn-free" onclick="toggleStatus(this, ${h}, ${day})">Trống</button>
+                    </td>
+                `;
+            }
+            tbody.appendChild(tr);
+        }
+    }
+
+    // Chuyển đổi trạng thái khi Admin bấm vào ô
+    function toggleStatus(btn, hour, day) {
+        if (btn.classList.contains('btn-free')) {
+            btn.classList.remove('btn-free');
+            btn.classList.add('btn-busy');
+            btn.innerText = "Đã có khách";
+        } else {
+            btn.classList.remove('btn-busy');
+            btn.classList.add('btn-free');
+            btn.innerText = "Trống";
+        }
+    }
+</script>
+
+</body>
+</html>
