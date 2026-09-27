@@ -80,16 +80,29 @@
         </select>
     </div>
 
-    <!-- 3. Thông tin liên hệ -->
+    <!-- 3. Chọn thêm giờ -->
     <div class="form-group">
-        <label>3. Thông tin liên hệ:</label>
+        <label>3. Thuê thêm giờ (Phụ thu 40.000đ/giờ):</label>
+        <select id="extraHours" onchange="calculatePrice()">
+            <option value="0">Không thêm giờ (0h)</option>
+            <option value="1">Thêm 1 giờ (+40.000đ)</option>
+            <option value="2">Thêm 2 giờ (+80.000đ)</option>
+            <option value="3">Thêm 3 giờ (+120.000đ)</option>
+            <option value="4">Thêm 4 giờ (+160.000đ)</option>
+            <option value="5">Thêm 5 giờ (+200.000đ)</option>
+        </select>
+    </div>
+
+    <!-- 4. Thông tin liên hệ -->
+    <div class="form-group">
+        <label>4. Thông tin liên hệ:</label>
         <input type="text" id="custName" placeholder="Họ và tên của bạn" style="margin-bottom: 8px;">
         <input type="tel" id="custPhone" placeholder="Số điện thoại / Zalo">
     </div>
 
-    <!-- 4. Giờ check in - out mong muốn -->
+    <!-- 5. Giờ check in - out mong muốn -->
     <div class="form-group">
-        <label>4. Giờ Check-in & Check-out mong muốn (nếu có)</label>
+        <label>5. Giờ Check-in & Check-out mong muốn:</label>
         <div class="time-row">
             <div class="time-col">
                 <label>Giờ Check-in:</label>
@@ -109,7 +122,7 @@
     <div class="price-box">
         <div style="font-size: 12px;">Tổng tiền dự tính:</div>
         <div class="price-val" id="totalPrice">150.000đ</div>
-        <div style="font-size: 10px; color: #8a626a;">(Đã áp dụng bảng giá tương ứng theo ngày)</div>
+        <div style="font-size: 10px; color: #8a626a;" id="priceDetail">(Đã áp dụng bảng giá tương ứng theo ngày)</div>
     </div>
 
     <button class="btn-submit" onclick="submitBooking()">🔒 Chốt Đặt Phòng & Thanh Toán</button>
@@ -132,7 +145,7 @@
     const ACCOUNT_NO = "0962292229"; 
     const ACCOUNT_NAME = "NANA HOMESTAY";
 
-    // Bảng giá cập nhật chuẩn
+    // Bảng giá
     const pricing = {
         normal: { 
             combo2h: 150000, 
@@ -149,6 +162,8 @@
             nightday: 490000 
         }
     };
+
+    const EXTRA_RATE = 40000; // Giá thêm giờ 40k/h
 
     document.getElementById('checkDate').valueAsDate = new Date();
 
@@ -176,10 +191,22 @@
     function calculatePrice() {
         const dateVal = document.getElementById('checkDate').value;
         const type = document.getElementById('rentalType').value;
+        const extra = parseInt(document.getElementById('extraHours').value) || 0;
+
         const rates = isWeekend(dateVal) ? pricing.weekend : pricing.normal;
-        const price = rates[type];
-        document.getElementById('totalPrice').innerText = price.toLocaleString('vi-VN') + "đ";
-        return price;
+        const basePrice = rates[type];
+        const extraPrice = extra * EXTRA_RATE;
+        const totalPrice = basePrice + extraPrice;
+
+        document.getElementById('totalPrice').innerText = totalPrice.toLocaleString('vi-VN') + "đ";
+        
+        if (extra > 0) {
+            document.getElementById('priceDetail').innerText = `Gói: ${basePrice.toLocaleString('vi-VN')}đ + Thêm ${extra}h (${extraPrice.toLocaleString('vi-VN')}đ)`;
+        } else {
+            document.getElementById('priceDetail').innerText = "(Đã áp dụng bảng giá tương ứng theo ngày)";
+        }
+
+        return totalPrice;
     }
 
     let currentOrder = {};
@@ -190,6 +217,7 @@
         const date = document.getElementById('checkDate').value;
         const typeSelect = document.getElementById('rentalType');
         const rentalName = typeSelect.options[typeSelect.selectedIndex].text;
+        const extra = parseInt(document.getElementById('extraHours').value) || 0;
         
         const inTime = document.getElementById('checkInTime').value || "Chưa chọn";
         const outTime = document.getElementById('checkOutTime').value || "Chưa chọn";
@@ -202,7 +230,7 @@
         }
 
         const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
-        currentOrder = { name, phone, date, rentalName, inTime, outTime, price, memo };
+        currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
 
         const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
         
@@ -216,7 +244,9 @@
     }
 
     function sendInstagram() {
-        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏰ Check-in mong muốn: ${currentOrder.inTime}\n⌛ Check-out mong muốn: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
+        const extraStr = currentOrder.extra > 0 ? `${currentOrder.extra} giờ (+${(currentOrder.extra * EXTRA_RATE).toLocaleString('vi-VN')}đ)` : "Không";
+        
+        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏳ Thêm giờ: ${extraStr}\n⏰ Check-in mong muốn: ${currentOrder.inTime}\n⌛ Check-out mong muốn: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
         
         navigator.clipboard.writeText(msg);
         alert("Đã sao chép thông tin đơn đặt phòng! Đang chuyển sang Instagram Nana Homestay...");
