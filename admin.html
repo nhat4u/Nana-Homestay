@@ -257,17 +257,29 @@
         }
     }
 
-    function toggleStatus(btn, hour, day, month) {
-        if (btn.classList.contains('btn-free')) {
-            btn.classList.remove('btn-free');
-            btn.classList.add('btn-busy');
-            btn.innerText = "Đã có khách";
+function toggleStatus(btn, hour, day, month) {
+    const year = parseInt(document.getElementById('selectYear').value);
+    const key = `d${day}_h${hour}`;
+    const isCurrentlyFree = btn.classList.contains('btn-free');
+    const newStatus = isCurrentlyFree; // Chuyển từ Trống sang Có khách (true)
+
+    // Lưu trực tiếp lên CSDL Firebase
+    db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+        if (!error) {
+            if (isCurrentlyFree) {
+                btn.classList.remove('btn-free');
+                btn.classList.add('btn-busy');
+                btn.innerText = "Đã có khách";
+            } else {
+                btn.classList.remove('btn-busy');
+                btn.classList.add('btn-free');
+                btn.innerText = "Trống";
+            }
         } else {
-            btn.classList.remove('btn-busy');
-            btn.classList.add('btn-free');
-            btn.innerText = "Trống";
+            alert("Lỗi lưu CSDL: " + error.message);
         }
-    }
+    });
+}
 
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
