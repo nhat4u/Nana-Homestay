@@ -30,9 +30,9 @@
         .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
 
         .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .gallery-card { background: #fff0f3; border-radius: 12px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; }
-        .gallery-card img { width: 100%; height: 140px; object-fit: cover; }
-        .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 5px; }
+        .gallery-card { background: #fff0f3; border-radius: 12px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .gallery-card img, .gallery-card video { width: 100%; height: 120px; object-fit: cover; display: block; border-radius: 12px 12px 0 0; }
+        .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 6px 4px; }
 
         /* Style bản đồ & liên hệ */
         .map-box { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; height: 180px; margin-bottom: 10px; }
@@ -93,13 +93,15 @@
             <div class="gallery-card">
                 <img src="home3.jpg" alt="Máy chiếu chill">
                 <p>📽️ Khung cảnh máy chiếu</p>
+            </div>
             <div class="gallery-card">
-                <video controls style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                <video controls preload="metadata">
                     <source src="video-wc.mp4" type="video/mp4">
                     Trình duyệt của bạn không hỗ trợ xem video.
                 </video>
-                <p>📽️ Video không gian phòng tắm</p>
+                <p>📹 Video phòng tắm</p>
             </div>
+        </div>
     </div>
 
     <!-- Mục Bản đồ chỉ đường -->
