@@ -52,13 +52,19 @@
         /* Bảng Danh Sách Khách */
         table.cust-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
         table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        table.cust-table th { background: #f5f5f5; color: #333; }
+        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; text-align: center; }
+        table.cust-table td { text-align: center; }
+        
+        /* Ô nhập cho Admin */
+        .admin-input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        .admin-input:focus { border-color: var(--primary); background: #fff0f3; }
 
-        /* Thống kê thu tiền */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        /* Thống kê thu chi */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .stat-card { background: #fff0f3; padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary); }
-        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 5px; }
-        .stat-card .val { font-size: 22px; font-weight: 700; color: var(--primary); }
+        .stat-card h3 { font-size: 14px; color: #8a626a; margin-bottom: 8px; }
+        .stat-card .val { font-size: 24px; font-weight: 700; }
+        .expense-input { width: 140px; padding: 6px; text-align: center; border: 1px solid var(--primary); border-radius: 8px; font-weight: 700; color: #c62828; font-size: 16px; margin-top: 5px; outline: none; }
     </style>
 </head>
 <body>
@@ -86,7 +92,7 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Tháng</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Tiền</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
     </div>
 
     <!-- TAB 1: LỊCH BẤM ĐỔI TRẠNG THÁI THEO THÁNG -->
@@ -113,11 +119,9 @@
                 <thead>
                     <tr id="scheduleHeader">
                         <th class="time-col">Khung giờ</th>
-                        <!-- Tự động sinh danh sách Thứ (Ngày/Tháng) -->
                     </tr>
                 </thead>
                 <tbody id="scheduleBody">
-                    <!-- Tự động sinh danh sách 24 khung giờ -->
                 </tbody>
             </table>
         </div>
@@ -129,45 +133,51 @@
         <table class="cust-table">
             <thead>
                 <tr>
-                    <th>STT</th>
+                    <th style="width: 50px;">STT</th>
                     <th>Tên khách</th>
                     <th>Check-in</th>
                     <th>Check-out</th>
                     <th>Ngày book</th>
-                    <th>Mini bar</th>
                     <th>Tổng bill</th>
                     <th>Đã CK</th>
-                    <th>Ghi chú</th>
+                    <th style="width: 150px;">Mini bar (Tự điền)</th>
+                    <th style="width: 180px;">Ghi chú (Tự điền)</th>
                 </tr>
             </thead>
             <tbody id="customerBody">
-                <tr><td colspan="9" style="text-align:center;">Đang tải dữ liệu khách hàng...</td></tr>
+                <!-- Dữ liệu mẫu minh họa -->
             </tbody>
         </table>
     </div>
 
-    <!-- TAB 3: THỐNG KÊ DOANH THU -->
+    <!-- TAB 3: THỐNG KÊ THU CHI -->
     <div id="tabStats" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>TỔNG DOANH THU DỰ KIẾN</h3>
-                <div class="val" id="statTotalBill">0đ</div>
+                <h3>TỔNG THU (TỔNG BILL ĐÃ CK)</h3>
+                <div class="val" style="color: #2e7d32;" id="statTotalIncome">0đ</div>
             </div>
             <div class="stat-card">
-                <h3>ĐÃ THANH TOÁN (ĐÃ CK)</h3>
-                <div class="val" style="color: #2e7d32;" id="statTotalPaid">0đ</div>
+                <h3>TỔNG CHI (HOÀN TẤT HỦY / CHI KHÁC)</h3>
+                <input type="number" class="expense-input" id="statExpenseInput" value="0" placeholder="0" oninput="calculateStats()"> <span style="font-weight:700; color:#c62828;">đ</span>
             </div>
             <div class="stat-card">
-                <h3>CÒN LẠI CẦN THU</h3>
-                <div class="val" style="color: #c62828;" id="statTotalRemain">0đ</div>
+                <h3>DOANH THU THỰC TẾ (THU - CHI)</h3>
+                <div class="val" style="color: var(--primary);" id="statNetProfit">0đ</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const ADMIN_PASSWORD = "nana123"; // Mật khẩu truy cập Admin
+    const ADMIN_PASSWORD = "nana123";
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+
+    // Dữ liệu khách hàng mẫu (Tự động tải khi khách book ở trang home)
+    let bookingList = [
+        { id: 1, name: "Nguyễn Văn A", checkin: "14:00 - 01/10", checkout: "12:00 - 02/10", bookDate: "28/09/2026", totalBill: 500000, paid: 500000, minibar: "2 Nước suối", note: "Khách xin late checkin" },
+        { id: 2, name: "Trần Thị B", checkin: "18:00 - 05/10", checkout: "22:00 - 05/10", bookDate: "29/09/2026", totalBill: 300000, paid: 300000, minibar: "", note: "" }
+    ];
 
     function checkAdminLogin() {
         const pass = document.getElementById('adminPass').value;
@@ -175,6 +185,8 @@
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
             renderMonthlySchedule();
+            renderCustomerTable();
+            calculateStats();
         } else {
             alert("Mật khẩu Admin không chính xác!");
         }
@@ -192,11 +204,10 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Tự động tính số ngày trong tháng và sinh tiêu đề "Thứ X (Ngày/Tháng)"
+    // Hiển thị Lịch Theo Tháng
     function renderMonthlySchedule() {
         const month = parseInt(document.getElementById('selectMonth').value);
         const year = parseInt(document.getElementById('selectYear').value);
-        
         const daysInMonth = new Date(year, month, 0).getDate();
         
         const headerRow = document.getElementById('scheduleHeader');
@@ -211,7 +222,6 @@
             headerRow.appendChild(th);
         }
 
-        // Tạo 24 khung giờ
         const tbody = document.getElementById('scheduleBody');
         tbody.innerHTML = "";
 
@@ -241,6 +251,47 @@
             btn.classList.add('btn-free');
             btn.innerText = "Trống";
         }
+    }
+
+    // Render Bảng Danh Sách Khách Book
+    function renderCustomerTable() {
+        const tbody = document.getElementById('customerBody');
+        tbody.innerHTML = "";
+
+        if (bookingList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Chưa có lịch book nào.</td></tr>`;
+            return;
+        }
+
+        bookingList.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${index + 1}</b></td>
+                <td><b>${item.name}</b></td>
+                <td>${item.checkin}</td>
+                <td>${item.checkout}</td>
+                <td>${item.bookDate}</td>
+                <td style="color: var(--primary); font-weight:700;">${item.totalBill.toLocaleString('vi-VN')}đ</td>
+                <td style="color: #2e7d32; font-weight:700;">${item.paid.toLocaleString('vi-VN')}đ</td>
+                <td><input type="text" class="admin-input" value="${item.minibar}" placeholder="Nhập đồ dùng..." onchange="updateCustomerData(${index}, 'minibar', this.value)"></td>
+                <td><input type="text" class="admin-input" value="${item.note}" placeholder="Nhập ghi chú..." onchange="updateCustomerData(${index}, 'note', this.value)"></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateCustomerData(index, field, value) {
+        bookingList[index][field] = value;
+    }
+
+    // Tính toán Thống kê Thu - Chi
+    function calculateStats() {
+        let totalIncome = bookingList.reduce((sum, item) => sum + item.paid, 0);
+        let totalExpense = parseFloat(document.getElementById('statExpenseInput').value) || 0;
+        let netProfit = totalIncome - totalExpense;
+
+        document.getElementById('statTotalIncome').innerText = totalIncome.toLocaleString('vi-VN') + "đ";
+        document.getElementById('statNetProfit').innerText = netProfit.toLocaleString('vi-VN') + "đ";
     }
 </script>
 
