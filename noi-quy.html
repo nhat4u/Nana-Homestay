@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Homestay - Nội Quy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
+        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
+        
+        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); }
+        .nav-link { flex: 1; text-align: center; padding: 12px 5px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 13px; }
+        .nav-link.active { background: var(--primary); color: white; }
+
+        .header { text-align: center; padding: 20px 15px 10px; }
+        .header h1 { color: var(--primary); font-size: 22px; text-transform: uppercase; }
+
+        .rule-card { background: #fff9fa; border: 1px solid #ffd0d7; border-radius: 15px; padding: 12px 15px; margin: 10px 15px; }
+        .rule-title { font-size: 14px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .rule-content { font-size: 12.5px; line-height: 1.5; color: #5a3d42; }
+        .rule-content li { margin-left: 15px; margin-bottom: 4px; }
+        .penalty { color: #d32f2f; font-weight: 700; }
+        
+        .hotline-box { background: #ffe3e8; border-radius: 15px; padding: 12px; text-align: center; margin: 15px; font-weight: 700; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
+        <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>
+        <a href="noi-quy.html" class="nav-link active">📜 Nội Quy</a>
+    </div>
+
+    <div class="header">
+        <div style="font-size: 30px;">🎀</div>
+        <h1>Nội Quy Homestay</h1>
+        <p style="font-size: 12px; color: #8a626a; margin-top: 2px;">Vui lòng tuân thủ các quy định để có trải nghiệm tốt nhất</p>
+    </div>
+
+    <!-- Điều 1 -->
+    <div class="rule-card">
+        <div class="rule-title">🧯 1. An toàn & PCCC</div>
+        <ul class="rule-content">
+            <li>Nghiêm cấm mang vũ khí, chất cháy nổ, chất độc hại, chất gây nghiện vào Homestay.</li>
+            <li>Cấm hút mọi loại thuốc. Phát hiện <span class="penalty">phạt 200.000 VNĐ/lần</span>.</li>
+            <li>Sử dụng chất cấm bị <span class="penalty">phạt 1.000.000 VNĐ</span> và chịu trách nhiệm trước pháp luật.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 2 -->
+    <div class="rule-card">
+        <div class="rule-title">🛋️ 2. Sử dụng phòng & Tài sản</div>
+        <ul class="rule-content">
+            <li>Không tự ý di chuyển, thay đổi vị trí đồ đạc.</li>
+            <li>Làm mất/hỏng đồ đạc: <span class="penalty">Phạt 100% phí sản phẩm mới</span>.</li>
+            <li>Không tự ý dán vật trang trí làm bong tróc tường.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 3 -->
+    <div class="rule-card">
+        <div class="rule-title">🔒 3. Khách lưu trú</div>
+        <ul class="rule-content">
+            <li>Không tự ý đưa thêm người vào khi chưa đăng ký với Homestay.</li>
+            <li>Không cấp khóa cửa/phòng cho người ngoài.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 4 -->
+    <div class="rule-card">
+        <div class="rule-title">⏰ 4. Giờ giấc & Tiếng ồn</div>
+        <ul class="rule-content">
+            <li>Không gây ồn sau 22:00. Vi phạm <span class="penalty">phạt 100.000 VNĐ/lần</span>.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 5 -->
+    <div class="rule-card">
+        <div class="rule-title">🍳 5. Ăn uống & Vệ sinh</div>
+        <ul class="rule-content">
+            <li>Nấu ăn tại bếp. Làm đổ dầu mỡ ra sàn <span class="penalty">phạt 100.000 VNĐ</span>.</li>
+            <li>Không mang thực phẩm có mùi nặng hôi vào phòng.</li>
+            <li>Rửa sạch bát đĩa sau khi sử dụng. Dọn rác đúng nơi quy định (<span class="penalty">phạt 50.000 VNĐ/lần</span> nếu vi phạm).</li>
+            <li>Làm tắc nghẽn bồn cầu <span class="penalty">phạt 100.000 VNĐ</span>.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 6 & 7 -->
+    <div class="rule-card">
+        <div class="rule-title">🔑 6. Check-out & Chìa khóa</div>
+        <ul class="rule-content">
+            <li>Kiểm tra lại đồ cá nhân và trả chìa đúng nơi quy định. Tắt toàn bộ thiết bị điện khi ra ngoài.</li>
+            <li>Làm mất khóa/ thẻ chip: <span class="penalty">Phạt 300.000 VNĐ/lần</span>.</li>
+        </ul>
+    </div>
+
+    <!-- Điều 8 -->
+    <div class="rule-card">
+        <div class="rule-title">⏳ 7. Gia hạn & Đổi ngày</div>
+        <ul class="rule-content">
+            <li>Ở quá giờ không báo trước: Phụ thu <span class="penalty">100.000 VNĐ</span> (chưa bao gồm phí thêm giờ).</li>
+            <li>Hỗ trợ free đổi giờ/ngày trước 24h. Mất 20% phí phòng trước 12h.</li>
+        </ul>
+    </div>
+
+    <div class="hotline-box">
+        📞 Hotline hỗ trợ: 096 229 2229
+    </div>
+</div>
+
+</body>
+</html>
