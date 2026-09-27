@@ -87,7 +87,7 @@
         </select>
     </div>
 
-    <!-- 3. Thuê thêm giờ -->
+    <!-- 3. Thuê thêm giờ (Đã mở rộng tới 6.5 giờ) -->
     <div class="form-group">
         <label>3. Thuê thêm giờ (40.000đ/giờ - 20.000đ/30p):</label>
         <select id="extraHours" onchange="handleExtraHoursChange()">
@@ -98,6 +98,13 @@
             <option value="2">Thêm 2 giờ (+80.000đ)</option>
             <option value="2.5">Thêm 2 giờ 30 phút (+100.000đ)</option>
             <option value="3">Thêm 3 giờ (+120.000đ)</option>
+            <option value="3.5">Thêm 3 giờ 30 phút (+140.000đ)</option>
+            <option value="4">Thêm 4 giờ (+160.000đ)</option>
+            <option value="4.5">Thêm 4 giờ 30 phút (+180.000đ)</option>
+            <option value="5">Thêm 5 giờ (+200.000đ)</option>
+            <option value="5.5">Thêm 5 giờ 30 phút (+220.000đ)</option>
+            <option value="6">Thêm 6 giờ (+240.000đ)</option>
+            <option value="6.5">Thêm 6 giờ 30 phút (+260.000đ)</option>
         </select>
     </div>
 
@@ -126,7 +133,7 @@
             </div>
         </div>
         <p id="hourlyNote" style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
-            ✨ <i>Khách đặt theo giờ chọn từ 11:00 đến 21:00 (Cần 1 tiếng dọn dẹp giữa các ca).</i>
+            ✨ <i>Khách đặt theo giờ chọn trong khung từ 11:00 đến 21:00 (Cần 30 phút dọn dẹp giữa các ca).</i>
         </p>
     </div>
 
@@ -281,6 +288,7 @@
         calculatePrice();
     }
 
+    // Tự động phân bổ gói & thuê thêm giờ khi khách thay đổi giờ Check-in / Check-out
     function onUserSelectTime() {
         const inStr = document.getElementById('checkInTime').value;
         const outStr = document.getElementById('checkOutTime').value;
@@ -294,7 +302,7 @@
             let diffMins = outMins - inMins;
             let diffHours = diffMins / 60;
 
-            // Tự động phân bổ Combo + Thuê thêm giờ
+            // Tự động chuyển gói Combo 2h/4h + Thuê thêm giờ
             if (diffHours <= 3.5) {
                 document.getElementById('rentalType').value = 'combo2h';
                 let extra = Math.max(0, diffHours - 2);
@@ -338,7 +346,7 @@
 
         const rates = isWeekend(dateVal) ? pricing.weekend : pricing.normal;
         const basePrice = rates[type];
-        const extraPrice = extraHours * HOURLY_RATE; // 0.5h = 20k
+        const extraPrice = extraHours * HOURLY_RATE; 
         const totalPrice = basePrice + extraPrice;
 
         document.getElementById('totalPrice').innerText = totalPrice.toLocaleString('vi-VN') + "đ";
@@ -353,7 +361,7 @@
         return totalPrice;
     }
 
-    // --- KIỂM TRA LỊCH CÓ DỌN PHÒNG 1 TIẾNG TỪ FIREBASE REALTIME DATABASE ---
+    // --- KIỂM TRA LỊCH KHẢ DỤNG TỪ FIREBASE REALTIME DATABASE ---
     function checkScheduleAvailability(showAlert = false, callback = null) {
         const dateVal = document.getElementById('checkDate').value;
         const inTimeStr = document.getElementById('checkInTime').value;
@@ -388,7 +396,6 @@
             alertBox.innerText = "⏳ Đang kiểm tra lịch thực tế từ hệ thống...";
         }
 
-        // Lấy danh sách lịch bận và đơn khách đã chốt để kiểm tra khoảng dọn dẹp
         db.ref().once('value', (snapshot) => {
             const dbVal = snapshot.val() || {};
             const savedData = dbVal.schedules ? (dbVal.schedules[`${year}_${month}`] || {}) : {};
@@ -408,20 +415,19 @@
                 }
             }
 
-            // 2. Kiểm tra quy tắc đệm 1 tiếng dọn phòng từ các đơn khách trước
+            // 2. Kiểm tra quy tắc đệm 30 phút dọn dẹp phòng từ các đơn khách trước
             if (!isBusy) {
                 const dateFormatted = `${day.toString().padStart(2,'0')}/${month.toString().padStart(2,'0')}/${year}`;
                 Object.values(customersData).forEach(item => {
                     if (item.checkout && item.checkout.includes(dateFormatted)) {
-                        let prevOutStr = item.checkout.split(' - ')[0]; // Lấy "13:30"
+                        let prevOutStr = item.checkout.split(' - ')[0]; // Lấy giờ ví dụ "13:30"
                         if (prevOutStr && prevOutStr.includes(':')) {
                             let prevOutMins = timeToMins(prevOutStr);
-                            let cleanupEndMins = prevOutMins + 60; // Cộng thêm 60 phút dọn phòng
+                            let cleanupEndMins = prevOutMins + 30; // Cộng thêm 30 phút dọn phòng
 
-                            // Nếu Check-in mới nhảy vào khung dọn dẹp
                             if (checkinMins >= prevOutMins && checkinMins < cleanupEndMins) {
                                 isBusy = true;
-                                busyReason = `Ca trước trả phòng lúc ${prevOutStr}. Cần 1 tiếng dọn dẹp phòng (đến ${minsToTime(cleanupEndMins)})!`;
+                                busyReason = `Ca trước trả phòng lúc ${prevOutStr}. Cần 30 phút dọn dẹp phòng (đến ${minsToTime(cleanupEndMins)})!`;
                             }
                         }
                     }
@@ -488,7 +494,7 @@
 
             db.ref('customers').push(newCustomerData);
 
-            // Tự động khóa các ô giờ trên bảng lịch Admin
+            // Khóa các ô giờ trên lịch Admin
             const dateParts = date.split('-');
             const yr = parseInt(dateParts[0]);
             const mo = parseInt(dateParts[1]);
