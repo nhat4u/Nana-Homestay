@@ -9,76 +9,78 @@
         :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
-        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 25px; }
+        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
         
         .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); }
         .nav-link { flex: 1; text-align: center; padding: 12px 5px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 13px; }
         .nav-link.active { background: var(--primary); color: white; }
 
-        .banner { text-align: center; padding: 25px 20px 15px; }
-        .banner h1 { color: var(--primary); font-size: 24px; font-weight: 700; }
-        .banner p { font-size: 13px; color: #8a626a; margin-top: 5px; }
-
-        .card-section { background: #fff9fa; border: 1px solid #ffd0d7; border-radius: 20px; padding: 15px; margin: 15px 20px; }
-        .card-title { font-size: 15px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .header { text-align: center; padding: 20px 15px 10px; }
+        .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
         
-        .btn-action { display: block; width: 100%; text-align: center; background: var(--primary); color: white; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-top: 10px; box-shadow: 0 4px 10px rgba(209,122,133,0.25); }
-        .btn-map { background: #4285F4; box-shadow: 0 4px 10px rgba(66,133,244,0.25); }
+        .section { padding: 15px 20px; }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 8px; }
+        
+        .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+        .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
 
-        .map-container { width: 100%; height: 200px; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; margin-top: 10px; }
-        .map-container iframe { width: 100%; height: 100%; border: 0; }
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .gallery-card { background: #fff0f3; border-radius: 12px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; }
+        .gallery-card img { width: 100%; height: 140px; object-fit: cover; }
+        .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 5px; }
+
+        .btn-booking { display: block; background: var(--primary); color: white; text-align: center; padding: 14px; border-radius: 15px; text-decoration: none; font-weight: 700; margin: 10px 20px 0; font-size: 16px; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Menu 3 nút -->
     <div class="nav-bar">
         <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
         <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>
         <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
     </div>
 
-    <!-- Banner chào mừng -->
-    <div class="banner">
-        <div style="font-size: 40px; margin-bottom: 5px;">🎀</div>
+    <div class="header">
+        <div style="font-size: 32px;">🎀</div>
         <h1>Nana Homestay</h1>
-        <p>Không gian nghỉ dưỡng ấm cúng & xinh xắn tại Xuân Đỉnh</p>
+        <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">📍 37 ngõ 435 đường Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
     </div>
 
-    <!-- Nút Đặt phòng nhanh -->
-    <div class="card-section" style="text-align: center;">
-        <div class="card-title" style="justify-content: center;">📅 Đặt Phòng Nhanh Chóng</div>
-        <p style="font-size: 12px; color: #5a3d42;">Xem bảng giá, chọn khung giờ trống và chốt phòng chỉ trong 1 phút!</p>
-        <a href="dat-phong.html" class="btn-action">👉 Bấm Vào Đây Để Đặt Phòng</a>
-    </div>
+    <a href="dat-phong.html" class="btn-booking">✨ ĐẶT PHÒNG NGAY TẠI ĐÂY</a>
 
-    <!-- Bản đồ vị trí Homestay -->
-    <div class="card-section">
-        <div class="card-title">📍 Vị Trí Nana Homestay</div>
-        <p style="font-size: 12px; color: #5a3d42; margin-bottom: 8px;">Địa chỉ: Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
-        
-        <!-- Khung bản đồ Google Maps nhúng -->
-        <div class="map-container">
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+    <div class="section">
+        <div class="section-title">✨ Tiện nghi căn hộ</div>
+        <div class="amenities">
+            <div class="amenity-item">📽️ Máy chiếu chill HD</div>
+            <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
+            <div class="amenity-item">🛏️ Giường decor Mickey</div>
+            <div class="amenity-item">🚿 WC khép kín sạch đẹp</div>
+            <div class="amenity-item">🔑 Check-in tự động</div>
+            <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
         </div>
-
-        <a href="https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7" target="_blank" class="btn-action btn-map">🗺️ Mở Bản Đồ Chỉ Đường (Google Maps)</a>
     </div>
 
-    <!-- Thông tin liên hệ -->
-    <div class="card-section">
-        <div class="card-title">📞 Liên Hệ & Hỗ Trợ</div>
-        <p style="font-size: 12.5px; line-height: 1.6; color: #5a3d42;">
-            • <b>Hotline / Zalo:</b> 096 229 2229<br>
-            • <b>Instagram:</b> @nanahomestay_xuan_dinh<br>
-            • <b>Hỗ trợ:</b> 24/7
-        </p>
+    <div class="section">
+        <div class="section-title">🖼️ Hình ảnh không gian phòng</div>
+        <div class="gallery">
+            <div class="gallery-card">
+                <img src="home1.jpg" alt="Phòng ngủ Mickey">
+                <p>🛏️ Giường ngủ Cute</p>
+            </div>
+            <div class="gallery-card">
+                <img src="home2.jpg" alt="Khu vực bếp">
+                <p>🍳 Bếp nấu đầy đủ</p>
+            </div>
+            <div class="gallery-card">
+                <img src="home3.jpg" alt="Máy chiếu chill">
+                <p>📽️ Khung cảnh máy chiếu</p>
+            </div>
+            <div class="gallery-card">
+                <img src="home4.jpg" alt="Phòng tắm">
+                <p>🚿 Nhà vệ sinh sạch sẽ</p>
+            </div>
+        </div>
     </div>
 </div>
 
