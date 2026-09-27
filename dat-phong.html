@@ -23,6 +23,11 @@
         input, select { width: 100%; padding: 10px 12px; border: 1px solid #ffd0d7; border-radius: 12px; font-size: 14px; outline: none; background: #fff9fa; }
         input:focus, select:focus { border-color: var(--primary); }
 
+        /* Chia đôi 2 ô check-in / check-out */
+        .time-row { display: flex; gap: 10px; }
+        .time-col { flex: 1; }
+        .time-col label { font-size: 12px; font-weight: 600; color: #8a626a; margin-bottom: 3px; }
+
         .badge-status { display: flex; gap: 8px; margin-top: 6px; font-size: 11px; font-weight: 700; }
         .badge { padding: 4px 8px; border-radius: 8px; }
         .badge-weekend { background: #ffe3e8; color: var(--primary); }
@@ -42,7 +47,7 @@
 <body>
 
 <div class="container">
-    <!-- Menu 3 nút kết nối chuyển trang -->
+    <!-- Menu 3 nút -->
     <div class="nav-bar">
         <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
         <a href="dat-phong.html" class="nav-link active">📅 Đặt Phòng</a>
@@ -53,6 +58,7 @@
         <h1>🎀 Đặt Phòng Nana Homestay</h1>
     </div>
 
+    <!-- 1. Ngày nhận phòng -->
     <div class="form-group">
         <label>1. Chọn ngày nhận phòng:</label>
         <input type="date" id="checkDate" onchange="updateCalculations()">
@@ -62,34 +68,44 @@
         </div>
     </div>
 
+    <!-- 2. Hình thức thuê -->
     <div class="form-group">
         <label>2. Chọn hình thức thuê:</label>
-        <select id="rentalType" onchange="updateTimeSlots()">
-            <option value="combo2h">Combo 2 giờ</option>
-            <option value="combo3h">Combo 4 giờ</option>
+        <select id="rentalType" onchange="calculatePrice()">
+            <option value="combo2h">Combo 2 giờ (150.000đ)</option>
+            <option value="combo4h">Combo 4 giờ (210.000đ)</option>
             <option value="overnight">Qua đêm (22:00 - 10:00)</option>
-            <option value="fullday">Ngày đêm (14:00 - 12:00 hôm sau)</option>
+            <option value="fullday">Giá ngày (11:00 - 21:00)</option>
+            <option value="nightday">Ngày đêm (16:00 - 10:00 hôm sau)</option>
         </select>
     </div>
 
+    <!-- 3. Thông tin liên hệ -->
     <div class="form-group">
-        <label>3. Chọn khung giờ thuê:</label>
-        <select id="timeSlot" onchange="calculatePrice()"></select>
-    </div>
-
-<!-- 4. Thông tin liên hệ -->
-    <div class="form-group">
-        <label>4. Thông tin liên hệ:</label>
+        <label>3. Thông tin liên hệ:</label>
         <input type="text" id="custName" placeholder="Họ và tên của bạn" style="margin-bottom: 8px;">
         <input type="tel" id="custPhone" placeholder="Số điện thoại / Zalo">
     </div>
 
-    <!-- 5. Giờ booking mong muốn -->
+    <!-- 4. Giờ check in - out mong muốn -->
     <div class="form-group">
-        <label>5. Giờ booking mong muốn:</label>
-        <input type="time" id="customTime">
+        <label>4. Giờ Check-in & Check-out mong muốn:</label>
+        <div class="time-row">
+            <div class="time-col">
+                <label>Giờ Check-in:</label>
+                <input type="time" id="checkInTime" step="1800">
+            </div>
+            <div class="time-col">
+                <label>Giờ Check-out:</label>
+                <input type="time" id="checkOutTime" step="1800">
+            </div>
+        </div>
+        <p style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
+            ✨ <i>Khách yêu book theo giờ vui lòng chọn tròn giờ (Ví dụ: 11h - 15h hoặc 11h30 - 15h30, không chọn phút lẻ như 15p hay 20p nhé).</i>
+        </p>
     </div>
 
+    <!-- Tổng tiền -->
     <div class="price-box">
         <div style="font-size: 12px;">Tổng tiền dự tính:</div>
         <div class="price-val" id="totalPrice">150.000đ</div>
@@ -116,16 +132,22 @@
     const ACCOUNT_NO = "0962292229"; 
     const ACCOUNT_NAME = "NANA HOMESTAY";
 
+    // Bảng giá cập nhật chuẩn
     const pricing = {
-        normal: { combo2h: 150000, combo3h: 180000, overnight: 300000, fullday: 400000 },
-        weekend: { combo2h: 180000, combo3h: 220000, overnight: 350000, fullday: 450000 }
-    };
-
-    const slots = {
-        combo2h: ["Ca 1 (08:00 - 10:00)", "Ca 2 (10:30 - 12:30)", "Ca 3 (13:00 - 15:00)", "Ca 4 (15:30 - 17:30)", "Ca 5 (18:00 - 20:00)"],
-        combo3h: ["Ca 1 (08:00 - 11:00)", "Ca 2 (11:30 - 14:30)", "Ca 3 (15:00 - 18:00)", "Ca 4 (18:30 - 21:30)"],
-        overnight: ["Khung giờ chuẩn (22:00 - 10:00 sáng hôm sau)"],
-        fullday: ["Khung giờ chuẩn (14:00 - 12:00 trưa hôm sau)"]
+        normal: { 
+            combo2h: 150000, 
+            combo4h: 210000, 
+            overnight: 300000, 
+            fullday: 380000, 
+            nightday: 450000 
+        },
+        weekend: { 
+            combo2h: 150000, 
+            combo4h: 210000, 
+            overnight: 330000, 
+            fullday: 420000, 
+            nightday: 490000 
+        }
     };
 
     document.getElementById('checkDate').valueAsDate = new Date();
@@ -133,7 +155,7 @@
     function isWeekend(dateStr) {
         const d = new Date(dateStr);
         const day = d.getDay();
-        return day === 0 || day === 5 || day === 6; 
+        return day === 0 || day === 5 || day === 6; // Thứ 6, T7, Chủ Nhật
     }
 
     function updateCalculations() {
@@ -148,19 +170,6 @@
             weekendBadge.style.background = "#e3f2fd";
             weekendBadge.style.color = "#1976d2";
         }
-        calculatePrice();
-    }
-
-    function updateTimeSlots() {
-        const type = document.getElementById('rentalType').value;
-        const slotSelect = document.getElementById('timeSlot');
-        slotSelect.innerHTML = "";
-        slots[type].forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s;
-            opt.innerText = s;
-            slotSelect.appendChild(opt);
-        });
         calculatePrice();
     }
 
@@ -179,7 +188,12 @@
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
         const date = document.getElementById('checkDate').value;
-        const slot = document.getElementById('timeSlot').value;
+        const typeSelect = document.getElementById('rentalType');
+        const rentalName = typeSelect.options[typeSelect.selectedIndex].text;
+        
+        const inTime = document.getElementById('checkInTime').value || "Chưa chọn";
+        const outTime = document.getElementById('checkOutTime').value || "Chưa chọn";
+        
         const price = calculatePrice();
 
         if (!name || !phone) {
@@ -188,7 +202,7 @@
         }
 
         const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
-        currentOrder = { name, phone, date, slot, price, memo };
+        currentOrder = { name, phone, date, rentalName, inTime, outTime, price, memo };
 
         const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
         
@@ -202,14 +216,14 @@
     }
 
     function sendInstagram() {
-        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n⏰ Khung giờ: ${currentOrder.slot}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
+        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏰ Check-in mong muốn: ${currentOrder.inTime}\n⌛ Check-out mong muốn: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
+        
         navigator.clipboard.writeText(msg);
         alert("Đã sao chép thông tin đơn đặt phòng! Đang chuyển sang Instagram Nana Homestay...");
         window.open("https://www.instagram.com/nanahomestay_xuan_dinh/", "_blank");
     }
 
     updateCalculations();
-    updateTimeSlots();
 </script>
 
 </body>
