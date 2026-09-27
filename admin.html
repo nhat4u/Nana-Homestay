@@ -221,6 +221,7 @@
         document.getElementById(tabId).classList.add('active');
     }
 
+    // HIỂN THỊ LỊCH & ĐỌC DỮ LIỆU TỪ FIREBASE LÚC F5 HOẶC CHUYỂN THÁNG
     function renderMonthlySchedule() {
         const month = parseInt(document.getElementById('selectMonth').value);
         const year = parseInt(document.getElementById('selectYear').value);
@@ -239,47 +240,60 @@
         }
 
         const tbody = document.getElementById('scheduleBody');
-        tbody.innerHTML = "";
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:20px;'>Đang tải dữ liệu lịch...</td></tr>";
 
-        for (let h = 0; h < 24; h++) {
-            const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
-            let tr = document.createElement('tr');
-            tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
+        // Đọc dữ liệu đã lưu từ Firebase về
+        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
+            const savedData = snapshot.val() || {};
+            tbody.innerHTML = "";
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                tr.innerHTML += `
-                    <td>
-                        <button class="status-btn btn-free" onclick="toggleStatus(this, ${h}, ${day}, ${month})">Trống</button>
-                    </td>
-                `;
+            for (let h = 0; h < 24; h++) {
+                const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const key = `d${day}_h${h}`;
+                    const isBusy = savedData[key] === true;
+
+                    tr.innerHTML += `
+                        <td>
+                            <button class="status-btn ${isBusy ? 'btn-busy' : 'btn-free'}" 
+                                    onclick="toggleStatus(this, ${h}, ${day}, ${month})">
+                                ${isBusy ? 'Đã có khách' : 'Trống'}
+                            </button>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
             }
-            tbody.appendChild(tr);
-        }
+        });
     }
 
-function toggleStatus(btn, hour, day, month) {
-    const year = parseInt(document.getElementById('selectYear').value);
-    const key = `d${day}_h${hour}`;
-    const isCurrentlyFree = btn.classList.contains('btn-free');
-    const newStatus = isCurrentlyFree; // Chuyển từ Trống sang Có khách (true)
+    // LƯU NGAY TRẠNG THÁI MỚI LÊN FIREBASE KHI BẤM NÚT
+    function toggleStatus(btn, hour, day, month) {
+        const year = parseInt(document.getElementById('selectYear').value);
+        const key = `d${day}_h${hour}`;
+        const isCurrentlyFree = btn.classList.contains('btn-free');
+        const newStatus = isCurrentlyFree; // Chuyển từ Trống sang Có khách (true)
 
-    // Lưu trực tiếp lên CSDL Firebase
-    db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
-        if (!error) {
-            if (isCurrentlyFree) {
-                btn.classList.remove('btn-free');
-                btn.classList.add('btn-busy');
-                btn.innerText = "Đã có khách";
+        // Đẩy dữ liệu lên Firebase
+        db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+            if (!error) {
+                if (isCurrentlyFree) {
+                    btn.classList.remove('btn-free');
+                    btn.classList.add('btn-busy');
+                    btn.innerText = "Đã có khách";
+                } else {
+                    btn.classList.remove('btn-busy');
+                    btn.classList.add('btn-free');
+                    btn.innerText = "Trống";
+                }
             } else {
-                btn.classList.remove('btn-busy');
-                btn.classList.add('btn-free');
-                btn.innerText = "Trống";
+                alert("Lỗi lưu CSDL: " + error.message);
             }
-        } else {
-            alert("Lỗi lưu CSDL: " + error.message);
-        }
-    });
-}
+        });
+    }
 
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
