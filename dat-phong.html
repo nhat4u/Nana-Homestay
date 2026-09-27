@@ -38,7 +38,7 @@
         .btn-check { width: calc(100% - 40px); margin: 0 20px 10px; background: #4a90e2; color: white; border: none; padding: 12px; border-radius: 15px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
         .btn-submit { width: calc(100% - 40px); margin: 0 20px; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
 
-        .alert-box { margin: 0 20px 10px; padding: 10px 12px; border-radius: 12px; font-size: 12px; display: none; line-height: 1.4; font-weight: 600; }
+        .alert-box { margin: 0 20px 10px; padding: 10px 12px; border-radius: 12px; font-size: 13px; display: none; line-height: 1.4; font-weight: 600; }
         .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
         .alert-error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
 
@@ -74,7 +74,7 @@
     <!-- 2. Hình thức thuê -->
     <div class="form-group">
         <label>2. Chọn hình thức thuê:</label>
-        <select id="rentalType" onchange="calculatePrice()">
+        <select id="rentalType" onchange="handleRentalTypeChange()">
             <option value="combo2h">Combo 2 giờ (150.000đ)</option>
             <option value="combo4h">Combo 4 giờ (210.000đ)</option>
             <option value="overnight">Qua đêm (22:00 - 10:00)</option>
@@ -105,11 +105,11 @@
 
     <!-- 5. Giờ check in - out mong muốn -->
     <div class="form-group">
-        <label>5. Giờ Check-in & Check-out mong muốn (24h):</label>
+        <label>5. Giờ Check-in & Check-out mong muốn:</label>
         <div class="time-row">
             <div class="time-col">
                 <label>Giờ Check-in:</label>
-                <select id="checkInTime" onchange="autoAdjustCheckOut()">
+                <select id="checkInTime">
                     <option value="">-- Chọn giờ --</option>
                 </select>
             </div>
@@ -120,8 +120,8 @@
                 </select>
             </div>
         </div>
-        <p style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
-            ✨ <i>Mỗi ca đặt đã tự động tính kèm 1 giờ trống để Home dọn vệ sinh phòng.</i>
+        <p id="hourlyNote" style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
+            ✨ <i>Khách đặt theo giờ chỉ chọn trong khung từ 11:00 đến 21:00 nhé.</i>
         </p>
     </div>
 
@@ -165,7 +165,6 @@
 
     const EXTRA_RATE = 40000;
 
-    // Lấy dữ liệu lịch đã book từ bộ nhớ (LocalStorage)
     function getBookedSchedules() {
         const data = localStorage.getItem('nana_booked_schedules');
         return data ? JSON.parse(data) : [];
@@ -177,34 +176,47 @@
         localStorage.setItem('nana_booked_schedules', JSON.stringify(currentList));
     }
 
-    // Chuyển "HH:MM" thành số phút để dễ so sánh
     function timeToMinutes(timeStr) {
         if (!timeStr || !timeStr.includes(':')) return 0;
         const [h, m] = timeStr.split(':').map(Number);
         return h * 60 + m;
     }
 
-    // Chuyển phút thành "HH:MM"
-    function minutesToTime(mins) {
-        const h = Math.floor(mins / 60) % 24;
-        const m = mins % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-    }
-
-    function generate24hOptions() {
+    // Tự động tạo danh sách giờ từ 11:00 đến 21:00 cho thuê theo giờ
+    function generateTimeOptions(isHourlyOnly = true) {
         const checkInSelect = document.getElementById('checkInTime');
         const checkOutSelect = document.getElementById('checkOutTime');
+        
+        checkInSelect.innerHTML = '<option value="">-- Chọn giờ --</option>';
+        checkOutSelect.innerHTML = '<option value="">-- Chọn giờ --</option>';
 
-        for (let h = 0; h < 24; h++) {
+        const startH = isHourlyOnly ? 11 : 0;
+        const endH = isHourlyOnly ? 21 : 23;
+
+        for (let h = startH; h <= endH; h++) {
             const hourStr = h.toString().padStart(2, '0');
             ['00', '30'].forEach(m => {
+                if (h === 21 && m === '30' && isHourlyOnly) return; // Dừng ở 21:00 nếu thuê theo giờ
                 const timeVal = `${hourStr}:${m}`;
-                const opt1 = new Option(timeVal, timeVal);
-                const opt2 = new Option(timeVal, timeVal);
-                checkInSelect.add(opt1);
-                checkOutSelect.add(opt2);
+                checkInSelect.add(new Option(timeVal, timeVal));
+                checkOutSelect.add(new Option(timeVal, timeVal));
             });
         }
+    }
+
+    function handleRentalTypeChange() {
+        const type = document.getElementById('rentalType').value;
+        const isHourly = (type === 'combo2h' || type === 'combo4h');
+        
+        generateTimeOptions(isHourly);
+
+        if (!isHourly) {
+            document.getElementById('hourlyNote').innerText = "✨ Áp dụng khung giờ cố định cho gói đã chọn.";
+        } else {
+            document.getElementById('hourlyNote').innerHTML = "✨ <i>Khách đặt theo giờ chỉ chọn trong khung từ 11:00 đến 21:00 nhé.</i>";
+        }
+
+        calculatePrice();
     }
 
     function isWeekend(dateStr) {
@@ -249,7 +261,7 @@
         return totalPrice;
     }
 
-    // Kiểm tra xem khung giờ chọn có bị trùng không
+    // Kiểm tra lịch trùng và đưa ra thông báo gợi ý giờ trống cho khách
     function checkScheduleAvailability(showAlert = false) {
         const date = document.getElementById('checkDate').value;
         const inTimeStr = document.getElementById('checkInTime').value;
@@ -268,13 +280,9 @@
         let startMins = timeToMinutes(inTimeStr);
         let endMins = timeToMinutes(outTimeStr);
 
-        // Trường hợp qua đêm (Check-out nhỏ hơn Check-in)
         if (endMins <= startMins) {
             endMins += 24 * 60;
         }
-
-        // Tự động cộng thêm 60 phút dọn dẹp vào sau giờ check-out
-        const endWithCleaning = endMins + 60;
 
         const bookedList = getBookedSchedules();
         let conflict = null;
@@ -285,11 +293,8 @@
                 let bEnd = timeToMinutes(booking.outTime);
                 if (bEnd <= bStart) bEnd += 24 * 60;
 
-                // Giờ giữ phòng thực tế của đơn trước (bao gồm 1h dọn dẹp)
-                let bEndClean = bEnd + 60;
-
-                // Kiểm tra va chạm khung giờ
-                if (Math.max(startMins, bStart) < Math.min(endWithCleaning, bEndClean)) {
+                // So sánh kiểm tra xem có va chạm khung giờ không
+                if (Math.max(startMins, bStart) < Math.min(endMins, bEnd)) {
                     conflict = booking;
                     break;
                 }
@@ -298,7 +303,7 @@
 
         if (conflict) {
             alertBox.className = "alert-box alert-error";
-            alertBox.innerHTML = `❌ <b>Khung giờ này không khả dụng!</b><br>Đã có khách đặt / dọn dẹp từ <b>${conflict.inTime} - ${conflict.outTime}</b> (hoặc dính 1h dọn dẹp sau đó). Vui lòng chọn khung giờ khác!`;
+            alertBox.innerHTML = `❌ <b>Khung giờ này đã có khách đặt!</b><br>Vui lòng đặt phòng từ <b>${conflict.outTime}</b> trở đi nhé!`;
             alertBox.style.display = "block";
             return false;
         } else {
@@ -330,7 +335,6 @@
             return;
         }
 
-        // Kiểm tra xem lịch có hợp lệ không trước khi chốt
         if (!checkScheduleAvailability(true)) {
             return;
         }
@@ -340,7 +344,6 @@
 
         currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
 
-        // Lưu đơn đặt phòng vào bộ nhớ để chặn các người đặt sau
         saveBookedSchedule(currentOrder);
 
         const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
@@ -365,7 +368,7 @@
     }
 
     document.getElementById('checkDate').valueAsDate = new Date();
-    generate24hOptions();
+    handleRentalTypeChange();
     updateCalculations();
 </script>
 
