@@ -20,7 +20,7 @@
         
         .form-group { padding: 10px 20px; }
         label { font-weight: 700; font-size: 13px; display: block; margin-bottom: 5px; color: var(--text); }
-        input, select { width: 100%; padding: 10px 12px; border: 1px solid #ffd0d7; border-radius: 12px; font-size: 14px; outline: none; background: #fff9fa; }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #ffd0d7; border-radius: 12px; font-size: 14px; outline: none; background: #fff9fa; color: var(--text); }
         input:focus, select:focus { border-color: var(--primary); }
 
         /* Chia đôi 2 ô check-in / check-out */
@@ -100,21 +100,25 @@
         <input type="tel" id="custPhone" placeholder="Số điện thoại / Zalo">
     </div>
 
-    <!-- 5. Giờ check in - out mong muốn -->
+    <!-- 5. Giờ check in - out mong muốn (Đã chuyển sang dạng 24h) -->
     <div class="form-group">
-        <label>5. Giờ Check-in & Check-out mong muốn:</label>
+        <label>5. Giờ Check-in & Check-out mong muốn (24h):</label>
         <div class="time-row">
             <div class="time-col">
                 <label>Giờ Check-in:</label>
-                <input type="time" id="checkInTime" step="1800">
+                <select id="checkInTime">
+                    <option value="">-- Chọn giờ --</option>
+                </select>
             </div>
             <div class="time-col">
                 <label>Giờ Check-out:</label>
-                <input type="time" id="checkOutTime" step="1800">
+                <select id="checkOutTime">
+                    <option value="">-- Chọn giờ --</option>
+                </select>
             </div>
         </div>
         <p style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
-            ✨ <i>Khách yêu book theo giờ vui lòng chọn tròn giờ (Ví dụ: 11h - 15h hoặc 11h30 - 15h30, không chọn phút lẻ như 15p hay 20p nhé).</i>
+            ✨ <i>Khách yêu book theo giờ vui lòng chọn tròn giờ hoặc nửa giờ (Ví dụ: 11:00 - 15:00 hoặc 11:30 - 15:30).</i>
         </p>
     </div>
 
@@ -164,6 +168,30 @@
     };
 
     const EXTRA_RATE = 40000; // Giá thêm giờ 40k/h
+
+    // Tạo danh sách giờ 24h (từ 00:00 đến 23:30)
+    function generate24hOptions() {
+        const checkInSelect = document.getElementById('checkInTime');
+        const checkOutSelect = document.getElementById('checkOutTime');
+
+        for (let h = 0; h < 24; h++) {
+            const hourStr = h.toString().padStart(2, '0');
+            
+            // Giờ tròn :00
+            const opt1 = document.createElement('option');
+            opt1.value = `${hourStr}:00`;
+            opt1.textContent = `${hourStr}:00`;
+            checkInSelect.appendChild(opt1.cloneNode(true));
+            checkOutSelect.appendChild(opt1.cloneNode(true));
+
+            // Nửa giờ :30
+            const opt2 = document.createElement('option');
+            opt2.value = `${hourStr}:30`;
+            opt2.textContent = `${hourStr}:30`;
+            checkInSelect.appendChild(opt2.cloneNode(true));
+            checkOutSelect.appendChild(opt2.cloneNode(true));
+        }
+    }
 
     document.getElementById('checkDate').valueAsDate = new Date();
 
@@ -250,9 +278,11 @@
         
         navigator.clipboard.writeText(msg);
         alert("Đã sao chép thông tin đơn đặt phòng! Đang chuyển sang Instagram Nana Homestay...");
-        window.open("https://www.instagram.com/nanahomestay_xuan_dinh/", "_blank");
+        window.open("https://www.instagram.com/nana.homestayy/", "_blank");
     }
 
+    // Khởi tạo danh sách giờ 24h & tính toán ban đầu
+    generate24hOptions();
     updateCalculations();
 </script>
 
