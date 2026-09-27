@@ -140,8 +140,8 @@
                     <th>Ngày book</th>
                     <th>Tổng bill</th>
                     <th>Đã CK</th>
-                    <th style="width: 150px;">Mini bar (Tự điền)</th>
-                    <th style="width: 180px;">Ghi chú (Tự điền)</th>
+                    <th>Mini bar</th>
+                    <th>Ghi chú</th>
                 </tr>
             </thead>
             <tbody id="customerBody">
@@ -173,7 +173,7 @@
     const ADMIN_PASSWORD = "nana123";
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
-    // Dữ liệu khách hàng mẫu (Tự động tải khi khách book ở trang home)
+    // Dữ liệu khách hàng mẫu 
     let bookingList = [
         { id: 1, name: "Nguyễn Văn A", checkin: "14:00 - 01/10", checkout: "12:00 - 02/10", bookDate: "28/09/2026", totalBill: 500000, paid: 500000, minibar: "2 Nước suối", note: "Khách xin late checkin" },
         { id: 2, name: "Trần Thị B", checkin: "18:00 - 05/10", checkout: "22:00 - 05/10", bookDate: "29/09/2026", totalBill: 300000, paid: 300000, minibar: "", note: "" }
