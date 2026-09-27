@@ -23,7 +23,6 @@
         input, select { width: 100%; padding: 10px 12px; border: 1px solid #ffd0d7; border-radius: 12px; font-size: 14px; outline: none; background: #fff9fa; color: var(--text); }
         input:focus, select:focus { border-color: var(--primary); }
 
-        /* Chia đôi 2 ô check-in / check-out */
         .time-row { display: flex; gap: 10px; }
         .time-col { flex: 1; }
         .time-col label { font-size: 12px; font-weight: 600; color: #8a626a; margin-bottom: 3px; }
@@ -36,7 +35,12 @@
         .price-box { background: #fff0f3; border: 2px dashed var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin: 15px 20px; }
         .price-val { font-size: 22px; font-weight: 700; color: var(--primary); margin: 3px 0; }
         
+        .btn-check { width: calc(100% - 40px); margin: 0 20px 10px; background: #4a90e2; color: white; border: none; padding: 12px; border-radius: 15px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
         .btn-submit { width: calc(100% - 40px); margin: 0 20px; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
+
+        .alert-box { margin: 0 20px 10px; padding: 10px 12px; border-radius: 12px; font-size: 12px; display: none; line-height: 1.4; font-weight: 600; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .alert-error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
 
         .qr-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 999; }
         .qr-card { background: white; width: 90%; max-width: 380px; border-radius: 20px; padding: 20px; text-align: center; }
@@ -47,7 +51,6 @@
 <body>
 
 <div class="container">
-    <!-- Menu 3 nút -->
     <div class="nav-bar">
         <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
         <a href="dat-phong.html" class="nav-link active">📅 Đặt Phòng</a>
@@ -85,11 +88,11 @@
         <label>3. Thuê thêm giờ (Phụ thu 40.000đ/giờ):</label>
         <select id="extraHours" onchange="calculatePrice()">
             <option value="0">Không thêm giờ (0h)</option>
-            <option value="1">Thêm 1 giờ </option>
-            <option value="2">Thêm 2 giờ </option>
-            <option value="3">Thêm 3 giờ </option>
-            <option value="4">Thêm 4 giờ </option>
-            <option value="5">Thêm 5 giờ </option>
+            <option value="1">Thêm 1 giờ (+40.000đ)</option>
+            <option value="2">Thêm 2 giờ (+80.000đ)</option>
+            <option value="3">Thêm 3 giờ (+120.000đ)</option>
+            <option value="4">Thêm 4 giờ (+160.000đ)</option>
+            <option value="5">Thêm 5 giờ (+200.000đ)</option>
         </select>
     </div>
 
@@ -100,13 +103,13 @@
         <input type="tel" id="custPhone" placeholder="Số điện thoại / Zalo">
     </div>
 
-    <!-- 5. Giờ check in - out mong muốn (Đã chuyển sang dạng 24h) -->
+    <!-- 5. Giờ check in - out mong muốn -->
     <div class="form-group">
         <label>5. Giờ Check-in & Check-out mong muốn (24h):</label>
         <div class="time-row">
             <div class="time-col">
                 <label>Giờ Check-in:</label>
-                <select id="checkInTime">
+                <select id="checkInTime" onchange="autoAdjustCheckOut()">
                     <option value="">-- Chọn giờ --</option>
                 </select>
             </div>
@@ -118,9 +121,15 @@
             </div>
         </div>
         <p style="font-size: 11px; color: #d17a85; margin-top: 6px; line-height: 1.4;">
-            ✨ <i>Khách yêu book theo giờ vui lòng chọn tròn giờ hoặc nửa giờ (Ví dụ: 11:00 - 15:00 hoặc 11:30 - 15:30).</i>
+            ✨ <i>Mỗi ca đặt đã tự động tính kèm 1 giờ trống để Home dọn vệ sinh phòng.</i>
         </p>
     </div>
+
+    <!-- Khung hiển thị thông báo kiểm tra lịch -->
+    <div id="alertBox" class="alert-box"></div>
+
+    <!-- Nút kiểm tra lịch trống -->
+    <button class="btn-check" onclick="checkScheduleAvailability(true)">🔍 Kiểm Tra Khung Giờ Trống</button>
 
     <!-- Tổng tiền -->
     <div class="price-box">
@@ -149,56 +158,59 @@
     const ACCOUNT_NO = "0962292229"; 
     const ACCOUNT_NAME = "NANA HOMESTAY";
 
-    // Bảng giá
     const pricing = {
-        normal: { 
-            combo2h: 150000, 
-            combo4h: 210000, 
-            overnight: 300000, 
-            fullday: 380000, 
-            nightday: 450000 
-        },
-        weekend: { 
-            combo2h: 150000, 
-            combo4h: 210000, 
-            overnight: 330000, 
-            fullday: 420000, 
-            nightday: 490000 
-        }
+        normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
+        weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
 
-    const EXTRA_RATE = 40000; // Giá thêm giờ 40k/h
+    const EXTRA_RATE = 40000;
 
-    // Tạo danh sách giờ 24h (từ 00:00 đến 23:30)
+    // Lấy dữ liệu lịch đã book từ bộ nhớ (LocalStorage)
+    function getBookedSchedules() {
+        const data = localStorage.getItem('nana_booked_schedules');
+        return data ? JSON.parse(data) : [];
+    }
+
+    function saveBookedSchedule(newBooking) {
+        const currentList = getBookedSchedules();
+        currentList.push(newBooking);
+        localStorage.setItem('nana_booked_schedules', JSON.stringify(currentList));
+    }
+
+    // Chuyển "HH:MM" thành số phút để dễ so sánh
+    function timeToMinutes(timeStr) {
+        if (!timeStr || !timeStr.includes(':')) return 0;
+        const [h, m] = timeStr.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    // Chuyển phút thành "HH:MM"
+    function minutesToTime(mins) {
+        const h = Math.floor(mins / 60) % 24;
+        const m = mins % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
     function generate24hOptions() {
         const checkInSelect = document.getElementById('checkInTime');
         const checkOutSelect = document.getElementById('checkOutTime');
 
         for (let h = 0; h < 24; h++) {
             const hourStr = h.toString().padStart(2, '0');
-            
-            // Giờ tròn :00
-            const opt1 = document.createElement('option');
-            opt1.value = `${hourStr}:00`;
-            opt1.textContent = `${hourStr}:00`;
-            checkInSelect.appendChild(opt1.cloneNode(true));
-            checkOutSelect.appendChild(opt1.cloneNode(true));
-
-            // Nửa giờ :30
-            const opt2 = document.createElement('option');
-            opt2.value = `${hourStr}:30`;
-            opt2.textContent = `${hourStr}:30`;
-            checkInSelect.appendChild(opt2.cloneNode(true));
-            checkOutSelect.appendChild(opt2.cloneNode(true));
+            ['00', '30'].forEach(m => {
+                const timeVal = `${hourStr}:${m}`;
+                const opt1 = new Option(timeVal, timeVal);
+                const opt2 = new Option(timeVal, timeVal);
+                checkInSelect.add(opt1);
+                checkOutSelect.add(opt2);
+            });
         }
     }
-
-    document.getElementById('checkDate').valueAsDate = new Date();
 
     function isWeekend(dateStr) {
         const d = new Date(dateStr);
         const day = d.getDay();
-        return day === 0 || day === 5 || day === 6; // Thứ 6, T7, Chủ Nhật
+        return day === 0 || day === 5 || day === 6;
     }
 
     function updateCalculations() {
@@ -237,6 +249,70 @@
         return totalPrice;
     }
 
+    // Kiểm tra xem khung giờ chọn có bị trùng không
+    function checkScheduleAvailability(showAlert = false) {
+        const date = document.getElementById('checkDate').value;
+        const inTimeStr = document.getElementById('checkInTime').value;
+        const outTimeStr = document.getElementById('checkOutTime').value;
+        const alertBox = document.getElementById('alertBox');
+
+        if (!inTimeStr || !outTimeStr) {
+            if (showAlert) {
+                alertBox.className = "alert-box alert-error";
+                alertBox.innerText = "⚠️ Vui lòng chọn đầy đủ Giờ Check-in và Check-out!";
+                alertBox.style.display = "block";
+            }
+            return false;
+        }
+
+        let startMins = timeToMinutes(inTimeStr);
+        let endMins = timeToMinutes(outTimeStr);
+
+        // Trường hợp qua đêm (Check-out nhỏ hơn Check-in)
+        if (endMins <= startMins) {
+            endMins += 24 * 60;
+        }
+
+        // Tự động cộng thêm 60 phút dọn dẹp vào sau giờ check-out
+        const endWithCleaning = endMins + 60;
+
+        const bookedList = getBookedSchedules();
+        let conflict = null;
+
+        for (let booking of bookedList) {
+            if (booking.date === date) {
+                let bStart = timeToMinutes(booking.inTime);
+                let bEnd = timeToMinutes(booking.outTime);
+                if (bEnd <= bStart) bEnd += 24 * 60;
+
+                // Giờ giữ phòng thực tế của đơn trước (bao gồm 1h dọn dẹp)
+                let bEndClean = bEnd + 60;
+
+                // Kiểm tra va chạm khung giờ
+                if (Math.max(startMins, bStart) < Math.min(endWithCleaning, bEndClean)) {
+                    conflict = booking;
+                    break;
+                }
+            }
+        }
+
+        if (conflict) {
+            alertBox.className = "alert-box alert-error";
+            alertBox.innerHTML = `❌ <b>Khung giờ này không khả dụng!</b><br>Đã có khách đặt / dọn dẹp từ <b>${conflict.inTime} - ${conflict.outTime}</b> (hoặc dính 1h dọn dẹp sau đó). Vui lòng chọn khung giờ khác!`;
+            alertBox.style.display = "block";
+            return false;
+        } else {
+            if (showAlert) {
+                alertBox.className = "alert-box alert-success";
+                alertBox.innerHTML = `✅ <b>Khung giờ trống!</b> Bạn có thể đặt phòng từ ${inTimeStr} đến ${outTimeStr}.`;
+                alertBox.style.display = "block";
+            } else {
+                alertBox.style.display = "none";
+            }
+            return true;
+        }
+    }
+
     let currentOrder = {};
 
     function submitBooking() {
@@ -246,19 +322,26 @@
         const typeSelect = document.getElementById('rentalType');
         const rentalName = typeSelect.options[typeSelect.selectedIndex].text;
         const extra = parseInt(document.getElementById('extraHours').value) || 0;
-        
-        const inTime = document.getElementById('checkInTime').value || "Chưa chọn";
-        const outTime = document.getElementById('checkOutTime').value || "Chưa chọn";
-        
-        const price = calculatePrice();
+        const inTime = document.getElementById('checkInTime').value;
+        const outTime = document.getElementById('checkOutTime').value;
 
         if (!name || !phone) {
             alert("Vui lòng nhập Họ tên và Số điện thoại!");
             return;
         }
 
+        // Kiểm tra xem lịch có hợp lệ không trước khi chốt
+        if (!checkScheduleAvailability(true)) {
+            return;
+        }
+
+        const price = calculatePrice();
         const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
+
         currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
+
+        // Lưu đơn đặt phòng vào bộ nhớ để chặn các người đặt sau
+        saveBookedSchedule(currentOrder);
 
         const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
         
@@ -274,14 +357,14 @@
     function sendInstagram() {
         const extraStr = currentOrder.extra > 0 ? `${currentOrder.extra} giờ (+${(currentOrder.extra * EXTRA_RATE).toLocaleString('vi-VN')}đ)` : "Không";
         
-        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏳ Thêm giờ: ${extraStr}\n⏰ Check-in mong muốn: ${currentOrder.inTime}\n⌛ Check-out mong muốn: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
+        const msg = `🎀 ĐƠN ĐẶT PHÒNG NANA HOMESTAY 🎀\n👤 Khách hàng: ${currentOrder.name}\n📞 SĐT: ${currentOrder.phone}\n📅 Ngày: ${currentOrder.date}\n📌 Gói thuê: ${currentOrder.rentalName}\n⏳ Thêm giờ: ${extraStr}\n⏰ Check-in: ${currentOrder.inTime}\n⌛ Check-out: ${currentOrder.outTime}\n💰 Tổng tiền: ${currentOrder.price.toLocaleString('vi-VN')}đ\n📝 Nội dung CK: ${currentOrder.memo}`;
         
         navigator.clipboard.writeText(msg);
         alert("Đã sao chép thông tin đơn đặt phòng! Đang chuyển sang Instagram Nana Homestay...");
         window.open("https://www.instagram.com/nana.homestayy/", "_blank");
     }
 
-    // Khởi tạo danh sách giờ 24h & tính toán ban đầu
+    document.getElementById('checkDate').valueAsDate = new Date();
     generate24hOptions();
     updateCalculations();
 </script>
