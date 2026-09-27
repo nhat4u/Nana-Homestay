@@ -47,6 +47,10 @@
         .qr-card img { width: 100%; max-width: 250px; border-radius: 12px; }
         .btn-close { background: #ffe3e8; color: var(--primary); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 700; margin-top: 10px; cursor: pointer; }
     </style>
+
+    <!-- KẾT NỐI KHƯ VỰC FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -153,6 +157,20 @@
 </div>
 
 <script>
+    // --- CẤU HÌNH FIREBASE (Đồng bộ chuẩn xác với admin.html) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
+      authDomain: "nana-homestay.firebaseapp.com",
+      projectId: "nana-homestay",
+      storageBucket: "nana-homestay.firebasestorage.app",
+      messagingSenderId: "479892350682",
+      appId: "1:479892350682:web:485d4dd69befd3dfc7a7e3",
+      measurementId: "G-4ZE4FVEZHS"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const BANK_ID = "MB"; 
     const ACCOUNT_NO = "0962292229"; 
     const ACCOUNT_NAME = "NANA HOMESTAY";
@@ -164,24 +182,7 @@
 
     const EXTRA_RATE = 40000;
 
-    function getBookedSchedules() {
-        const data = localStorage.getItem('nana_booked_schedules');
-        return data ? JSON.parse(data) : [];
-    }
-
-    function saveBookedSchedule(newBooking) {
-        const currentList = getBookedSchedules();
-        currentList.push(newBooking);
-        localStorage.setItem('nana_booked_schedules', JSON.stringify(currentList));
-    }
-
-    function timeToMinutes(timeStr) {
-        if (!timeStr || !timeStr.includes(':')) return 0;
-        const [h, m] = timeStr.split(':').map(Number);
-        return h * 60 + m;
-    }
-
-    // Tự động tạo danh sách giờ từ 11:00 đến 21:00 cho thuê theo giờ
+    // Tự động tạo danh sách giờ
     function generateTimeOptions(isHourlyOnly = true) {
         const checkInSelect = document.getElementById('checkInTime');
         const checkOutSelect = document.getElementById('checkOutTime');
@@ -195,7 +196,7 @@
         for (let h = startH; h <= endH; h++) {
             const hourStr = h.toString().padStart(2, '0');
             ['00', '30'].forEach(m => {
-                if (h === 21 && m === '30' && isHourlyOnly) return; // Dừng ở 21:00 nếu thuê theo giờ
+                if (h === 21 && m === '30' && isHourlyOnly) return; 
                 const timeVal = `${hourStr}:${m}`;
                 checkInSelect.add(new Option(timeVal, timeVal));
                 checkOutSelect.add(new Option(timeVal, timeVal));
@@ -219,6 +220,7 @@
     }
 
     function isWeekend(dateStr) {
+        if(!dateStr) return false;
         const d = new Date(dateStr);
         const day = d.getDay();
         return day === 0 || day === 5 || day === 6;
@@ -260,61 +262,72 @@
         return totalPrice;
     }
 
-    // Kiểm tra lịch trùng và đưa ra thông báo gợi ý giờ trống cho khách
-    function checkScheduleAvailability(showAlert = false) {
-        const date = document.getElementById('checkDate').value;
+    // --- KIỂM TRA LỊCH KHẢ DỤNG TỪ FIREBASE REALTIME DATABASE ---
+    function checkScheduleAvailability(showAlert = false, callback = null) {
+        const dateVal = document.getElementById('checkDate').value;
         const inTimeStr = document.getElementById('checkInTime').value;
         const outTimeStr = document.getElementById('checkOutTime').value;
         const alertBox = document.getElementById('alertBox');
 
-        if (!inTimeStr || !outTimeStr) {
+        if (!dateVal || !inTimeStr || !outTimeStr) {
             if (showAlert) {
                 alertBox.className = "alert-box alert-error";
-                alertBox.innerText = "⚠️ Vui lòng chọn đầy đủ Giờ Check-in và Check-out!";
+                alertBox.innerText = "⚠️ Vui lòng chọn đầy đủ Ngày, Giờ Check-in và Check-out!";
                 alertBox.style.display = "block";
             }
-            return false;
+            if (callback) callback(false);
+            return;
         }
 
-        let startMins = timeToMinutes(inTimeStr);
-        let endMins = timeToMinutes(outTimeStr);
+        const dateParts = dateVal.split('-'); // YYYY-MM-DD
+        const year = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]);
+        const day = parseInt(dateParts[2]);
 
-        if (endMins <= startMins) {
-            endMins += 24 * 60;
+        const checkinHour = parseInt(inTimeStr.split(':')[0]);
+        let checkoutHour = parseInt(outTimeStr.split(':')[0]);
+
+        if (checkoutHour <= checkinHour) {
+            checkoutHour += 24; // Trường hợp qua đêm
         }
 
-        const bookedList = getBookedSchedules();
-        let conflict = null;
+        if (showAlert) {
+            alertBox.style.display = "block";
+            alertBox.className = "alert-box";
+            alertBox.innerText = "⏳ Đang kiểm tra lịch thực tế từ hệ thống...";
+        }
 
-        for (let booking of bookedList) {
-            if (booking.date === date) {
-                let bStart = timeToMinutes(booking.inTime);
-                let bEnd = timeToMinutes(booking.outTime);
-                if (bEnd <= bStart) bEnd += 24 * 60;
+        // Truy vấn CSDL Firebase
+        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
+            const savedData = snapshot.val() || {};
+            let isBusy = false;
+            let busyHours = [];
 
-                // So sánh kiểm tra xem có va chạm khung giờ không
-                if (Math.max(startMins, bStart) < Math.min(endMins, bEnd)) {
-                    conflict = booking;
-                    break;
+            for (let h = checkinHour; h < checkoutHour; h++) {
+                let actualHour = h % 24;
+                const key = `d${day}_h${actualHour}`;
+                if (savedData[key] === true) {
+                    isBusy = true;
+                    busyHours.push(`${actualHour}:00`);
                 }
             }
-        }
 
-        if (conflict) {
-            alertBox.className = "alert-box alert-error";
-            alertBox.innerHTML = `❌ <b>Khung giờ này đã có khách đặt!</b><br>Vui lòng đặt phòng từ <b>${conflict.outTime}</b> trở đi nhé!`;
-            alertBox.style.display = "block";
-            return false;
-        } else {
-            if (showAlert) {
-                alertBox.className = "alert-box alert-success";
-                alertBox.innerHTML = `✅ <b>Khung giờ trống!</b> Bạn có thể đặt phòng từ ${inTimeStr} đến ${outTimeStr}.`;
+            if (isBusy) {
+                alertBox.className = "alert-box alert-error";
+                alertBox.innerHTML = `❌ <b>Khung giờ này đã có khách đặt trên hệ thống!</b><br>Khung giờ bận: ${busyHours.join(', ')}`;
                 alertBox.style.display = "block";
+                if (callback) callback(false);
             } else {
-                alertBox.style.display = "none";
+                if (showAlert) {
+                    alertBox.className = "alert-box alert-success";
+                    alertBox.innerHTML = `✅ <b>Khung giờ hoàn toàn TRỐNG!</b> Bạn có thể đặt phòng từ ${inTimeStr} đến ${outTimeStr}.`;
+                    alertBox.style.display = "block";
+                } else {
+                    alertBox.style.display = "none";
+                }
+                if (callback) callback(true);
             }
-            return true;
-        }
+        });
     }
 
     let currentOrder = {};
@@ -334,22 +347,39 @@
             return;
         }
 
-        if (!checkScheduleAvailability(true)) {
-            return;
-        }
+        // Kiểm tra lịch Firebase trước khi chốt đơn
+        checkScheduleAvailability(true, function(isAvailable) {
+            if (!isAvailable) return;
 
-        const price = calculatePrice();
-        const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
+            const price = calculatePrice();
+            const memo = `NANA ${phone.slice(-4)} ${date.replace(/-/g,'')}`;
 
-        currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
+            const dateFormatted = date.split('-').reverse().join('/'); // Chuyển dạng DD/MM/YYYY
+            const todayStr = new Date().toLocaleDateString('vi-VN');
 
-        saveBookedSchedule(currentOrder);
+            currentOrder = { name, phone, date, rentalName, extra, inTime, outTime, price, memo };
 
-        const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
-        
-        document.getElementById('qrImage').src = qrUrl;
-        document.getElementById('qrMemo').innerText = memo;
-        document.getElementById('qrModal').style.display = "flex";
+            // TỰ ĐỘNG ĐẨY ĐƠN ĐẶT PHÒNG VÀO DANH SÁCH KHÁCH HÀNG TRÊN FIREBASE
+            const newCustomerData = {
+                name: name + ` (${phone})`,
+                checkin: `${inTime} - ${dateFormatted}`,
+                checkout: `${outTime} - ${dateFormatted}`,
+                bookDate: todayStr,
+                totalBill: price,
+                paid: price,
+                minibar: "",
+                note: `Đặt web (${rentalName})`
+            };
+
+            db.ref('customers').push(newCustomerData);
+
+            // Tạo QR Thanh Toán
+            const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
+            
+            document.getElementById('qrImage').src = qrUrl;
+            document.getElementById('qrMemo').innerText = memo;
+            document.getElementById('qrModal').style.display = "flex";
+        });
     }
 
     function closeModal() {
