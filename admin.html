@@ -66,6 +66,10 @@
         .stat-card .val { font-size: 24px; font-weight: 700; }
         .expense-input { width: 140px; padding: 6px; text-align: center; border: 1px solid var(--primary); border-radius: 8px; font-weight: 700; color: #c62828; font-size: 16px; margin-top: 5px; outline: none; }
     </style>
+
+    <!-- KẾT NỐI KHƯ VỰC FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -145,7 +149,6 @@
                 </tr>
             </thead>
             <tbody id="customerBody">
-                <!-- Dữ liệu mẫu minh họa -->
             </tbody>
         </table>
     </div>
@@ -170,10 +173,24 @@
 </div>
 
 <script>
+    // --- CẤU HÌNH FIREBASE ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
+      authDomain: "nana-homestay.firebaseapp.com",
+      projectId: "nana-homestay",
+      storageBucket: "nana-homestay.firebasestorage.app",
+      messagingSenderId: "479892350682",
+      appId: "1:479892350682:web:485d4dd69befd3dfc7a7e3",
+      measurementId: "G-4ZE4FVEZHS"
+    };
+
+    // Khởi tạo Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const ADMIN_PASSWORD = "nana123";
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
-    // Dữ liệu khách hàng mẫu 
     let bookingList = [
         { id: 1, name: "Nguyễn Văn A", checkin: "14:00 - 01/10", checkout: "12:00 - 02/10", bookDate: "28/09/2026", totalBill: 500000, paid: 500000, minibar: "2 Nước suối", note: "Khách xin late checkin" },
         { id: 2, name: "Trần Thị B", checkin: "18:00 - 05/10", checkout: "22:00 - 05/10", bookDate: "29/09/2026", totalBill: 300000, paid: 300000, minibar: "", note: "" }
@@ -204,7 +221,6 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Hiển thị Lịch Theo Tháng
     function renderMonthlySchedule() {
         const month = parseInt(document.getElementById('selectMonth').value);
         const year = parseInt(document.getElementById('selectYear').value);
@@ -253,7 +269,6 @@
         }
     }
 
-    // Render Bảng Danh Sách Khách Book
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
@@ -284,7 +299,6 @@
         bookingList[index][field] = value;
     }
 
-    // Tính toán Thống kê Thu - Chi
     function calculateStats() {
         let totalIncome = bookingList.reduce((sum, item) => sum + item.paid, 0);
         let totalExpense = parseFloat(document.getElementById('statExpenseInput').value) || 0;
