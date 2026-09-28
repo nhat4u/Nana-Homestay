@@ -40,6 +40,13 @@
         .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 13px; }
         .month-picker-box select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
 
+        /* Thanh lọc & Tìm kiếm khách hàng */
+        .filter-search-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; background: #fff0f3; padding: 10px 14px; border-radius: 12px; border: 1px dashed var(--primary); }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-group label { font-weight: 700; color: var(--primary); font-size: 13px; }
+        .filter-group select { padding: 5px 10px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
+        .search-box input { padding: 6px 12px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; outline: none; min-width: 220px; }
+
         /* Bảng Lịch Cuộn Ngang */
         .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 10px; }
         table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
@@ -166,6 +173,27 @@
             <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
+        <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
+        <div class="filter-search-bar">
+            <div class="filter-group">
+                <label for="custFilterMonth">📅 Lọc xem Tháng:</label>
+                <select id="custFilterMonth" onchange="renderCustomerTable()">
+                    <option value="10" selected>Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                </select>
+                <select id="custFilterYear" onchange="renderCustomerTable()">
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderCustomerTable()">
+            </div>
+        </div>
+
         <div class="table-container">
             <table class="cust-table">
                 <thead>
@@ -185,7 +213,7 @@
                 </thead>
                 <tbody id="customerBody">
                 </tbody>
-                <!-- HÀNG TỔNG NANA HOMESTAY (THÊM THEO ẢNH MẪU) -->
+                <!-- HÀNG TỔNG NANA HOMESTAY -->
                 <tfoot id="customerFoot">
                     <tr class="row-total-summary">
                         <td colspan="5" style="font-size: 16px;">Tổng</td>
@@ -386,6 +414,18 @@
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const todayStr = `${day}/${month}`;
 
+        // Lấy thông tin tháng năm hiện tại đang được chọn ở bộ lọc hoặc tháng hiện tại
+        let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
+        let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
+
+        // Tự động phân tích tháng từ Checkin (Ví dụ checkin: "10h 15/10" -> lấy 10)
+        let checkinMonthMatch = checkin.match(/\/\s*([0-9]{1,2})/);
+        if (checkinMonthMatch) {
+            filterMonth = parseInt(checkinMonthMatch[1]);
+        }
+
+        const monthKey = `${filterYear}_${filterMonth}`;
+
         const newBooking = {
             name: name,
             phone: phone,
@@ -395,7 +435,8 @@
             totalBill: totalBill,
             paid: paid,
             minibar: "",
-            note: note
+            note: note,
+            monthKey: monthKey
         };
 
         db.ref('customers').push(newBooking, (error) => {
@@ -492,6 +533,12 @@
         const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
 
+        const selectedMonth = parseInt(document.getElementById('custFilterMonth').value);
+        const selectedYear = parseInt(document.getElementById('custFilterYear').value);
+        const targetMonthKey = `${selectedYear}_${selectedMonth}`;
+        
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
         const keys = Object.keys(currentCustomers);
         
         let totalMinibar = 0;
@@ -499,48 +546,72 @@
         let totalPaidSum = 0;
         let totalRemainingSum = 0;
 
-        if (keys.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào.</td></tr>`;
-        } else {
-            keys.forEach((key, index) => {
-                const item = currentCustomers[key];
-                const totalBillVal = parseMoneyInput(item.totalBill);
-                const paidVal = parseMoneyInput(item.paid);
-                const minibarVal = parseMoneyInput(item.minibar);
-                const remainingVal = totalBillVal - paidVal;
+        let visibleCount = 0;
 
-                // TÍNH TỔNG CỘNG HÀNG BÊN DƯỚI
-                totalMinibar += minibarVal;
-                totalBillSum += totalBillVal;
-                totalPaidSum += paidVal;
-                totalRemainingSum += remainingVal;
+        keys.forEach((key) => {
+            const item = currentCustomers[key];
+            
+            // 1. Kiểm tra lọc theo Tháng / Năm
+            // Nếu đơn chưa có monthKey (dữ liệu cũ), tự gán theo mặc định 2026_10
+            const itemMonthKey = item.monthKey || "2026_10";
+            if (itemMonthKey !== targetMonthKey) return;
 
-                let nameStr = item.name || '';
+            // 2. Kiểm tra ô tìm kiếm (Tên, SĐT, Ngày book, Check-in, Check-out, Ghi chú)
+            if (searchQuery !== "") {
+                const matchName = (item.name || "").toLowerCase().includes(searchQuery);
+                const matchPhone = (item.phone || "").toLowerCase().includes(searchQuery);
+                const matchBookDate = (item.bookDate || "").toLowerCase().includes(searchQuery);
+                const matchCheckin = (item.checkin || "").toLowerCase().includes(searchQuery);
+                const matchCheckout = (item.checkout || "").toLowerCase().includes(searchQuery);
+                const matchNote = (item.note || "").toLowerCase().includes(searchQuery);
 
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${index + 1}</b></td>
-                    <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
-                    <td>${item.checkin || ''}</td>
-                    <td>${item.checkout || ''}</td>
-                    <td>${item.bookDate || ''}</td>
-                    <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="0" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
-                    <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
-                    <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
-                    <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
-                    <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
-                    <td>
-                        <div class="btn-action-group">
-                            <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
-                            <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote) {
+                    return;
+                }
+            }
+
+            visibleCount++;
+
+            const totalBillVal = parseMoneyInput(item.totalBill);
+            const paidVal = parseMoneyInput(item.paid);
+            const minibarVal = parseMoneyInput(item.minibar);
+            const remainingVal = totalBillVal - paidVal;
+
+            // TÍNH TỔNG CỘNG HÀNG BÊN DƯỚI
+            totalMinibar += minibarVal;
+            totalBillSum += totalBillVal;
+            totalPaidSum += paidVal;
+            totalRemainingSum += remainingVal;
+
+            let nameStr = item.name || '';
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${visibleCount}</b></td>
+                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
+                <td>${item.checkin || ''}</td>
+                <td>${item.checkout || ''}</td>
+                <td>${item.bookDate || ''}</td>
+                <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="0" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
+                <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
+                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
+                <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
+                        <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (visibleCount === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
         }
 
-        // HIỂN THỊ CÁC CON SỐ VÀO DÒNG TỔNG THEO ĐƠN VỊ K (GIỐNG HÌNH CỦA BẠN: 196, 20970, 20545, 425)
+        // HIỂN THỊ CÁC CON SỐ VÀO DÒNG TỔNG THEO ĐƠN VỊ K
         document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
         document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
         document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
