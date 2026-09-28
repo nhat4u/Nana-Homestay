@@ -51,15 +51,25 @@
         .btn-free { background: #e8f5e9; color: #2e7d32; }
         .btn-busy { background: #ffebee; color: #c62828; }
 
+        /* Form nhập đơn mới */
+        .add-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .add-booking-form h4 { color: var(--primary); margin-bottom: 12px; font-size: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .form-item label { display: block; font-size: 12px; font-weight: 700; color: #8a626a; margin-bottom: 4px; }
+        .form-item input { width: 100%; padding: 8px 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; outline: none; }
+        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
         /* Bảng Danh Sách Khách */
-        table.cust-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
-        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; text-align: center; }
-        table.cust-table td { text-align: center; }
+        table.cust-table { width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 13px; }
+        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 8px; text-align: center; }
+        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; }
         
-        /* Ô nhập cho Admin */
-        .admin-input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
-        .admin-input:focus { border-color: var(--primary); background: #fff0f3; }
+        /* Ô nhập nhỏ gọn cho Admin trong bảng */
+        .admin-input-small { width: 75px; padding: 5px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; text-align: center; outline: none; }
+        .admin-input-note { width: 110px; padding: 5px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        
+        .btn-action-group { display: flex; gap: 4px; justify-content: center; }
+        .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; }
         .btn-del-cust { background: #ff4d4f; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; }
 
         /* Thống kê thu chi */
@@ -68,6 +78,11 @@
         .stat-card h3 { font-size: 14px; color: #8a626a; margin-bottom: 8px; }
         .stat-card .val { font-size: 24px; font-weight: 700; }
         .expense-input { width: 140px; padding: 6px; text-align: center; border: 1px solid var(--primary); border-radius: 8px; font-weight: 700; color: #c62828; font-size: 16px; margin-top: 5px; outline: none; }
+
+        /* Modal Sửa Đơn */
+        .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .edit-card { background: white; width: 90%; max-width: 450px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .edit-card h3 { color: var(--primary); margin-bottom: 15px; font-size: 16px; text-align: center; }
     </style>
 
     <!-- KẾT NỐI FIREBASE SDK -->
@@ -97,9 +112,9 @@
 
     <!-- Thanh chuyển Tab -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Tháng</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Book </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê </button>
     </div>
 
     <!-- TAB 1: LỊCH BẤM ĐỔI TRẠNG THÁI THEO THÁNG -->
@@ -136,20 +151,61 @@
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
     <div id="tabCustomers" class="tab-content">
+        <!-- FORM THÊM ĐƠN HÀNG THỦ CÔNG -->
+        <div class="add-booking-form">
+            <h4>➕ Nhập thông tin đơn book phòng mới</h4>
+            <div class="form-grid">
+                <div class="form-item">
+                    <label>Tên & SĐT khách:</label>
+                    <input type="text" id="addName" placeholder="VD: Minh Nhật (0962292229)">
+                </div>
+                <div class="form-item">
+                    <label>Check-in:</label>
+                    <input type="text" id="addCheckin" placeholder="VD: 22:00 - 28/09/2026">
+                </div>
+                <div class="form-item">
+                    <label>Check-out:</label>
+                    <input type="text" id="addCheckout" placeholder="VD: 10:00 - 29/09/2026">
+                </div>
+                <div class="form-item">
+                    <label>Tổng bill (đ):</label>
+                    <input type="number" id="addTotal" placeholder="VD: 300000" oninput="calcAddRemaining()">
+                </div>
+                <div class="form-item">
+                    <label>Đã CK (đ):</label>
+                    <input type="number" id="addPaid" placeholder="VD: 150000" oninput="calcAddRemaining()">
+                </div>
+                <div class="form-item">
+                    <label>Còn lại (đ):</label>
+                    <input type="text" id="addRemaining" placeholder="0đ" readonly style="background: #eee; font-weight:700; color:#c62828;">
+                </div>
+                <div class="form-item">
+                    <label>Mini bar (đ):</label>
+                    <input type="text" id="addMinibar" placeholder="VD: 20k">
+                </div>
+                <div class="form-item">
+                    <label>Ghi chú:</label>
+                    <input type="text" id="addNote" placeholder="Ghi chú thêm...">
+                </div>
+            </div>
+            <button class="btn-add-booking" onclick="addManualBooking()">✨ Lưu Đơn Đặt Phòng</button>
+        </div>
+
         <h3 style="margin-bottom:15px; color: var(--primary);">Lịch sử khách chốt phòng</h3>
         <table class="cust-table">
             <thead>
                 <tr>
-                    <th style="width: 40px;">STT</th>
+                    <th style="width: 35px;">STT</th>
                     <th>Tên khách</th>
                     <th>Check-in</th>
                     <th>Check-out</th>
                     <th>Ngày book</th>
                     <th>Tổng bill</th>
                     <th>Đã CK</th>
-                    <th>Mini bar</th>
+                    <th>Còn lại</th>
+                    <th style="width: 85px;">Mini bar</th>
                     <th>Ghi chú</th>
-                    <th style="width: 50px;">Xóa</th>
+                    <th style="width: 90px;">Thao tác</th>
                 </tr>
             </thead>
             <tbody id="customerBody">
@@ -176,6 +232,48 @@
     </div>
 </div>
 
+<!-- MODAL SỬA ĐƠN ĐẶT PHÒNG -->
+<div class="edit-modal" id="editModal">
+    <div class="edit-card">
+        <h3>✏️ Chỉnh Sửa Thông Tin Đơn Book</h3>
+        <input type="hidden" id="editKey">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-item" style="grid-column: span 2;">
+                <label>Tên & SĐT khách:</label>
+                <input type="text" id="editName">
+            </div>
+            <div class="form-item">
+                <label>Check-in:</label>
+                <input type="text" id="editCheckin">
+            </div>
+            <div class="form-item">
+                <label>Check-out:</label>
+                <input type="text" id="editCheckout">
+            </div>
+            <div class="form-item">
+                <label>Tổng bill (đ):</label>
+                <input type="number" id="editTotal">
+            </div>
+            <div class="form-item">
+                <label>Đã CK (đ):</label>
+                <input type="number" id="editPaid">
+            </div>
+            <div class="form-item">
+                <label>Mini bar:</label>
+                <input type="text" id="editMinibar">
+            </div>
+            <div class="form-item">
+                <label>Ghi chú:</label>
+                <input type="text" id="editNote">
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn-add-booking" style="flex:1;" onclick="saveEditedBooking()">💾 Lưu Thay Đổi</button>
+            <button class="btn-add-booking" style="flex:1; background:#ccc; color:#333;" onclick="closeEditModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
@@ -188,14 +286,12 @@
       measurementId: "G-4ZE4FVEZHS"
     };
 
-    // Khởi tạo Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     const ADMIN_PASSWORD = "nana123";
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
-    // Biến toàn cục lưu danh sách khách nhận từ Firebase
     let currentCustomers = {};
 
     function checkAdminLogin() {
@@ -204,7 +300,7 @@
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
             renderMonthlySchedule();
-            listenToCustomersFirebase(); // Bật chế độ lắng nghe thời gian thực
+            listenToCustomersFirebase(); 
         } else {
             alert("Mật khẩu Admin không chính xác!");
         }
@@ -222,7 +318,7 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // --- TAB 1: HIỂN THỊ LỊCH & ĐỌC DỮ LIỆU TỪ FIREBASE ---
+    // --- TAB 1: QUẢN LÝ LỊCH ---
     function renderMonthlySchedule() {
         const month = parseInt(document.getElementById('selectMonth').value);
         const year = parseInt(document.getElementById('selectYear').value);
@@ -293,12 +389,63 @@
         });
     }
 
-    // --- TAB 2 & TAB 3: LẮNG NGHE VÀ TỰ ĐỘNG CẬP NHẬT TỪ FIREBASE (REALTIME) ---
+    // --- TAB 2 & 3: LẮNG NGHE & TỰ ĐỘNG CẬP NHẬT TỪ FIREBASE ---
     function listenToCustomersFirebase() {
         db.ref('customers').on('value', (snapshot) => {
             currentCustomers = snapshot.val() || {};
             renderCustomerTable();
             calculateStats();
+        });
+    }
+
+    function calcAddRemaining() {
+        const total = parseFloat(document.getElementById('addTotal').value) || 0;
+        const paid = parseFloat(document.getElementById('addPaid').value) || 0;
+        const remaining = total - paid;
+        document.getElementById('addRemaining').value = remaining.toLocaleString('vi-VN') + "đ";
+    }
+
+    function addManualBooking() {
+        const name = document.getElementById('addName').value.trim();
+        const checkin = document.getElementById('addCheckin').value.trim();
+        const checkout = document.getElementById('addCheckout').value.trim();
+        const totalBill = parseInt(document.getElementById('addTotal').value) || 0;
+        const paid = parseInt(document.getElementById('addPaid').value) || 0;
+        const minibar = document.getElementById('addMinibar').value.trim();
+        const note = document.getElementById('addNote').value.trim();
+
+        if (!name) {
+            alert("Vui lòng nhập tên khách hàng!");
+            return;
+        }
+
+        const todayStr = new Date().toLocaleDateString('vi-VN');
+
+        const newBooking = {
+            name: name,
+            checkin: checkin,
+            checkout: checkout,
+            bookDate: todayStr,
+            totalBill: totalBill,
+            paid: paid,
+            minibar: minibar,
+            note: note
+        };
+
+        db.ref('customers').push(newBooking, (error) => {
+            if (!error) {
+                alert("✅ Đã lưu thông tin đơn thành công!");
+                document.getElementById('addName').value = "";
+                document.getElementById('addCheckin').value = "";
+                document.getElementById('addCheckout').value = "";
+                document.getElementById('addTotal').value = "";
+                document.getElementById('addPaid').value = "";
+                document.getElementById('addRemaining').value = "";
+                document.getElementById('addMinibar').value = "";
+                document.getElementById('addNote').value = "";
+            } else {
+                alert("Lỗi lưu đơn: " + error.message);
+            }
         });
     }
 
@@ -308,7 +455,7 @@
 
         const keys = Object.keys(currentCustomers);
         if (keys.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 20px;">Chưa có lịch book nào từ khách.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 20px;">Chưa có lịch book nào.</td></tr>`;
             return;
         }
 
@@ -316,6 +463,7 @@
             const item = currentCustomers[key];
             const totalBillVal = parseInt(item.totalBill) || 0;
             const paidVal = parseInt(item.paid) || 0;
+            const remainingVal = totalBillVal - paidVal;
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
@@ -326,9 +474,15 @@
                 <td>${item.bookDate || ''}</td>
                 <td style="color: var(--primary); font-weight:700;">${totalBillVal.toLocaleString('vi-VN')}đ</td>
                 <td style="color: #2e7d32; font-weight:700;">${paidVal.toLocaleString('vi-VN')}đ</td>
-                <td><input type="text" class="admin-input" value="${item.minibar || ''}" placeholder="Nhập đồ..." onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
-                <td><input type="text" class="admin-input" value="${item.note || ''}" placeholder="Nhập ghi chú..." onchange="updateCustomerField('${key}', 'note', this.value)"></td>
-                <td><button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button></td>
+                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${remainingVal.toLocaleString('vi-VN')}đ</td>
+                <td><input type="text" class="admin-input-small" value="${item.minibar || ''}" placeholder="20k..." onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                <td><input type="text" class="admin-input-note" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateCustomerField('${key}', 'note', this.value)"></td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">✏️ Sửa</button>
+                        <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
+                    </div>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -336,6 +490,46 @@
 
     function updateCustomerField(key, field, value) {
         db.ref(`customers/${key}/${field}`).set(value);
+    }
+
+    function openEditModal(key) {
+        const item = currentCustomers[key];
+        document.getElementById('editKey').value = key;
+        document.getElementById('editName').value = item.name || '';
+        document.getElementById('editCheckin').value = item.checkin || '';
+        document.getElementById('editCheckout').value = item.checkout || '';
+        document.getElementById('editTotal').value = item.totalBill || 0;
+        document.getElementById('editPaid').value = item.paid || 0;
+        document.getElementById('editMinibar').value = item.minibar || '';
+        document.getElementById('editNote').value = item.note || '';
+
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEditedBooking() {
+        const key = document.getElementById('editKey').value;
+        const updatedData = {
+            name: document.getElementById('editName').value.trim(),
+            checkin: document.getElementById('editCheckin').value.trim(),
+            checkout: document.getElementById('editCheckout').value.trim(),
+            totalBill: parseInt(document.getElementById('editTotal').value) || 0,
+            paid: parseInt(document.getElementById('editPaid').value) || 0,
+            minibar: document.getElementById('editMinibar').value.trim(),
+            note: document.getElementById('editNote').value.trim()
+        };
+
+        db.ref(`customers/${key}`).update(updatedData, (error) => {
+            if (!error) {
+                alert("✅ Đã cập nhật thành công!");
+                closeEditModal();
+            } else {
+                alert("Lỗi cập nhật: " + error.message);
+            }
+        });
     }
 
     function deleteCustomer(key) {
