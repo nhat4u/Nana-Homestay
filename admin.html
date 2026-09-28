@@ -166,8 +166,14 @@
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
     <div id="tabCustomers" class="tab-content">
+        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
+        <div class="paste-booking-form">
+            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
+            <textarea id="pasteText" placeholder="................................"></textarea>
+            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
+        </div>
 
-                <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
+        <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
         <div class="filter-search-bar">
             <div class="filter-group">
                 <label for="custFilterMonth">📅 Lọc xem Tháng:</label>
@@ -186,13 +192,6 @@
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderCustomerTable()">
             </div>
-        </div>
-        
-        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
-        <div class="paste-booking-form">
-            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
-            <textarea id="pasteText" placeholder="................................"></textarea>
-            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
         <div class="table-container">
@@ -361,7 +360,7 @@
         return (num / 1000) + "k";
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & ĐẶT LỊCH TỰ ĐỘNG
     function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -415,17 +414,48 @@
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const todayStr = `${day}/${month}`;
 
-        // Lấy thông tin tháng năm hiện tại đang được chọn ở bộ lọc hoặc tháng hiện tại
         let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
         let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
 
-        // Tự động phân tích tháng từ Checkin (Ví dụ checkin: "10h 15/10" -> lấy 10)
-        let checkinMonthMatch = checkin.match(/\/\s*([0-9]{1,2})/);
-        if (checkinMonthMatch) {
-            filterMonth = parseInt(checkinMonthMatch[1]);
+        // Tự động tìm Ngày & Tháng từ thông tin Check-in (VD: "11h 15/10" -> day: 15, month: 10)
+        let bookingDay = null;
+        let bookingMonth = filterMonth;
+
+        let dateInCheckinMatch = checkin.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+        if (dateInCheckinMatch) {
+            bookingDay = parseInt(dateInCheckinMatch[1]);
+            bookingMonth = parseInt(dateInCheckinMatch[2]);
+        } else {
+            // Nếu chỉ ghi ngày (VD: "11h ngày 15")
+            let singleDayMatch = checkin.match(/(?:ngày|đêm)\s*([0-9]{1,2})/i);
+            if (singleDayMatch) {
+                bookingDay = parseInt(singleDayMatch[1]);
+            }
         }
 
-        const monthKey = `${filterYear}_${filterMonth}`;
+        const monthKey = `${filterYear}_${bookingMonth}`;
+
+        // TỰ ĐỘNG CHUYỂN TRẠNG THÁI BÊN BẢNG LỊCH (TAB 1)
+        if (bookingDay) {
+            let startHour = null;
+            let endHour = null;
+
+            // Tìm giờ bắt đầu từ Checkin (VD: "11h 15/10" -> 11)
+            let startHourMatch = checkin.match(/([0-9]{1,2})\s*h/i) || checkin.match(/^([0-9]{1,2})/);
+            if (startHourMatch) startHour = parseInt(startHourMatch[1]);
+
+            // Tìm giờ kết thúc từ Checkout (VD: "15h 15/10" -> 15)
+            let endHourMatch = checkout.match(/([0-9]{1,2})\s*h/i) || checkout.match(/^([0-9]{1,2})/);
+            if (endHourMatch) endHour = parseInt(endHourMatch[1]);
+
+            if (startHour !== null && endHour !== null && startHour < endHour) {
+                let scheduleUpdates = {};
+                for (let h = startHour; h < endHour; h++) {
+                    scheduleUpdates[`schedules/${monthKey}/d${bookingDay}_h${h}`] = true;
+                }
+                db.ref().update(scheduleUpdates);
+            }
+        }
 
         const newBooking = {
             name: name,
@@ -442,8 +472,9 @@
 
         db.ref('customers').push(newBooking, (error) => {
             if (!error) {
-                alert(`✅ Đã thêm thành công đơn của: ${name}!`);
+                alert(`✅ Đã thêm đơn của: ${name} và tự động khóa lịch phòng từ ${checkin} đến ${checkout}!`);
                 document.getElementById('pasteText').value = "";
+                renderMonthlySchedule(); // Làm mới lại lịch
             } else {
                 alert("Lỗi lưu đơn: " + error.message);
             }
@@ -552,12 +583,9 @@
         keys.forEach((key) => {
             const item = currentCustomers[key];
             
-            // 1. Kiểm tra lọc theo Tháng / Năm
-            // Nếu đơn chưa có monthKey (dữ liệu cũ), tự gán theo mặc định 2026_10
             const itemMonthKey = item.monthKey || "2026_10";
             if (itemMonthKey !== targetMonthKey) return;
 
-            // 2. Kiểm tra ô tìm kiếm (Tên, SĐT, Ngày book, Check-in, Check-out, Ghi chú)
             if (searchQuery !== "") {
                 const matchName = (item.name || "").toLowerCase().includes(searchQuery);
                 const matchPhone = (item.phone || "").toLowerCase().includes(searchQuery);
@@ -578,7 +606,6 @@
             const minibarVal = parseMoneyInput(item.minibar);
             const remainingVal = totalBillVal - paidVal;
 
-            // TÍNH TỔNG CỘNG HÀNG BÊN DƯỚI
             totalMinibar += minibarVal;
             totalBillSum += totalBillVal;
             totalPaidSum += paidVal;
@@ -612,13 +639,11 @@
             tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
         }
 
-        // HIỂN THỊ CÁC CON SỐ VÀO DÒNG TỔNG THEO ĐƠN VỊ K
         document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
         document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
         document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
         document.getElementById('sumRemaining').innerText = totalRemainingSum / 1000;
 
-        // BẢNG NANA HOMESTAY = ĐÃ CK + MINI BAR
         const nanaTotal = (totalPaidSum + totalMinibar) / 1000;
         document.getElementById('sumNanaTotal').innerText = nanaTotal;
     }
