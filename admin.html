@@ -360,7 +360,7 @@
         return (num / 1000) + "k";
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (ĐÃ HỖ TRỢ ĐẶT QUA ĐÊM)
     function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -388,9 +388,7 @@
         let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK\vert{}CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
         if (billMatch) {
             totalBill = parseMoneyInput(billMatch[1]);
-            if (billMatch[2]) {
-                paid = parseMoneyInput(billMatch[2]);
-            }
+            if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
         }
         let paidMatch = text.match(/ĐÃ CK\s*([0-9kKtrTR.]+)/i) || text.match(/Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i);
         if (paidMatch && !paid) {
@@ -417,43 +415,63 @@
         let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
         let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
 
-        // Phân tích Ngày & Giờ để tạo danh sách khung giờ cần khóa
-        let bookingDay = null;
-        let bookingMonth = filterMonth;
+        // Tách ngày & giờ Check-in / Check-out
+        let inHour = null, inDay = null, inMonth = filterMonth;
+        let outHour = null, outDay = null, outMonth = filterMonth;
 
-        let dateInCheckinMatch = checkin.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
-        if (dateInCheckinMatch) {
-            bookingDay = parseInt(dateInCheckinMatch[1]);
-            bookingMonth = parseInt(dateInCheckinMatch[2]);
-        } else {
-            let singleDayMatch = checkin.match(/(?:ngày|đêm)\s*([0-9]{1,2})/i);
-            if (singleDayMatch) {
-                bookingDay = parseInt(singleDayMatch[1]);
-            }
+        let inHourMatch = checkin.match(/([0-9]{1,2})\s*h/i);
+        if (inHourMatch) inHour = parseInt(inHourMatch[1]);
+
+        let inDateMatch = checkin.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+        if (inDateMatch) {
+            inDay = parseInt(inDateMatch[1]);
+            inMonth = parseInt(inDateMatch[2]);
         }
 
-        const monthKey = `${filterYear}_${bookingMonth}`;
-        let bookedSlots = []; // Lưu lại danh sách ô lịch bị chiếm để dùng khi xóa
+        let outHourMatch = checkout.match(/([0-9]{1,2})\s*h/i);
+        if (outHourMatch) outHour = parseInt(outHourMatch[1]);
 
-        if (bookingDay) {
-            let startHour = null;
-            let endHour = null;
+        let outDateMatch = checkout.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+        if (outDateMatch) {
+            outDay = parseInt(outDateMatch[1]);
+            outMonth = parseInt(outDateMatch[2]);
+        }
 
-            let startHourMatch = checkin.match(/([0-9]{1,2})\s*h/i) || checkin.match(/^([0-9]{1,2})/);
-            if (startHourMatch) startHour = parseInt(startHourMatch[1]);
+        let bookedSlots = [];
+        let scheduleUpdates = {};
 
-            let endHourMatch = checkout.match(/([0-9]{1,2})\s*h/i) || checkout.match(/^([0-9]{1,2})/);
-            if (endHourMatch) endHour = parseInt(endHourMatch[1]);
-
-            if (startHour !== null && endHour !== null && startHour < endHour) {
-                let scheduleUpdates = {};
-                for (let h = startHour; h < endHour; h++) {
-                    const slotKey = `d${bookingDay}_h${h}`;
+        // Xử lý chuyển đổi các khung giờ sang Đã có khách
+        if (inHour !== null && outHour !== null && inDay && inMonth) {
+            // Trường hợp 1: Check-in và Check-out trong CÙNG 1 ngày
+            if (!outDay || (inDay === outDay && inMonth === outMonth)) {
+                let monthKey = `${filterYear}_${inMonth}`;
+                for (let h = inHour; h < outHour; h++) {
+                    let slotKey = `d${inDay}_h${h}`;
                     scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
-                    bookedSlots.push(slotKey);
+                    bookedSlots.push({ monthKey, slotKey });
                 }
-                db.ref().update(scheduleUpdates);
+            } 
+            // Trường hợp 2: Khách ở QUA ĐÊM (Khác ngày)
+            else {
+                // Khóa các giờ từ lúc Check-in đến 23h ngày đầu tiên
+                let monthKeyIn = `${filterYear}_${inMonth}`;
+                for (let h = inHour; h <= 23; h++) {
+                    let slotKey = `d${inDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKeyIn}/${slotKey}`] = true;
+                    bookedSlots.push({ monthKey: monthKeyIn, slotKey });
+                }
+
+                // Khóa các giờ từ 00h đến trước giờ Check-out ngày hôm sau
+                let monthKeyOut = `${filterYear}_${outMonth}`;
+                for (let h = 0; h < outHour; h++) {
+                    let slotKey = `d${outDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKeyOut}/${slotKey}`] = true;
+                    bookedSlots.push({ monthKey: monthKeyOut, slotKey });
+                }
             }
+
+            // Cập nhật Firebase
+            db.ref().update(scheduleUpdates);
         }
 
         const newBooking = {
@@ -466,8 +484,8 @@
             paid: paid,
             minibar: "",
             note: note,
-            monthKey: monthKey,
-            bookedSlots: bookedSlots // Lưu mảng ô lịch bị khóa
+            monthKey: `${filterYear}_${inMonth || filterMonth}`,
+            bookedSlots: bookedSlots
         };
 
         db.ref('customers').push(newBooking, (error) => {
@@ -491,17 +509,21 @@
         let updates = {};
         updates[`customers/${key}`] = null; // Xóa đơn khách
 
-        // Giải phóng các khung giờ trên lịch về "Trống" (false)
-        if (item.monthKey && item.bookedSlots && Array.isArray(item.bookedSlots)) {
-            item.bookedSlots.forEach(slotKey => {
-                updates[`schedules/${item.monthKey}/${slotKey}`] = null; // hoặc false
+        // Giải phóng các khung giờ trên lịch về "Trống"
+        if (item.bookedSlots && Array.isArray(item.bookedSlots)) {
+            item.bookedSlots.forEach(slot => {
+                if (typeof slot === 'object' && slot.monthKey && slot.slotKey) {
+                    updates[`schedules/${slot.monthKey}/${slot.slotKey}`] = null;
+                } else if (typeof slot === 'string' && item.monthKey) {
+                    updates[`schedules/${item.monthKey}/${slot}`] = null;
+                }
             });
         }
 
         db.ref().update(updates, (error) => {
             if (!error) {
                 alert("🗑️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
-                renderMonthlySchedule(); // Làm mới lại bảng lịch
+                renderMonthlySchedule();
             } else {
                 alert("Lỗi khi xóa: " + error.message);
             }
