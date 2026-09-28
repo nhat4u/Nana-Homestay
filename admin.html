@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Trang Admin Quản Lý</title>
+    <title>Nana Homestay - Trang Quản Lý</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -94,7 +94,7 @@
 
 <!-- Màn hình Đăng Nhập Admin -->
 <div class="login-box" id="loginBox">
-    <h2>🔐 Admin Nana Homestay</h2>
+    <h2>🔐 Nana Homestay</h2>
     <input type="password" id="adminPass" placeholder="Nhập mật khẩu Admin">
     <button onclick="checkAdminLogin()">Đăng Nhập</button>
     <br>
@@ -166,11 +166,11 @@
                 </div>
                 <div class="form-item">
                     <label>Check-in:</label>
-                    <input type="text" id="addCheckin" placeholder="..." onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckin" placeholder="..." oninput="formatDateTimeInput(this)" onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Check-out:</label>
-                    <input type="text" id="addCheckout" placeholder="..." onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckout" placeholder="..." oninput="formatDateTimeInput(this)" onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Tổng bill:</label>
@@ -247,11 +247,11 @@
             </div>
             <div class="form-item">
                 <label>Check-in:</label>
-                <input type="text" id="editCheckin">
+                <input type="text" id="editCheckin" oninput="formatDateTimeInput(this)">
             </div>
             <div class="form-item">
                 <label>Check-out:</label>
-                <input type="text" id="editCheckout">
+                <input type="text" id="editCheckout" oninput="formatDateTimeInput(this)">
             </div>
             <div class="form-item">
                 <label>Tổng bill:</label>
@@ -296,6 +296,19 @@
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     let currentCustomers = {};
+
+    // TỰ ĐỘNG THÊM NGOẶC ĐƠN CHO NGÀY (VD: 22h 28/9 -> 22h (28/9))
+    function formatDateTimeInput(input) {
+        let val = input.value;
+        // Bỏ ngoặc cũ nếu có
+        val = val.replace(/\(|\)/g, '');
+        
+        // Tìm định dạng kiểu "22h 28/9" hoặc "22h 28/09"
+        let regex = /(\d{1,2}\s*h(?:[0-9]{1,2})?)\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i;
+        if (regex.test(val)) {
+            input.value = val.replace(regex, '$1 ($2)');
+        }
+    }
 
     function checkAdminLogin() {
         const pass = document.getElementById('adminPass').value;
@@ -509,7 +522,11 @@
             return;
         }
 
-        const todayStr = new Date().toLocaleDateString('vi-VN');
+        // Định dạng ngày book chỉ có Ngày/Tháng (Ví dụ: 28/09)
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const todayStr = `${day}/${month}`;
 
         const newBooking = {
             name: name,
