@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Homestay - Xem Lịch Trống</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
+        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
+        
+        /* Navigation Bar 5 mục */
+        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); align-items: center; }
+        .nav-link { flex: 1; text-align: center; padding: 12px 2px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 11px; }
+        .nav-link.active { background: var(--primary); color: white; }
+
+        .header { text-align: center; padding: 15px 15px 5px; }
+        .header h1 { color: var(--primary); font-size: 19px; }
+
+        .form-group { padding: 10px 15px; }
+        .month-picker { display: flex; align-items: center; gap: 8px; background: #fff0f3; padding: 8px 12px; border-radius: 12px; border: 1px dashed var(--primary); justify-content: center; }
+        .month-picker label { font-weight: 700; color: var(--primary); font-size: 13px; }
+        .month-picker select { padding: 5px 10px; border-radius: 8px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; background: white; }
+
+        .note-legend { display: flex; justify-content: center; gap: 15px; font-size: 11px; font-weight: 700; margin: 8px 0 12px; }
+        .badge-free { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 6px; }
+        .badge-busy { background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 6px; }
+
+        /* Bảng lịch cuộn ngang mượt mà */
+        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #ffd0d7; border-radius: 12px; margin: 0 15px; }
+        table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+        table.sched-table th, table.sched-table td { border: 1px solid #ffe3e8; padding: 5px; white-space: nowrap; }
+        table.sched-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
+        table.sched-table td.time-col { background: #fff0f3; font-weight: 700; color: #8a626a; position: sticky; left: 0; z-index: 2; }
+        
+        .cell-free { background: #e8f5e9; color: #2e7d32; font-weight: 700; border-radius: 4px; padding: 2px; }
+        .cell-busy { background: #ffebee; color: #c62828; font-weight: 700; border-radius: 4px; padding: 2px; }
+
+        .btn-booking { display: block; width: calc(100% - 30px); margin: 15px 15px 0; background: var(--primary); color: white; text-align: center; padding: 13px; border-radius: 15px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
+    </style>
+
+    <!-- FIREBASE SDK (Đồng bộ trực tiếp với Admin) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-bar">
+        <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
+        <a href="bang-gia.html" class="nav-link">🏷️ Bảng Giá</a>
+        <a href="lich-trong.html" class="nav-link active">🟢 Lịch Trống</a>
+        <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>
+        <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
+    </div>
+
+    <div class="header">
+        <h1>🟢 Lịch Trống Nana Homestay</h1>
+    </div>
+
+    <!-- Bộ chọn Tháng/Năm -->
+    <div class="form-group">
+        <div class="month-picker">
+            <label for="selectMonth">📅 Tháng:</label>
+            <select id="selectMonth" onchange="renderSchedule()">
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+            </select>
+            <select id="selectYear" onchange="renderSchedule()">
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Chú thích -->
+    <div class="note-legend">
+        <span class="badge-free">🟢 Trống (Có thể đặt)</span>
+        <span class="badge-busy">🔴 Đã có khách</span>
+    </div>
+
+    <!-- Bảng hiển thị Lịch cuộn ngang -->
+    <div class="table-container">
+        <table class="sched-table">
+            <thead>
+                <tr id="scheduleHeader">
+                    <th class="time-col">Giờ\Ngày</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+            </tbody>
+        </table>
+    </div>
+
+    <a href="dat-phong.html" class="btn-booking">🔒 Chốt Đặt Khung Giờ Ngay</a>
+</div>
+
+<script>
+    // Cấu hình Firebase Realtime Database
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
+      authDomain: "nana-homestay.firebaseapp.com",
+      projectId: "nana-homestay",
+      storageBucket: "nana-homestay.firebasestorage.app",
+      messagingSenderId: "479892350682",
+      appId: "1:479892350682:web:485d4dd69befd3dfc7a7e3",
+      measurementId: "G-4ZE4FVEZHS"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+
+    function renderSchedule() {
+        const month = parseInt(document.getElementById('selectMonth').value);
+        const year = parseInt(document.getElementById('selectYear').value);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        const headerRow = document.getElementById('scheduleHeader');
+        headerRow.innerHTML = '<th class="time-col">Giờ\\Ngày</th>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month - 1, day);
+            const dayOfWeek = dayNames[dateObj.getDay()];
+            
+            const th = document.createElement('th');
+            th.innerText = `${day}/${month}\n(${dayOfWeek})`;
+            headerRow.appendChild(th);
+        }
+
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>⏳ Đang tải dữ liệu lịch...</td></tr>";
+
+        // Tự động đọc dữ liệu thời gian thực (Realtime) từ Firebase
+        db.ref(`schedules/${year}_${month}`).on('value', (snapshot) => {
+            const savedData = snapshot.val() || {};
+            tbody.innerHTML = "";
+
+            for (let h = 0; h < 24; h++) {
+                const timeStr = `${h.toString().padStart(2, '0')}:00`;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const key = `d${day}_h${h}`;
+                    const isBusy = savedData[key] === true;
+
+                    tr.innerHTML += `
+                        <td>
+                            <div class="${isBusy ? 'cell-busy' : 'cell-free'}">
+                                ${isBusy ? 'Bận' : 'Trống'}
+                            </div>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            }
+        });
+    }
+
+    // Tự động chọn Tháng/Năm hiện tại khi mở trang
+    const now = new Date();
+    document.getElementById('selectMonth').value = now.getMonth() + 1;
+    document.getElementById('selectYear').value = now.getFullYear();
+
+    renderSchedule();
+</script>
+
+</body>
+</html>
