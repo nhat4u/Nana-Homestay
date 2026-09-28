@@ -59,7 +59,7 @@
         .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; background: white; }
         .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
-        /* Bảng Danh Sách Khách Thu Nhỏ Siêu Tinh Gọn */
+        /* Bảng Danh Sách Khách Thu Nhỏ */
         table.cust-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 6px 4px; text-align: center; white-space: nowrap; }
         table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
@@ -182,7 +182,7 @@
                 </div>
                 <div class="form-item">
                     <label>Còn lại:</label>
-                    <input type="text" id="addRemaining" placeholder="0k" readonly style="background:#f5f5f5; font-weight:700; color:#c62828;">
+                    <input type="text" id="addRemaining" placeholder="..." readonly style="background:#f5f5f5; font-weight:700; color:#c62828;">
                 </div>
             </div>
             <button class="btn-add-booking" onclick="addManualBooking()">✨ Lưu Đơn Phòng</button>
@@ -321,7 +321,6 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Chuyển chuỗi tiền "150k", "210k", "300000" thành con số nguyên
     function parseMoneyInput(val) {
         if (!val) return 0;
         let str = val.toString().toLowerCase().trim();
@@ -334,28 +333,25 @@
         return parseFloat(str.replace(/[^0-9]/g, '')) || 0;
     }
 
-    // Định dạng số tiền dạng "150k", "210k", "0k"
     function formatK(val) {
         let num = parseMoneyInput(val);
         if (num === 0) return "0k";
         return (num / 1000) + "k";
     }
 
-    // BẢNG GIÁ CHUẨN NANA HOMESTAY
     const pricing = {
         normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
         weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
     const EXTRA_HOURLY_RATE = 40000;
 
-    // Trích xuất số giờ nguyên (VD: "22h 29/9" -> 22, "22:00" -> 22)
     function extractHour(str) {
         if (!str) return null;
         let match = str.match(/(\d{1,2})[h:]/i) || str.match(/^(\d{1,2})/);
         return match ? parseInt(match[1]) : null;
     }
 
-    // THUẬT TOÁN TÍNH GIÁ THÔNG MINH BẮT MỌI CÚ PHÁP
+    // THUẬT TOÁN TÍNH GIÁ CẢI TIẾN CHUẨN XÁC
     function autoCalculatePriceAndRem() {
         const inStr = document.getElementById('addCheckin').value.trim();
         const outStr = document.getElementById('addCheckout').value.trim();
@@ -380,27 +376,31 @@
             let outH = extractHour(outStr);
 
             if (inH !== null && outH !== null) {
-                // Qua đêm (Check-in 22h, Check-out 10h) -> 300k/330k
+                // Qua đêm (22h - 10h) -> 300k/330k
                 if (inH === 22 && outH === 10) {
                     totalVal = rates.overnight;
                 }
-                // Giá ngày (Check-in 11h, Check-out 21h) -> 380k/420k
+                // Giá ngày (11h - 21h) -> 380k/420k
                 else if (inH === 11 && outH === 21) {
                     totalVal = rates.fullday;
                 }
-                // Ngày đêm (Check-in 15h, Check-out 10h) -> 450k/490k
+                // Ngày đêm (15h - 10h) -> 450k/490k
                 else if (inH === 15 && outH === 10) {
                     totalVal = rates.nightday;
                 }
-                // Tính theo giờ lẻ khác
+                // Giờ lẻ (VD: 11h - 14h = 3 tiếng)
                 else {
                     let calcOut = outH <= inH ? outH + 24 : outH;
                     let diffH = calcOut - inH;
 
-                    if (diffH <= 2) totalVal = rates.combo2h;
-                    else if (diffH <= 4) totalVal = rates.combo4h;
-                    else {
-                        totalVal = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE);
+                    if (diffH <= 2) {
+                        totalVal = rates.combo2h; // 2 tiếng = 150k
+                    } else if (diffH === 3) {
+                        totalVal = rates.combo2h + EXTRA_HOURLY_RATE; // 3 tiếng = Combo 2h (150k) + 1h (40k) = 190k
+                    } else if (diffH === 4) {
+                        totalVal = rates.combo4h; // 4 tiếng = Combo 4h (210k)
+                    } else {
+                        totalVal = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE); // Trên 4 tiếng
                         if (totalVal > rates.fullday) totalVal = rates.fullday;
                     }
                 }
