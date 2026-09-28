@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nana Homestay - Trang Chủ</title>
+    <!-- Khai báo Logo hiển thị khi thêm vào màn hình chính iPhone -->
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25,9 +26,13 @@
         .header .logo-img { width: 70px; height: 70px; object-fit: contain; border-radius: 50%; }
         .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
         
-        .section { padding: 15px 20px; }
+        .section { padding: 12px 20px; }
         .section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 8px; }
         
+        /* Bảng giá */
+        .price-card { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; box-shadow: 0 4px 10px rgba(209,122,133,0.1); }
+        .price-card img { width: 100%; height: auto; display: block; }
+
         .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
         .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
 
@@ -69,6 +74,14 @@
         <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">📍 37 ngõ 435 đường Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
     </div>
 
+    <!-- MỤC BẢNG GIÁ PHÒNG -->
+    <div class="section">
+        <div class="section-title">🏷️ Bảng Giá Phòng</div>
+        <div class="price-card">
+            <img src="bang-gia.jpg" alt="Bảng Giá Nana Homestay">
+        </div>
+    </div>
+
     <div class="section">
         <div class="section-title">✨ Tiện nghi căn hộ</div>
         <div class="amenities">
@@ -101,7 +114,7 @@
                     <source src="video-wc.mp4" type="video/mp4">
                     Trình duyệt của bạn không hỗ trợ xem video.
                 </video>
-                <p>📹 Video phòng Nana</p>
+                <p>📹 Video phòng tắm</p>
             </div>
         </div>
     </div>
