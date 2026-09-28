@@ -57,9 +57,9 @@
         .paste-booking-form textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; resize: vertical; margin-bottom: 8px; }
         .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
-        /* Bảng Danh Sách Khách Thu Nhỏ */
+        /* Bảng Danh Sách Khách Thu Nhỏ & Hàng Tổng */
         table.cust-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 6px 4px; text-align: center; white-space: nowrap; }
+        table.cust-table th, table.cust-table td { border: 1px solid #ccc; padding: 6px 4px; text-align: center; white-space: nowrap; }
         table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
         
         .cust-name-cell { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
@@ -70,6 +70,12 @@
         .btn-action-group { display: flex; gap: 3px; justify-content: center; }
         .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
         .btn-del-cust { background: #ff4d4f; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
+
+        /* Kiểu dáng Hàng Tổng */
+        tr.row-total-summary td { font-weight: 700; font-size: 14px; background: #ffffff; }
+        .txt-red-summary { color: #d93025; font-weight: 700; font-size: 15px; }
+        tr.row-nana-summary td { background: #d0e1f9; font-weight: 700; }
+        .cell-nana-title { background: #fff2cc !important; font-size: 15px; font-weight: 700; color: #000; }
 
         /* Thống kê thu chi */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px; }
@@ -156,7 +162,7 @@
         <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
         <div class="paste-booking-form">
             <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
-            <textarea id="pasteText" placeholder="......................"></textarea>
+            <textarea id="pasteText" placeholder="Copy & dán nội dung chốt phòng vào đây...&#10;Ví dụ:&#10;Tên khách hàng: Vũ Ngọc Minh Châu&#10;SĐT : 0949796599&#10;Tổng bill: 370k (ĐÃ CK 185k)&#10;Giờ check in - out: 21h (2/10) - 10h (3/10)&#10;Số phòng: B101"></textarea>
             <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
@@ -166,20 +172,35 @@
                     <tr>
                         <th style="width: 25px;">STT</th>
                         <th style="width: 85px;">Tên khách</th>
-                        <th style="width: 85px;">SĐT</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
                         <th style="width: 60px;">Ngày book</th>
-                        <th style="width: 50px;">Tổng</th>
-                        <th style="width: 50px;">Đã CK</th>
+                        <th style="width: 50px;">Mini bar</th>
+                        <th style="width: 50px;">Tổng bill</th>
+                        <th style="width: 50px;">Đã ck</th>
                         <th style="width: 50px;">Còn lại</th>
-                        <th style="width: 50px;">Bar</th>
                         <th style="width: 85px;">Ghi chú</th>
                         <th style="width: 70px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="customerBody">
                 </tbody>
+                <!-- HÀNG TỔNG NANA HOMESTAY (THÊM THEO ẢNH MẪU) -->
+                <tfoot id="customerFoot">
+                    <tr class="row-total-summary">
+                        <td colspan="5" style="font-size: 16px;">Tổng</td>
+                        <td class="txt-red-summary" id="sumMinibar">0</td>
+                        <td class="txt-red-summary" id="sumTotalBill">0</td>
+                        <td class="txt-red-summary" id="sumPaid">0</td>
+                        <td class="txt-red-summary" id="sumRemaining">0</td>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr class="row-nana-summary">
+                        <td colspan="5" class="cell-nana-title">🏠 Nana Homestay</td>
+                        <td colspan="4" class="txt-red-summary" style="font-size: 18px;" id="sumNanaTotal">0</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -325,7 +346,7 @@
         let paid = 0;
         let checkin = "";
         let checkout = "";
-        let note = ""; // Để trống ghi chú theo yêu cầu
+        let note = "";
 
         // 1. Tên khách
         let nameMatch = text.match(/Tên khách hàng:\s*([^\n\r]+)/i) || text.match(/Tên khách:\s*([^\n\r]+)/i);
@@ -343,7 +364,6 @@
                 paid = parseMoneyInput(billMatch[2]);
             }
         }
-        // Trường hợp khác nếu có dòng "Đã CK" riêng
         let paidMatch = text.match(/ĐÃ CK\s*([0-9kKtrTR.]+)/i) || text.match(/Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i);
         if (paidMatch && !paid) {
             paid = parseMoneyInput(paidMatch[1]);
@@ -361,7 +381,6 @@
             return;
         }
 
-        // Ngày book tự lấy ngày/tháng hiện tại
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -474,42 +493,62 @@
         tbody.innerHTML = "";
 
         const keys = Object.keys(currentCustomers);
+        
+        let totalMinibar = 0;
+        let totalBillSum = 0;
+        let totalPaidSum = 0;
+        let totalRemainingSum = 0;
+
         if (keys.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào.</td></tr>`;
-            return;
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào.</td></tr>`;
+        } else {
+            keys.forEach((key, index) => {
+                const item = currentCustomers[key];
+                const totalBillVal = parseMoneyInput(item.totalBill);
+                const paidVal = parseMoneyInput(item.paid);
+                const minibarVal = parseMoneyInput(item.minibar);
+                const remainingVal = totalBillVal - paidVal;
+
+                // TÍNH TỔNG CỘNG HÀNG BÊN DƯỚI
+                totalMinibar += minibarVal;
+                totalBillSum += totalBillVal;
+                totalPaidSum += paidVal;
+                totalRemainingSum += remainingVal;
+
+                let nameStr = item.name || '';
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${index + 1}</b></td>
+                    <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
+                    <td>${item.checkin || ''}</td>
+                    <td>${item.checkout || ''}</td>
+                    <td>${item.bookDate || ''}</td>
+                    <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="0" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                    <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
+                    <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
+                    <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
+                    <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
+                    <td>
+                        <div class="btn-action-group">
+                            <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
+                            <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        keys.forEach((key, index) => {
-            const item = currentCustomers[key];
-            const totalBillVal = parseMoneyInput(item.totalBill);
-            const paidVal = parseMoneyInput(item.paid);
-            const remainingVal = totalBillVal - paidVal;
+        // HIỂN THỊ CÁC CON SỐ VÀO DÒNG TỔNG THEO ĐƠN VỊ K (GIỐNG HÌNH CỦA BẠN: 196, 20970, 20545, 425)
+        document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
+        document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
+        document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
+        document.getElementById('sumRemaining').innerText = totalRemainingSum / 1000;
 
-            let nameStr = item.name || '';
-            let phoneStr = item.phone || '';
-
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><b>${index + 1}</b></td>
-                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
-                <td><b>${phoneStr}</b></td>
-                <td>${item.checkin || ''}</td>
-                <td>${item.checkout || ''}</td>
-                <td>${item.bookDate || ''}</td>
-                <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
-                <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
-                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
-                <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="20k" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
-                <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
-                <td>
-                    <div class="btn-action-group">
-                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
-                        <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // BẢNG NANA HOMESTAY = ĐÃ CK + MINI BAR
+        const nanaTotal = (totalPaidSum + totalMinibar) / 1000;
+        document.getElementById('sumNanaTotal').innerText = nanaTotal;
     }
 
     function updateCustomerField(key, field, value) {
