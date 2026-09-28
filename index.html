@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Trang Chủ</title>
-    <!-- Khai báo Logo hiển thị khi thêm vào màn hình chính iPhone -->
+    <title>Nana Homestay - Bảng Giá</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,167 +14,41 @@
         .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
         
         .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); align-items: center; }
-        .nav-link { flex: 1; text-align: center; padding: 12px 5px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 13px; }
+        .nav-link { flex: 1; text-align: center; padding: 12px 3px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 12px; }
         .nav-link.active { background: var(--primary); color: white; }
 
-        /* Style nút Admin trên thanh menu */
-        .admin-nav-btn { padding: 12px 10px; background: #f06292; color: white; border: none; font-weight: 700; font-size: 12px; cursor: pointer; }
-        .admin-nav-btn:hover { background: #e91e63; }
+        .header { text-align: center; padding: 15px 15px 5px; }
+        .header h1 { color: var(--primary); font-size: 20px; }
 
-        .header { text-align: center; padding: 20px 15px 10px; }
-        .header .logo-img { width: 70px; height: 70px; object-fit: contain; border-radius: 50%; }
-        .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
-        
-        .section { padding: 12px 20px; }
-        .section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 8px; }
-        
-        /* Bảng giá */
+        .section { padding: 15px 20px; }
         .price-card { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; box-shadow: 0 4px 10px rgba(209,122,133,0.1); }
         .price-card img { width: 100%; height: auto; display: block; }
-
-        .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
-        .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
-
-        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .gallery-card { background: #fff0f3; border-radius: 12px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
-        .gallery-card img, .gallery-card video { width: 100%; height: 120px; object-fit: cover; display: block; border-radius: 12px 12px 0 0; }
-        .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 6px 4px; }
-
-        /* Style bản đồ & liên hệ */
-        .map-box { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; height: 180px; margin-bottom: 10px; }
-        .map-box iframe { width: 100%; height: 100%; border: 0; }
-        .btn-map { display: block; background: #4285F4; color: white; text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(66,133,244,0.25); }
         
-        .contact-box { background: #fff0f3; border: 1px dashed #ffd0d7; border-radius: 15px; padding: 12px 15px; margin-top: 10px; }
-
-        /* Popup nhập mật khẩu Admin */
-        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .admin-card { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .admin-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 16px; }
-        .admin-card input { width: 100%; padding: 10px; border: 1px solid #ffd0d7; border-radius: 10px; text-align: center; font-size: 14px; outline: none; margin-bottom: 12px; }
-        .admin-card-btns { display: flex; gap: 8px; }
-        .admin-card-btns button { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-cancel { background: #eee; color: #666; }
+        .btn-booking { display: block; width: calc(100% - 40px); margin: 15px 20px 0; background: var(--primary); color: white; text-align: center; padding: 14px; border-radius: 15px; font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 4px 10px rgba(209,122,133,0.3); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="nav-bar">
-        <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
+        <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
+        <a href="bang-gia.html" class="nav-link active">🏷️ Bảng Giá</a>
+        <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>
         <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
-        <!--<button class="admin-nav-btn" onclick="openAdminModal()">🔑 Admin</button>-->
     </div>
 
     <div class="header">
-        <img src="logo.png" alt="Nana Homestay Logo" class="logo-img">
-        <h1>Nana Homestay</h1>
-        <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">📍 37 ngõ 435 đường Xuân Đỉnh, Bắc Từ Liêm, Hà Nội</p>
+        <h1>🏷️ Bảng Giá Nana Homestay</h1>
     </div>
 
-    <!-- MỤC BẢNG GIÁ PHÒNG -->
     <div class="section">
-        <div class="section-title">🏷️ Bảng Giá Phòng</div>
         <div class="price-card">
             <img src="bang-gia.jpg" alt="Bảng Giá Nana Homestay">
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">✨ Tiện nghi căn hộ</div>
-        <div class="amenities">
-            <div class="amenity-item">📽️ Máy chiếu Netflix</div>
-            <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
-            <div class="amenity-item">🏰 Phòng decor Mickey</div>
-            <div class="amenity-item">🚿 WC khép kín</div>
-            <div class="amenity-item">🔑 Check-in tự động</div>
-            <div class="amenity-item">🅿️ Chỗ đỗ xe miễn phí</div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">🖼️ Hình ảnh không gian phòng</div>
-        <div class="gallery">
-            <div class="gallery-card">
-                <img src="home1.jpg" alt="Phòng ngủ Mickey">
-                <p>🛏️ Giường ngủ Cute</p>
-            </div>
-            <div class="gallery-card">
-                <img src="home2.jpg" alt="Khu vực bếp">
-                <p>🍳 Bếp nấu đầy đủ</p>
-            </div>
-            <div class="gallery-card">
-                <img src="home3.jpg" alt="Máy chiếu chill">
-                <p>📽️ Khung cảnh máy chiếu</p>
-            </div>
-            <div class="gallery-card">
-                <video controls preload="metadata">
-                    <source src="video-wc.mp4" type="video/mp4">
-                    Trình duyệt của bạn không hỗ trợ xem video.
-                </video>
-                <p>📹 Video phòng tắm</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mục Bản đồ chỉ đường -->
-    <div class="section">
-        <div class="section-title">🗺️ Bản đồ chỉ đường</div>
-        <div class="map-box">
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn" 
-                allowfullscreen="" 
-                loading="lazy">
-            </iframe>
-        </div>
-        <a href="https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7" target="_blank" class="btn-map">📍 Mở Chỉ Đường Trên Google Maps</a>
-
-        <!-- Thông tin liên hệ nằm dưới bản đồ và đặt trong khung giao diện -->
-        <div class="contact-box">
-            <div class="section-title" style="margin-bottom: 5px; border-left: none; padding-left: 0;">📞 Liên Hệ & Hỗ Trợ</div>
-            <p style="font-size: 12.5px; line-height: 1.6; color: #5a3d42;">
-                • <b>Hotline/Zalo:</b> 0836859883 / 0962292229<br>
-                • <b>Instagram:</b> @nana.homestayy
-            </p>
-        </div>
-    </div>
+    <a href="dat-phong.html" class="btn-booking">📅 Đặt Phòng Ngay</a>
 </div>
-
-<!-- Modal Nhập Mật Khẩu Admin -->
-<div class="admin-modal" id="adminModal">
-    <div class="admin-card">
-        <h3>🔐 Đăng Nhập Quản Lý</h3>
-        <input type="password" id="modalAdminPass" placeholder="Nhập mật khẩu Admin">
-        <div class="admin-card-btns">
-            <button class="btn-cancel" onclick="closeAdminModal()">Hủy</button>
-            <button class="btn-confirm" onclick="verifyAdminPass()">Vào Admin</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const ADMIN_PASS = "nana123"; // Mật khẩu truy cập trang Admin
-
-    function openAdminModal() {
-        document.getElementById('adminModal').style.display = 'flex';
-        document.getElementById('modalAdminPass').focus();
-    }
-
-    function closeAdminModal() {
-        document.getElementById('adminModal').style.display = 'none';
-        document.getElementById('modalAdminPass').value = '';
-    }
-
-    function verifyAdminPass() {
-        const inputPass = document.getElementById('modalAdminPass').value;
-        if (inputPass === ADMIN_PASS) {
-            window.location.href = "admin.html";
-        } else {
-            alert("⚠️ Mật khẩu Admin không đúng!");
-        }
-    }
-</script>
 
 </body>
 </html>
