@@ -360,7 +360,7 @@
         return (num / 1000) + "k";
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & ĐẶT LỊCH TỰ ĐỘNG
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH
     function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -417,7 +417,7 @@
         let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
         let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
 
-        // Tự động tìm Ngày & Tháng từ thông tin Check-in (VD: "11h 15/10" -> day: 15, month: 10)
+        // Phân tích Ngày & Giờ để tạo danh sách khung giờ cần khóa
         let bookingDay = null;
         let bookingMonth = filterMonth;
 
@@ -426,7 +426,6 @@
             bookingDay = parseInt(dateInCheckinMatch[1]);
             bookingMonth = parseInt(dateInCheckinMatch[2]);
         } else {
-            // Nếu chỉ ghi ngày (VD: "11h ngày 15")
             let singleDayMatch = checkin.match(/(?:ngày|đêm)\s*([0-9]{1,2})/i);
             if (singleDayMatch) {
                 bookingDay = parseInt(singleDayMatch[1]);
@@ -434,24 +433,24 @@
         }
 
         const monthKey = `${filterYear}_${bookingMonth}`;
+        let bookedSlots = []; // Lưu lại danh sách ô lịch bị chiếm để dùng khi xóa
 
-        // TỰ ĐỘNG CHUYỂN TRẠNG THÁI BÊN BẢNG LỊCH (TAB 1)
         if (bookingDay) {
             let startHour = null;
             let endHour = null;
 
-            // Tìm giờ bắt đầu từ Checkin (VD: "11h 15/10" -> 11)
             let startHourMatch = checkin.match(/([0-9]{1,2})\s*h/i) || checkin.match(/^([0-9]{1,2})/);
             if (startHourMatch) startHour = parseInt(startHourMatch[1]);
 
-            // Tìm giờ kết thúc từ Checkout (VD: "15h 15/10" -> 15)
             let endHourMatch = checkout.match(/([0-9]{1,2})\s*h/i) || checkout.match(/^([0-9]{1,2})/);
             if (endHourMatch) endHour = parseInt(endHourMatch[1]);
 
             if (startHour !== null && endHour !== null && startHour < endHour) {
                 let scheduleUpdates = {};
                 for (let h = startHour; h < endHour; h++) {
-                    scheduleUpdates[`schedules/${monthKey}/d${bookingDay}_h${h}`] = true;
+                    const slotKey = `d${bookingDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
+                    bookedSlots.push(slotKey);
                 }
                 db.ref().update(scheduleUpdates);
             }
@@ -467,16 +466,44 @@
             paid: paid,
             minibar: "",
             note: note,
-            monthKey: monthKey
+            monthKey: monthKey,
+            bookedSlots: bookedSlots // Lưu mảng ô lịch bị khóa
         };
 
         db.ref('customers').push(newBooking, (error) => {
             if (!error) {
-                alert(`✅ Đã thêm đơn của: ${name} và tự động khóa lịch phòng từ ${checkin} đến ${checkout}!`);
+                alert(`✅ Đã thêm đơn của: ${name} và tự động chuyển lịch phòng sang "Đã có khách"!`);
                 document.getElementById('pasteText').value = "";
-                renderMonthlySchedule(); // Làm mới lại lịch
+                renderMonthlySchedule();
             } else {
                 alert("Lỗi lưu đơn: " + error.message);
+            }
+        });
+    }
+
+    // XÓA ĐƠN & TỰ ĐỘNG MỞ TRẢ LỊCH THÀNH "TRỐNG"
+    function deleteCustomer(key) {
+        if (!confirm("Bạn có chắc muốn xóa lượt đặt phòng này?")) return;
+
+        const item = currentCustomers[key];
+        if (!item) return;
+
+        let updates = {};
+        updates[`customers/${key}`] = null; // Xóa đơn khách
+
+        // Giải phóng các khung giờ trên lịch về "Trống" (false)
+        if (item.monthKey && item.bookedSlots && Array.isArray(item.bookedSlots)) {
+            item.bookedSlots.forEach(slotKey => {
+                updates[`schedules/${item.monthKey}/${slotKey}`] = null; // hoặc false
+            });
+        }
+
+        db.ref().update(updates, (error) => {
+            if (!error) {
+                alert("🗑️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
+                renderMonthlySchedule(); // Làm mới lại bảng lịch
+            } else {
+                alert("Lỗi khi xóa: " + error.message);
             }
         });
     }
@@ -693,12 +720,6 @@
                 alert("Lỗi cập nhật: " + error.message);
             }
         });
-    }
-
-    function deleteCustomer(key) {
-        if (confirm("Bạn có chắc muốn xóa lượt đặt phòng này?")) {
-            db.ref(`customers/${key}`).remove();
-        }
     }
 
     function calculateStats() {
