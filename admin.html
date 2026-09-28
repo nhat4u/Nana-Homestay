@@ -51,23 +51,21 @@
         .btn-free { background: #e8f5e9; color: #2e7d32; }
         .btn-busy { background: #ffebee; color: #c62828; }
 
-        /* Form nhập đơn mới */
-        .add-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
-        .add-booking-form h4 { color: var(--primary); margin-bottom: 10px; font-size: 14px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
-        .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
-        .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; background: white; }
-        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
+        /* Form dán nhanh tin nhắn */
+        .paste-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+        .paste-booking-form h4 { color: var(--primary); margin-bottom: 8px; font-size: 14px; }
+        .paste-booking-form textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; resize: vertical; margin-bottom: 8px; }
+        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
         /* Bảng Danh Sách Khách Thu Nhỏ */
         table.cust-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 6px 4px; text-align: center; white-space: nowrap; }
         table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
         
-        .cust-name-cell { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
+        .cust-name-cell { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
         
         .admin-input-mini { width: 50px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; text-align: center; outline: none; }
-        .admin-input-note-mini { width: 75px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
+        .admin-input-note-mini { width: 85px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
         
         .btn-action-group { display: flex; gap: 3px; justify-content: center; }
         .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
@@ -84,6 +82,9 @@
         .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .edit-card { background: white; width: 90%; max-width: 420px; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .edit-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 15px; text-align: center; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
+        .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
     </style>
 
     <!-- FIREBASE SDK -->
@@ -152,40 +153,11 @@
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
     <div id="tabCustomers" class="tab-content">
-        <!-- FORM NHẬP THÔNG TIN -->
-        <div class="add-booking-form">
-            <h4>⚡ Nhập nhanh đơn khách mới</h4>
-            <div class="form-grid">
-                <div class="form-item">
-                    <label>Tên khách:</label>
-                    <input type="text" id="addName" placeholder="...">
-                </div>
-                <div class="form-item">
-                    <label>SĐT:</label>
-                    <input type="tel" id="addPhone" placeholder="...">
-                </div>
-                <div class="form-item">
-                    <label>Check-in:</label>
-                    <input type="text" id="addCheckin" placeholder="..." oninput="formatDateTimeInput(this)" onchange="autoCalculatePriceAndRem()">
-                </div>
-                <div class="form-item">
-                    <label>Check-out:</label>
-                    <input type="text" id="addCheckout" placeholder="..." oninput="formatDateTimeInput(this)" onchange="autoCalculatePriceAndRem()">
-                </div>
-                <div class="form-item">
-                    <label>Tổng bill:</label>
-                    <input type="text" id="addTotal" placeholder="..." oninput="autoCalculatePriceAndRem()">
-                </div>
-                <div class="form-item">
-                    <label>Đã CK:</label>
-                    <input type="text" id="addPaid" placeholder="..." oninput="autoCalculatePriceAndRem()">
-                </div>
-                <div class="form-item">
-                    <label>Còn lại:</label>
-                    <input type="text" id="addRemaining" placeholder="..." readonly style="background:#f5f5f5; font-weight:700; color:#c62828;">
-                </div>
-            </div>
-            <button class="btn-add-booking" onclick="addManualBooking()">✨ Lưu Đơn Phòng</button>
+        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
+        <div class="paste-booking-form">
+            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
+            <textarea id="pasteText" placeholder="......................"></textarea>
+            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
         <div class="table-container">
@@ -193,16 +165,16 @@
                 <thead>
                     <tr>
                         <th style="width: 25px;">STT</th>
-                        <th style="width: 75px;">Tên khách</th>
+                        <th style="width: 85px;">Tên khách</th>
                         <th style="width: 85px;">SĐT</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
-                        <th style="width: 65px;">Ngày book</th>
+                        <th style="width: 60px;">Ngày book</th>
                         <th style="width: 50px;">Tổng</th>
                         <th style="width: 50px;">Đã CK</th>
                         <th style="width: 50px;">Còn lại</th>
                         <th style="width: 50px;">Bar</th>
-                        <th style="width: 80px;">Ghi chú</th>
+                        <th style="width: 85px;">Ghi chú</th>
                         <th style="width: 70px;">Thao tác</th>
                     </tr>
                 </thead>
@@ -236,7 +208,7 @@
     <div class="edit-card">
         <h3>✏️ Sửa Thông Tin Đơn Book</h3>
         <input type="hidden" id="editKey">
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="form-grid">
             <div class="form-item">
                 <label>Tên khách:</label>
                 <input type="text" id="editName">
@@ -247,19 +219,19 @@
             </div>
             <div class="form-item">
                 <label>Check-in:</label>
-                <input type="text" id="editCheckin" oninput="formatDateTimeInput(this)">
+                <input type="text" id="editCheckin">
             </div>
             <div class="form-item">
                 <label>Check-out:</label>
-                <input type="text" id="editCheckout" oninput="formatDateTimeInput(this)">
+                <input type="text" id="editCheckout">
             </div>
             <div class="form-item">
                 <label>Tổng bill:</label>
-                <input type="text" id="editTotal" placeholder="...">
+                <input type="text" id="editTotal">
             </div>
             <div class="form-item">
                 <label>Đã CK:</label>
-                <input type="text" id="editPaid" placeholder="...">
+                <input type="text" id="editPaid">
             </div>
             <div class="form-item">
                 <label>Mini bar:</label>
@@ -296,19 +268,6 @@
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     let currentCustomers = {};
-
-    // TỰ ĐỘNG THÊM NGOẶC ĐƠN CHO NGÀY (VD: 22h 28/9 -> 22h (28/9))
-    function formatDateTimeInput(input) {
-        let val = input.value;
-        // Bỏ ngoặc cũ nếu có
-        val = val.replace(/\(|\)/g, '');
-        
-        // Tìm định dạng kiểu "22h 28/9" hoặc "22h 28/09"
-        let regex = /(\d{1,2}\s*h(?:[0-9]{1,2})?)\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i;
-        if (regex.test(val)) {
-            input.value = val.replace(regex, '$1 ($2)');
-        }
-    }
 
     function checkAdminLogin() {
         const pass = document.getElementById('adminPass').value;
@@ -352,81 +311,82 @@
         return (num / 1000) + "k";
     }
 
-    const pricing = {
-        normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
-        weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
-    };
-    const EXTRA_HOURLY_RATE = 40000;
-
-    function extractHour(str) {
-        if (!str) return null;
-        let match = str.match(/(\d{1,2})[h:]/i) || str.match(/^(\d{1,2})/);
-        return match ? parseInt(match[1]) : null;
-    }
-
-    // THUẬT TOÁN TÍNH GIÁ CẢI TIẾN CHUẨN XÁC
-    function autoCalculatePriceAndRem() {
-        const inStr = document.getElementById('addCheckin').value.trim();
-        const outStr = document.getElementById('addCheckout').value.trim();
-        let totalVal = parseMoneyInput(document.getElementById('addTotal').value);
-
-        if (inStr && outStr && !document.getElementById('addTotal').value) {
-            let isWk = false;
-            if (inStr.includes('/')) {
-                let parts = inStr.split('/');
-                if (parts.length >= 2) {
-                    let d = parseInt(parts[0].split(' ').pop());
-                    let m = parseInt(parts[1]);
-                    let y = parts[2] ? parseInt(parts[2]) : 2026;
-                    let dt = new Date(y, m - 1, d);
-                    let dayOfWeek = dt.getDay();
-                    if (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6) isWk = true;
-                }
-            }
-            const rates = isWk ? pricing.weekend : pricing.normal;
-
-            let inH = extractHour(inStr);
-            let outH = extractHour(outStr);
-
-            if (inH !== null && outH !== null) {
-                // Qua đêm (22h - 10h) -> 300k/330k
-                if (inH === 22 && outH === 10) {
-                    totalVal = rates.overnight;
-                }
-                // Giá ngày (11h - 21h) -> 380k/420k
-                else if (inH === 11 && outH === 21) {
-                    totalVal = rates.fullday;
-                }
-                // Ngày đêm (15h - 10h) -> 450k/490k
-                else if (inH === 15 && outH === 10) {
-                    totalVal = rates.nightday;
-                }
-                // Giờ lẻ (VD: 11h - 14h = 3 tiếng)
-                else {
-                    let calcOut = outH <= inH ? outH + 24 : outH;
-                    let diffH = calcOut - inH;
-
-                    if (diffH <= 2) {
-                        totalVal = rates.combo2h; // 2 tiếng = 150k
-                    } else if (diffH === 3) {
-                        totalVal = rates.combo2h + EXTRA_HOURLY_RATE; // 3 tiếng = Combo 2h (150k) + 1h (40k) = 190k
-                    } else if (diffH === 4) {
-                        totalVal = rates.combo4h; // 4 tiếng = Combo 4h (210k)
-                    } else {
-                        totalVal = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE); // Trên 4 tiếng
-                        if (totalVal > rates.fullday) totalVal = rates.fullday;
-                    }
-                }
-            } else {
-                totalVal = rates.combo2h;
-            }
-
-            document.getElementById('addTotal').value = formatK(totalVal);
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH
+    function processPastedBooking() {
+        const text = document.getElementById('pasteText').value.trim();
+        if (!text) {
+            alert("Vui lòng dán nội dung tin nhắn chốt phòng!");
+            return;
         }
 
-        const paidVal = parseMoneyInput(document.getElementById('addPaid').value);
-        const remVal = totalVal - paidVal;
-        document.getElementById('addRemaining').value = formatK(remVal);
+        let name = "";
+        let phone = "";
+        let totalBill = 0;
+        let paid = 0;
+        let checkin = "";
+        let checkout = "";
+        let note = ""; // Để trống ghi chú theo yêu cầu
+
+        // 1. Tên khách
+        let nameMatch = text.match(/Tên khách hàng:\s*([^\n\r]+)/i) || text.match(/Tên khách:\s*([^\n\r]+)/i);
+        if (nameMatch) name = nameMatch[1].trim();
+
+        // 2. Số điện thoại
+        let phoneMatch = text.match(/SĐT\s*:\s*([0-9\s.]+)/i);
+        if (phoneMatch) phone = phoneMatch[1].replace(/\s+/g, '').trim();
+
+        // 3. Tổng bill & Đã CK
+        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK\vert{}CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
+        if (billMatch) {
+            totalBill = parseMoneyInput(billMatch[1]);
+            if (billMatch[2]) {
+                paid = parseMoneyInput(billMatch[2]);
+            }
+        }
+        // Trường hợp khác nếu có dòng "Đã CK" riêng
+        let paidMatch = text.match(/ĐÃ CK\s*([0-9kKtrTR.]+)/i) || text.match(/Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i);
+        if (paidMatch && !paid) {
+            paid = parseMoneyInput(paidMatch[1]);
+        }
+
+        // 4. Giờ check in - out
+        let timeMatch = text.match(/Giờ check in\s*-\s*out:\s*([^-]+)\s*-\s*([^\n\r]+)/i) || text.match(/Checkin\s*-\s*checkout:\s*([^-]+)\s*-\s*([^\n\r]+)/i);
+        if (timeMatch) {
+            checkin = timeMatch[1].trim();
+            checkout = timeMatch[2].trim();
+        }
+
+        if (!name) {
+            alert("Không tìm thấy Tên khách hàng trong tin nhắn! Vui lòng kiểm tra lại định dạng tin nhắn.");
+            return;
+        }
+
+        // Ngày book tự lấy ngày/tháng hiện tại
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const todayStr = `${day}/${month}`;
+
+        const newBooking = {
+            name: name,
+            phone: phone,
+            checkin: checkin,
+            checkout: checkout,
+            bookDate: todayStr,
+            totalBill: totalBill,
+            paid: paid,
+            minibar: "",
+            note: note
+        };
+
+        db.ref('customers').push(newBooking, (error) => {
+            if (!error) {
+                alert(`✅ Đã thêm thành công đơn của: ${name}!`);
+                document.getElementById('pasteText').value = "";
+            } else {
+                alert("Lỗi lưu đơn: " + error.message);
+            }
+        });
     }
 
     // --- TAB 1: QUẢN LÝ LỊCH ---
@@ -509,53 +469,6 @@
         });
     }
 
-    function addManualBooking() {
-        const name = document.getElementById('addName').value.trim();
-        const phone = document.getElementById('addPhone').value.trim();
-        const checkin = document.getElementById('addCheckin').value.trim();
-        const checkout = document.getElementById('addCheckout').value.trim();
-        const totalBill = parseMoneyInput(document.getElementById('addTotal').value);
-        const paid = parseMoneyInput(document.getElementById('addPaid').value);
-
-        if (!name) {
-            alert("Vui lòng nhập tên khách!");
-            return;
-        }
-
-        // Định dạng ngày book chỉ có Ngày/Tháng (Ví dụ: 28/09)
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const todayStr = `${day}/${month}`;
-
-        const newBooking = {
-            name: name,
-            phone: phone,
-            checkin: checkin,
-            checkout: checkout,
-            bookDate: todayStr,
-            totalBill: totalBill,
-            paid: paid,
-            minibar: "",
-            note: ""
-        };
-
-        db.ref('customers').push(newBooking, (error) => {
-            if (!error) {
-                alert("✅ Đã lưu thông tin đơn thành công!");
-                document.getElementById('addName').value = "";
-                document.getElementById('addPhone').value = "";
-                document.getElementById('addCheckin').value = "";
-                document.getElementById('addCheckout').value = "";
-                document.getElementById('addTotal').value = "";
-                document.getElementById('addPaid').value = "";
-                document.getElementById('addRemaining').value = "";
-            } else {
-                alert("Lỗi lưu đơn: " + error.message);
-            }
-        });
-    }
-
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
@@ -574,11 +487,6 @@
 
             let nameStr = item.name || '';
             let phoneStr = item.phone || '';
-            if (!phoneStr && nameStr.includes('(')) {
-                let parts = nameStr.split('(');
-                nameStr = parts[0].trim();
-                phoneStr = parts[1].replace(')', '').trim();
-            }
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
@@ -610,17 +518,10 @@
 
     function openEditModal(key) {
         const item = currentCustomers[key];
-        let nameStr = item.name || '';
-        let phoneStr = item.phone || '';
-        if (!phoneStr && nameStr.includes('(')) {
-            let parts = nameStr.split('(');
-            nameStr = parts[0].trim();
-            phoneStr = parts[1].replace(')', '').trim();
-        }
 
         document.getElementById('editKey').value = key;
-        document.getElementById('editName').value = nameStr;
-        document.getElementById('editPhone').value = phoneStr;
+        document.getElementById('editName').value = item.name || '';
+        document.getElementById('editPhone').value = item.phone || '';
         document.getElementById('editCheckin').value = item.checkin || '';
         document.getElementById('editCheckout').value = item.checkout || '';
         document.getElementById('editTotal').value = formatK(item.totalBill);
