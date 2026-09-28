@@ -360,7 +360,55 @@
         return (num / 1000) + "k";
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (ĐÃ HỖ TRỢ ĐẶT QUA ĐÊM)
+    // BẢNG GIÁ QUY ĐỊNH
+    const pricing = {
+        normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
+        weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
+    };
+    const EXTRA_HOURLY_RATE = 40000;
+
+    // HÀM TÍNH GIÁ TỰ ĐỘNG THEO QUY TẮC CỦA BẠN
+    function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
+        if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
+
+        let dtIn = new Date(year, inMonth - 1, inDay);
+        let dayOfWeek = dtIn.getDay(); // 0: CN, 5: T6, 6: T7
+        let isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
+        let rates = isWeekend ? pricing.weekend : pricing.normal;
+
+        // 1. COMBO NGÀY ĐÊM (Check-in từ 15h)
+        if (inHour === 15) {
+            let basePrice = rates.nightday; // 450k (T2-T5) hoặc 490k (T6-CN)
+            if (outHour > 10) {
+                // Quá 10h sáng hôm sau -> Phụ thu 40k/giờ
+                basePrice += (outHour - 10) * EXTRA_HOURLY_RATE;
+            }
+            return basePrice;
+        }
+
+        // 2. QUA ĐÊM CHUẨN (22h - 10h) -> 300k / 330k
+        if (inHour === 22 && outHour === 10 && inDay !== outDay) {
+            return rates.overnight;
+        }
+
+        // 3. THEO NGÀY CHUẨN (11h - 21h) -> 380k / 420k
+        if (inHour === 11 && outHour === 21 && inDay === outDay) {
+            return rates.fullday;
+        }
+
+        // 4. TÍNH THEO GIỜ LẺ
+        let calcOut = (outDay && outDay !== inDay) ? (outHour + 24) : outHour;
+        let diffH = calcOut - inHour;
+
+        if (diffH <= 2) return rates.combo2h;
+        if (diffH === 3) return rates.combo2h + EXTRA_HOURLY_RATE; // 150k + 40k = 190k
+        if (diffH === 4) return rates.combo4h; // 210k
+        
+        let price = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE);
+        return price > rates.fullday ? rates.fullday : price;
+    }
+
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH
     function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -437,12 +485,16 @@
             outMonth = parseInt(outDateMatch[2]);
         }
 
+        // TỰ ĐỘNG TÍNH LẠI TỔNG BILL NẾU TRONG TIN NHẮN CHƯA BÁO TỔNG BILL
+        if (totalBill === 0 && inHour !== null && outHour !== null) {
+            totalBill = calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, filterYear);
+        }
+
         let bookedSlots = [];
         let scheduleUpdates = {};
 
         // Xử lý chuyển đổi các khung giờ sang Đã có khách
         if (inHour !== null && outHour !== null && inDay && inMonth) {
-            // Trường hợp 1: Check-in và Check-out trong CÙNG 1 ngày
             if (!outDay || (inDay === outDay && inMonth === outMonth)) {
                 let monthKey = `${filterYear}_${inMonth}`;
                 for (let h = inHour; h < outHour; h++) {
@@ -450,10 +502,7 @@
                     scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey, slotKey });
                 }
-            } 
-            // Trường hợp 2: Khách ở QUA ĐÊM (Khác ngày)
-            else {
-                // Khóa các giờ từ lúc Check-in đến 23h ngày đầu tiên
+            } else {
                 let monthKeyIn = `${filterYear}_${inMonth}`;
                 for (let h = inHour; h <= 23; h++) {
                     let slotKey = `d${inDay}_h${h}`;
@@ -461,7 +510,6 @@
                     bookedSlots.push({ monthKey: monthKeyIn, slotKey });
                 }
 
-                // Khóa các giờ từ 00h đến trước giờ Check-out ngày hôm sau
                 let monthKeyOut = `${filterYear}_${outMonth}`;
                 for (let h = 0; h < outHour; h++) {
                     let slotKey = `d${outDay}_h${h}`;
@@ -470,7 +518,6 @@
                 }
             }
 
-            // Cập nhật Firebase
             db.ref().update(scheduleUpdates);
         }
 
@@ -507,9 +554,8 @@
         if (!item) return;
 
         let updates = {};
-        updates[`customers/${key}`] = null; // Xóa đơn khách
+        updates[`customers/${key}`] = null;
 
-        // Giải phóng các khung giờ trên lịch về "Trống"
         if (item.bookedSlots && Array.isArray(item.bookedSlots)) {
             item.bookedSlots.forEach(slot => {
                 if (typeof slot === 'object' && slot.monthKey && slot.slotKey) {
