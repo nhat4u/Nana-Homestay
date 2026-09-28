@@ -166,14 +166,8 @@
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
     <div id="tabCustomers" class="tab-content">
-        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
-        <div class="paste-booking-form">
-            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
-            <textarea id="pasteText" placeholder="................................"></textarea>
-            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
-        </div>
 
-        <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
+                <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
         <div class="filter-search-bar">
             <div class="filter-group">
                 <label for="custFilterMonth">📅 Lọc xem Tháng:</label>
@@ -192,6 +186,13 @@
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderCustomerTable()">
             </div>
+        </div>
+        
+        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
+        <div class="paste-booking-form">
+            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
+            <textarea id="pasteText" placeholder="................................"></textarea>
+            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
         <div class="table-container">
