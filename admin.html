@@ -10,7 +10,7 @@
     <style>
         :root { --primary: #d17a85; --bg: #f8f9fa; --card: #ffffff; --text: #333; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 15px; }
+        body { background: var(--bg); color: var(--text); padding: 10px; }
 
         /* Màn hình đăng nhập */
         .login-box { max-width: 360px; margin: 80px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
@@ -21,67 +21,69 @@
 
         /* Dashboard Admin */
         .admin-dashboard { display: none; max-width: 1400px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .header h1 { color: var(--primary); font-size: 20px; }
-        .header-btns { display: flex; gap: 10px; }
-        .btn-header { padding: 8px 15px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header h1 { color: var(--primary); font-size: 18px; }
+        .header-btns { display: flex; gap: 8px; }
+        .btn-header { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
         .btn-go-home { background: #ffe3e8; color: var(--primary); }
         .btn-logout { background: #eee; color: #666; }
         
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { padding: 10px 20px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; font-size: 13px; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .tab-content { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .tab-content { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .tab-content.active { display: block; }
 
         /* Bộ chọn Tháng / Năm */
-        .month-picker-box { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: #fff0f3; padding: 10px 15px; border-radius: 12px; border: 1px dashed var(--primary); width: fit-content; }
-        .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 14px; }
-        .month-picker-box select { padding: 6px 12px; border-radius: 8px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
+        .month-picker-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff0f3; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--primary); width: fit-content; }
+        .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 13px; }
+        .month-picker-box select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
 
         /* Bảng Lịch Cuộn Ngang */
-        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 12px; }
-        table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
-        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 6px 8px; white-space: nowrap; }
+        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 10px; }
+        table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 5px 6px; white-space: nowrap; }
         table.sched-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
         table.sched-table td.time-col { background: #f9f9f9; font-weight: 700; color: #555; position: sticky; left: 0; z-index: 2; }
         
-        .status-btn { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; border: none; cursor: pointer; }
+        .status-btn { padding: 3px 6px; border-radius: 5px; font-weight: 700; font-size: 10px; border: none; cursor: pointer; }
         .btn-free { background: #e8f5e9; color: #2e7d32; }
         .btn-busy { background: #ffebee; color: #c62828; }
 
-        /* Form nhập đơn mới siêu tốc */
-        .add-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .add-booking-form h4 { color: var(--primary); margin-bottom: 12px; font-size: 15px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
-        .form-item label { display: block; font-size: 12px; font-weight: 700; color: #8a626a; margin-bottom: 4px; }
-        .form-item input { width: 100%; padding: 8px 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; outline: none; background: white; }
-        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+        /* Form nhập đơn mới nhỏ gọn */
+        .add-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+        .add-booking-form h4 { color: var(--primary); margin-bottom: 10px; font-size: 14px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
+        .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
+        .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; background: white; }
+        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
-        /* Bảng Danh Sách Khách */
-        table.cust-table { width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 13px; }
-        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 8px; text-align: center; }
-        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; }
+        /* Bảng Danh Sách Khách Thu Nhỏ Siêu Tinh Gọn */
+        table.cust-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 6px 4px; text-align: center; white-space: nowrap; }
+        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
         
-        .admin-input-small { width: 75px; padding: 5px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; text-align: center; outline: none; }
-        .admin-input-note { width: 110px; padding: 5px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        .cust-name-cell { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
         
-        .btn-action-group { display: flex; gap: 4px; justify-content: center; }
-        .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; }
-        .btn-del-cust { background: #ff4d4f; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; }
+        .admin-input-mini { width: 50px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; text-align: center; outline: none; }
+        .admin-input-note-mini { width: 80px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
+        
+        .btn-action-group { display: flex; gap: 3px; justify-content: center; }
+        .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
+        .btn-del-cust { background: #ff4d4f; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
 
         /* Thống kê thu chi */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .stat-card { background: #fff0f3; padding: 20px; border-radius: 15px; text-align: center; border: 1px dashed var(--primary); }
-        .stat-card h3 { font-size: 14px; color: #8a626a; margin-bottom: 8px; }
-        .stat-card .val { font-size: 24px; font-weight: 700; }
-        .expense-input { width: 140px; padding: 6px; text-align: center; border: 1px solid var(--primary); border-radius: 8px; font-weight: 700; color: #c62828; font-size: 16px; margin-top: 5px; outline: none; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .stat-card { background: #fff0f3; padding: 15px; border-radius: 12px; text-align: center; border: 1px dashed var(--primary); }
+        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 6px; }
+        .stat-card .val { font-size: 20px; font-weight: 700; }
+        .expense-input { width: 120px; padding: 4px; text-align: center; border: 1px solid var(--primary); border-radius: 6px; font-weight: 700; color: #c62828; font-size: 15px; margin-top: 4px; outline: none; }
 
         /* Modal Sửa Đơn */
         .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .edit-card { background: white; width: 90%; max-width: 480px; border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .edit-card h3 { color: var(--primary); margin-bottom: 15px; font-size: 16px; text-align: center; }
+        .edit-card { background: white; width: 90%; max-width: 420px; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .edit-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 15px; text-align: center; }
     </style>
 
     <!-- FIREBASE SDK -->
@@ -102,7 +104,7 @@
 <!-- Dashboard Admin -->
 <div class="admin-dashboard" id="adminDashboard">
     <div class="header">
-        <h1>🏠 Nana Homestay - Admin </h1>
+        <h1>🏠 Admin Nana Homestay</h1>
         <div class="header-btns">
             <a href="index.html" class="btn-header btn-go-home">🏠 Trang Chủ</a>
             <button class="btn-header btn-logout" onclick="logout()">Đăng xuất</button>
@@ -111,7 +113,7 @@
 
     <!-- Thanh chuyển Tab -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Tháng</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
     </div>
@@ -119,7 +121,7 @@
     <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
     <div id="tabSchedule" class="tab-content active">
         <div class="month-picker-box">
-            <label for="selectMonth">📅 Chọn Tháng Quản Lý:</label>
+            <label for="selectMonth">📅 Chọn Tháng:</label>
             <select id="selectMonth" onchange="renderMonthlySchedule()">
                 <option value="10" selected>Tháng 10</option>
                 <option value="11">Tháng 11</option>
@@ -133,7 +135,7 @@
             </select>
         </div>
 
-        <p style="font-size:12px; color:#8a626a; margin-bottom:10px;">👉 Bấm vào từng ô để đổi nhanh giữa 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
+        <p style="font-size:11px; color:#8a626a; margin-bottom:8px;">👉 Bấm vào từng ô để đổi giữa 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
         
         <div class="table-container">
             <table class="sched-table" id="scheduleTable">
@@ -150,79 +152,80 @@
 
     <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
     <div id="tabCustomers" class="tab-content">
-        <!-- FORM NHẬP SIÊU TỐC -->
+        <!-- FORM NHẬP THÔNG TIN -->
         <div class="add-booking-form">
             <h4>⚡ Nhập nhanh đơn khách mới</h4>
             <div class="form-grid">
                 <div class="form-item">
                     <label>Tên khách:</label>
-                    <input type="text" id="addName" placeholder="...">
+                    <input type="text" id="addName" placeholder="Minh Nhật">
                 </div>
                 <div class="form-item">
                     <label>SĐT:</label>
-                    <input type="tel" id="addPhone" placeholder="...">
+                    <input type="tel" id="addPhone" placeholder="0962292229">
                 </div>
                 <div class="form-item">
                     <label>Check-in:</label>
-                    <input type="text" id="addCheckin" placeholder="..." onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckin" placeholder="11:00 28/09/2026" onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Check-out:</label>
-                    <input type="text" id="addCheckout" placeholder="..." onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckout" placeholder="18:00 28/09/2026" onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Tổng bill:</label>
-                    <input type="text" id="addTotal" placeholder="..." oninput="autoCalculatePriceAndRem()">
+                    <input type="text" id="addTotal" placeholder="Tự tính/300k" oninput="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Đã CK:</label>
-                    <input type="text" id="addPaid" placeholder="..." oninput="autoCalculatePriceAndRem()">
+                    <input type="text" id="addPaid" placeholder="Gõ 150k..." oninput="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Còn lại:</label>
-                    <input type="text" id="addRemaining" placeholder="0đ" readonly style="background:#f5f5f5; font-weight:700; color:#c62828;">
+                    <input type="text" id="addRemaining" placeholder="0k" readonly style="background:#f5f5f5; font-weight:700; color:#c62828;">
                 </div>
             </div>
             <button class="btn-add-booking" onclick="addManualBooking()">✨ Lưu Đơn Phòng</button>
         </div>
 
-        <h3 style="margin-bottom:15px; color: var(--primary);">Lịch sử khách chốt phòng</h3>
-        <table class="cust-table">
-            <thead>
-                <tr>
-                    <th style="width: 35px;">STT</th>
-                    <th>Tên khách</th>
-                    <th>SĐT</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Ngày book</th>
-                    <th>Tổng bill</th>
-                    <th>Đã CK</th>
-                    <th>Còn lại</th>
-                    <th style="width: 70px;">Mini bar</th>
-                    <th>Ghi chú</th>
-                    <th style="width: 100px;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody id="customerBody">
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="cust-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25px;">STT</th>
+                        <th style="width: 85px;">Tên khách</th>
+                        <th style="width: 85px;">SĐT</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th style="width: 65px;">Ngày book</th>
+                        <th style="width: 55px;">Tổng</th>
+                        <th style="width: 55px;">Đã CK</th>
+                        <th style="width: 55px;">Còn lại</th>
+                        <th style="width: 55px;">Bar</th>
+                        <th style="width: 85px;">Ghi chú</th>
+                        <th style="width: 75px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="customerBody">
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- TAB 3: THỐNG KÊ THU CHI -->
     <div id="tabStats" class="tab-content">
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>TỔNG THU (TỔNG BILL ĐÃ CK)</h3>
-                <div class="val" style="color: #2e7d32;" id="statTotalIncome">0đ</div>
+                <h3>TỔNG THU (ĐÃ CK)</h3>
+                <div class="val" style="color: #2e7d32;" id="statTotalIncome">0k</div>
             </div>
             <div class="stat-card">
-                <h3>TỔNG CHI (HOÀN TẤT HỦY / CHI KHÁC)</h3>
-                <input type="number" class="expense-input" id="statExpenseInput" value="0" placeholder="0" oninput="calculateStats()"> <span style="font-weight:700; color:#c62828;">đ</span>
+                <h3>TỔNG CHI (HỦY / KHÁC)</h3>
+                <input type="number" class="expense-input" id="statExpenseInput" value="0" placeholder="0" oninput="calculateStats()"> <span style="font-weight:700; color:#c62828;">k</span>
             </div>
             <div class="stat-card">
-                <h3>DOANH THU THỰC TẾ (THU - CHI)</h3>
-                <div class="val" style="color: var(--primary);" id="statNetProfit">0đ</div>
+                <h3>DOANH THU THỰC TẾ</h3>
+                <div class="val" style="color: var(--primary);" id="statNetProfit">0k</div>
             </div>
         </div>
     </div>
@@ -231,7 +234,7 @@
 <!-- MODAL SỬA ĐƠN -->
 <div class="edit-modal" id="editModal">
     <div class="edit-card">
-        <h3>✏️ Chỉnh Sửa Thông Tin Đơn Book</h3>
+        <h3>✏️ Sửa Thông Tin Đơn Book</h3>
         <input type="hidden" id="editKey">
         <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
             <div class="form-item">
@@ -252,11 +255,11 @@
             </div>
             <div class="form-item">
                 <label>Tổng bill:</label>
-                <input type="text" id="editTotal" placeholder="VD: 300k">
+                <input type="text" id="editTotal" placeholder="300k">
             </div>
             <div class="form-item">
                 <label>Đã CK:</label>
-                <input type="text" id="editPaid" placeholder="VD: 150k">
+                <input type="text" id="editPaid" placeholder="150k">
             </div>
             <div class="form-item">
                 <label>Mini bar:</label>
@@ -267,8 +270,8 @@
                 <input type="text" id="editNote">
             </div>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn-add-booking" style="flex:1;" onclick="saveEditedBooking()">💾 Lưu Thay Đổi</button>
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-add-booking" style="flex:1;" onclick="saveEditedBooking()">💾 Lưu Chỉnh Sửa</button>
             <button class="btn-add-booking" style="flex:1; background:#ccc; color:#333;" onclick="closeEditModal()">Hủy</button>
         </div>
     </div>
@@ -318,7 +321,7 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Đổi chuỗi tiền gõ dạng "150k", "1.5tr", "200000" thành con số nguyên
+    // Đổi chuỗi tiền gõ "150k", "210k", "300000" thành con số nguyên
     function parseMoneyInput(val) {
         if (!val) return 0;
         let str = val.toString().toLowerCase().trim();
@@ -331,20 +334,29 @@
         return parseFloat(str.replace(/[^0-9]/g, '')) || 0;
     }
 
-    // Bảng giá quy chuẩn
+    // Định dạng số tiền dạng "150k", "210k", "0k"
+    function formatK(val) {
+        let num = parseMoneyInput(val);
+        if (num === 0) return "0k";
+        return (num / 1000) + "k";
+    }
+
+    // BẢNG GIÁ CHUẨN NANA HOMESTAY
     const pricing = {
         normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
         weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
+    const EXTRA_HOURLY_RATE = 40000; // 40k/h (20k/30p)
 
+    // THUẬT TOÁN TÍNH TIỀN THÔNG MINH CHO TẤT CẢ KHUNG GIỜ & GIỜ LẺ
     function autoCalculatePriceAndRem() {
         const inStr = document.getElementById('addCheckin').value.trim();
         const outStr = document.getElementById('addCheckout').value.trim();
         let totalVal = parseMoneyInput(document.getElementById('addTotal').value);
 
-        // Tự động tính tiền nếu admin nhập checkin và checkout mà chưa gõ Tổng bill
         if (inStr && outStr && !document.getElementById('addTotal').value) {
             let isWk = false;
+            // Kiểm tra ngày cuối tuần (T6, T7, CN)
             if (inStr.includes('/')) {
                 let parts = inStr.split('/');
                 if (parts.length >= 2) {
@@ -358,18 +370,51 @@
             }
             const rates = isWk ? pricing.weekend : pricing.normal;
 
-            if (inStr.startsWith("22:") && outStr.startsWith("10:")) totalVal = rates.overnight;
-            else if (inStr.startsWith("11:") && outStr.startsWith("21:")) totalVal = rates.fullday;
-            else if (inStr.startsWith("16:") && outStr.startsWith("10:")) totalVal = rates.nightday;
-            else {
-                totalVal = rates.combo2h; 
+            // Xử lý gói cố định
+            if (inStr.includes("22:") && outStr.includes("10:")) {
+                totalVal = rates.overnight; // Qua đêm
+            } else if (inStr.includes("11:") && outStr.includes("21:")) {
+                totalVal = rates.fullday; // Giá ngày
+            } else if (inStr.includes("16:") && outStr.includes("10:")) {
+                totalVal = rates.nightday; // Ngày đêm
+            } else {
+                // Xử lý thuê theo giờ lẻ (2h, 4h, 5h, 6h, 7h...)
+                try {
+                    let inTimeMatch = inStr.match(/(\d{1,2}):(\d{2})/);
+                    let outTimeMatch = outStr.match(/(\d{1,2}):(\d{2})/);
+                    
+                    if (inTimeMatch && outTimeMatch) {
+                        let inMins = parseInt(inTimeMatch[1]) * 60 + parseInt(inTimeMatch[2]);
+                        let outMins = parseInt(outTimeMatch[1]) * 60 + parseInt(outTimeMatch[2]);
+                        if (outMins <= inMins) outMins += 24 * 60; // Qua đêm qua 12h đêm
+
+                        let totalHours = (outMins - inMins) / 60;
+
+                        if (totalHours <= 2) {
+                            totalVal = rates.combo2h;
+                        } else if (totalHours <= 4) {
+                            totalVal = rates.combo4h;
+                        } else {
+                            // Hơn 4 tiếng: Lấy Combo 4h + Phụ thu 40k/h
+                            let extraHours = totalHours - 4;
+                            totalVal = rates.combo4h + (extraHours * EXTRA_HOURLY_RATE);
+                            
+                            // Tự động giới hạn tối đa không vượt quá giá Ngày/Đêm tương ứng
+                            if (totalVal > rates.fullday) totalVal = rates.fullday;
+                        }
+                    } else {
+                        totalVal = rates.combo2h;
+                    }
+                } catch(e) {
+                    totalVal = rates.combo2h;
+                }
             }
-            document.getElementById('addTotal').value = (totalVal / 1000) + "k";
+            document.getElementById('addTotal').value = formatK(totalVal);
         }
 
         const paidVal = parseMoneyInput(document.getElementById('addPaid').value);
         const remVal = totalVal - paidVal;
-        document.getElementById('addRemaining').value = remVal.toLocaleString('vi-VN') + "đ";
+        document.getElementById('addRemaining').value = formatK(remVal);
     }
 
     // --- TAB 1: QUẢN LÝ LỊCH ---
@@ -391,7 +436,7 @@
         }
 
         const tbody = document.getElementById('scheduleBody');
-        tbody.innerHTML = "<tr><td colspan='32' style='padding:20px;'>Đang tải dữ liệu lịch...</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
 
         db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
             const savedData = snapshot.val() || {};
@@ -501,7 +546,7 @@
 
         const keys = Object.keys(currentCustomers);
         if (keys.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 20px;">Chưa có lịch book nào.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào.</td></tr>`;
             return;
         }
 
@@ -522,19 +567,19 @@
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><b>${index + 1}</b></td>
-                <td style="font-weight:700; text-align:left;">${nameStr}</td>
+                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
                 <td><b>${phoneStr}</b></td>
                 <td>${item.checkin || ''}</td>
                 <td>${item.checkout || ''}</td>
                 <td>${item.bookDate || ''}</td>
-                <td style="color: var(--primary); font-weight:700;">${totalBillVal.toLocaleString('vi-VN')}đ</td>
-                <td style="color: #2e7d32; font-weight:700;">${paidVal.toLocaleString('vi-VN')}đ</td>
-                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${remainingVal.toLocaleString('vi-VN')}đ</td>
-                <td><input type="text" class="admin-input-small" value="${item.minibar || ''}" placeholder="20k..." onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
-                <td><input type="text" class="admin-input-note" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateCustomerField('${key}', 'note', this.value)"></td>
+                <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
+                <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
+                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
+                <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="20k" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
                 <td>
                     <div class="btn-action-group">
-                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">✏️ Sửa</button>
+                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
                         <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
                     </div>
                 </td>
@@ -562,8 +607,8 @@
         document.getElementById('editPhone').value = phoneStr;
         document.getElementById('editCheckin').value = item.checkin || '';
         document.getElementById('editCheckout').value = item.checkout || '';
-        document.getElementById('editTotal').value = item.totalBill || 0;
-        document.getElementById('editPaid').value = item.paid || 0;
+        document.getElementById('editTotal').value = formatK(item.totalBill);
+        document.getElementById('editPaid').value = formatK(item.paid);
         document.getElementById('editMinibar').value = item.minibar || '';
         document.getElementById('editNote').value = item.note || '';
 
@@ -612,8 +657,8 @@
         let totalExpense = parseFloat(document.getElementById('statExpenseInput').value) || 0;
         let netProfit = totalIncome - totalExpense;
 
-        document.getElementById('statTotalIncome').innerText = totalIncome.toLocaleString('vi-VN') + "đ";
-        document.getElementById('statNetProfit').innerText = netProfit.toLocaleString('vi-VN') + "đ";
+        document.getElementById('statTotalIncome').innerText = formatK(totalIncome);
+        document.getElementById('statNetProfit').innerText = formatK(netProfit);
     }
 </script>
 
