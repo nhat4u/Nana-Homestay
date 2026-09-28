@@ -51,7 +51,7 @@
         .btn-free { background: #e8f5e9; color: #2e7d32; }
         .btn-busy { background: #ffebee; color: #c62828; }
 
-        /* Form nhập đơn mới nhỏ gọn */
+        /* Form nhập đơn mới */
         .add-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
         .add-booking-form h4 { color: var(--primary); margin-bottom: 10px; font-size: 14px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 10px; }
@@ -64,10 +64,10 @@
         table.cust-table th, table.cust-table td { border: 1px solid #eee; padding: 6px 4px; text-align: center; white-space: nowrap; }
         table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
         
-        .cust-name-cell { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
+        .cust-name-cell { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
         
         .admin-input-mini { width: 50px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; text-align: center; outline: none; }
-        .admin-input-note-mini { width: 80px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
+        .admin-input-note-mini { width: 75px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
         
         .btn-action-group { display: flex; gap: 3px; justify-content: center; }
         .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
@@ -113,7 +113,7 @@
 
     <!-- Thanh chuyển Tab -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch Theo Tháng</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
     </div>
@@ -158,27 +158,27 @@
             <div class="form-grid">
                 <div class="form-item">
                     <label>Tên khách:</label>
-                    <input type="text" id="addName" placeholder="Minh Nhật">
+                    <input type="text" id="addName" placeholder="...">
                 </div>
                 <div class="form-item">
                     <label>SĐT:</label>
-                    <input type="tel" id="addPhone" placeholder="0962292229">
+                    <input type="tel" id="addPhone" placeholder="...">
                 </div>
                 <div class="form-item">
                     <label>Check-in:</label>
-                    <input type="text" id="addCheckin" placeholder="11:00 28/09/2026" onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckin" placeholder="..." onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Check-out:</label>
-                    <input type="text" id="addCheckout" placeholder="18:00 28/09/2026" onchange="autoCalculatePriceAndRem()">
+                    <input type="text" id="addCheckout" placeholder="..." onchange="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Tổng bill:</label>
-                    <input type="text" id="addTotal" placeholder="Tự tính/300k" oninput="autoCalculatePriceAndRem()">
+                    <input type="text" id="addTotal" placeholder="..." oninput="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Đã CK:</label>
-                    <input type="text" id="addPaid" placeholder="Gõ 150k..." oninput="autoCalculatePriceAndRem()">
+                    <input type="text" id="addPaid" placeholder="..." oninput="autoCalculatePriceAndRem()">
                 </div>
                 <div class="form-item">
                     <label>Còn lại:</label>
@@ -193,17 +193,17 @@
                 <thead>
                     <tr>
                         <th style="width: 25px;">STT</th>
-                        <th style="width: 85px;">Tên khách</th>
+                        <th style="width: 75px;">Tên khách</th>
                         <th style="width: 85px;">SĐT</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
                         <th style="width: 65px;">Ngày book</th>
-                        <th style="width: 55px;">Tổng</th>
-                        <th style="width: 55px;">Đã CK</th>
-                        <th style="width: 55px;">Còn lại</th>
-                        <th style="width: 55px;">Bar</th>
-                        <th style="width: 85px;">Ghi chú</th>
-                        <th style="width: 75px;">Thao tác</th>
+                        <th style="width: 50px;">Tổng</th>
+                        <th style="width: 50px;">Đã CK</th>
+                        <th style="width: 50px;">Còn lại</th>
+                        <th style="width: 50px;">Bar</th>
+                        <th style="width: 80px;">Ghi chú</th>
+                        <th style="width: 70px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="customerBody">
@@ -255,11 +255,11 @@
             </div>
             <div class="form-item">
                 <label>Tổng bill:</label>
-                <input type="text" id="editTotal" placeholder="300k">
+                <input type="text" id="editTotal" placeholder="...">
             </div>
             <div class="form-item">
                 <label>Đã CK:</label>
-                <input type="text" id="editPaid" placeholder="150k">
+                <input type="text" id="editPaid" placeholder="...">
             </div>
             <div class="form-item">
                 <label>Mini bar:</label>
@@ -321,7 +321,7 @@
         document.getElementById(tabId).classList.add('active');
     }
 
-    // Đổi chuỗi tiền gõ "150k", "210k", "300000" thành con số nguyên
+    // Chuyển chuỗi tiền "150k", "210k", "300000" thành con số nguyên
     function parseMoneyInput(val) {
         if (!val) return 0;
         let str = val.toString().toLowerCase().trim();
@@ -346,9 +346,16 @@
         normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
         weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
-    const EXTRA_HOURLY_RATE = 40000; // 40k/h (20k/30p)
+    const EXTRA_HOURLY_RATE = 40000;
 
-    // THUẬT TOÁN TÍNH TIỀN THÔNG MINH CHO TẤT CẢ KHUNG GIỜ & GIỜ LẺ
+    // Trích xuất số giờ nguyên (VD: "22h 29/9" -> 22, "22:00" -> 22)
+    function extractHour(str) {
+        if (!str) return null;
+        let match = str.match(/(\d{1,2})[h:]/i) || str.match(/^(\d{1,2})/);
+        return match ? parseInt(match[1]) : null;
+    }
+
+    // THUẬT TOÁN TÍNH GIÁ THÔNG MINH BẮT MỌI CÚ PHÁP
     function autoCalculatePriceAndRem() {
         const inStr = document.getElementById('addCheckin').value.trim();
         const outStr = document.getElementById('addCheckout').value.trim();
@@ -356,7 +363,6 @@
 
         if (inStr && outStr && !document.getElementById('addTotal').value) {
             let isWk = false;
-            // Kiểm tra ngày cuối tuần (T6, T7, CN)
             if (inStr.includes('/')) {
                 let parts = inStr.split('/');
                 if (parts.length >= 2) {
@@ -370,45 +376,38 @@
             }
             const rates = isWk ? pricing.weekend : pricing.normal;
 
-            // Xử lý gói cố định
-            if (inStr.includes("22:") && outStr.includes("10:")) {
-                totalVal = rates.overnight; // Qua đêm
-            } else if (inStr.includes("11:") && outStr.includes("21:")) {
-                totalVal = rates.fullday; // Giá ngày
-            } else if (inStr.includes("16:") && outStr.includes("10:")) {
-                totalVal = rates.nightday; // Ngày đêm
-            } else {
-                // Xử lý thuê theo giờ lẻ (2h, 4h, 5h, 6h, 7h...)
-                try {
-                    let inTimeMatch = inStr.match(/(\d{1,2}):(\d{2})/);
-                    let outTimeMatch = outStr.match(/(\d{1,2}):(\d{2})/);
-                    
-                    if (inTimeMatch && outTimeMatch) {
-                        let inMins = parseInt(inTimeMatch[1]) * 60 + parseInt(inTimeMatch[2]);
-                        let outMins = parseInt(outTimeMatch[1]) * 60 + parseInt(outTimeMatch[2]);
-                        if (outMins <= inMins) outMins += 24 * 60; // Qua đêm qua 12h đêm
+            let inH = extractHour(inStr);
+            let outH = extractHour(outStr);
 
-                        let totalHours = (outMins - inMins) / 60;
-
-                        if (totalHours <= 2) {
-                            totalVal = rates.combo2h;
-                        } else if (totalHours <= 4) {
-                            totalVal = rates.combo4h;
-                        } else {
-                            // Hơn 4 tiếng: Lấy Combo 4h + Phụ thu 40k/h
-                            let extraHours = totalHours - 4;
-                            totalVal = rates.combo4h + (extraHours * EXTRA_HOURLY_RATE);
-                            
-                            // Tự động giới hạn tối đa không vượt quá giá Ngày/Đêm tương ứng
-                            if (totalVal > rates.fullday) totalVal = rates.fullday;
-                        }
-                    } else {
-                        totalVal = rates.combo2h;
-                    }
-                } catch(e) {
-                    totalVal = rates.combo2h;
+            if (inH !== null && outH !== null) {
+                // Qua đêm (Check-in 22h, Check-out 10h) -> 300k/330k
+                if (inH === 22 && outH === 10) {
+                    totalVal = rates.overnight;
                 }
+                // Giá ngày (Check-in 11h, Check-out 21h) -> 380k/420k
+                else if (inH === 11 && outH === 21) {
+                    totalVal = rates.fullday;
+                }
+                // Ngày đêm (Check-in 15h, Check-out 10h) -> 450k/490k
+                else if (inH === 15 && outH === 10) {
+                    totalVal = rates.nightday;
+                }
+                // Tính theo giờ lẻ khác
+                else {
+                    let calcOut = outH <= inH ? outH + 24 : outH;
+                    let diffH = calcOut - inH;
+
+                    if (diffH <= 2) totalVal = rates.combo2h;
+                    else if (diffH <= 4) totalVal = rates.combo4h;
+                    else {
+                        totalVal = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE);
+                        if (totalVal > rates.fullday) totalVal = rates.fullday;
+                    }
+                }
+            } else {
+                totalVal = rates.combo2h;
             }
+
             document.getElementById('addTotal').value = formatK(totalVal);
         }
 
