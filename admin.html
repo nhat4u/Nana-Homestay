@@ -16,9 +16,6 @@
         .admin-dashboard { max-width: 1400px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header h1 { color: var(--primary); font-size: 18px; }
-        .header-btns { display: flex; gap: 8px; }
-        .btn-header { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-go-home { background: #ffe3e8; color: var(--primary); }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab-btn { padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; font-size: 13px; }
@@ -26,6 +23,10 @@
 
         .tab-content { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .tab-content.active { display: block; }
+
+        /* Khung hiển thị Trang chủ nhúng (Tab 4) */
+        #tabHomeView { padding: 10px; }
+        .iframe-container { width: 100%; height: 85vh; border: none; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
 
         /* Bộ chọn Tháng / Năm */
         .month-picker-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff0f3; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--primary); width: fit-content; }
@@ -101,10 +102,7 @@
 <!-- Dashboard Admin -->
 <div class="admin-dashboard" id="adminDashboard">
     <div class="header">
-        <h1>🏠 Nana Homestay</h1>
-        <div class="header-btns">
-            <a href="index.html" class="btn-header btn-go-home">🏠 Trang Chủ</a>
-        </div>
+        <h1>🏠 Nana Homestay - Trang Quản Lý</h1>
     </div>
 
     <!-- Thanh chuyển Tab -->
@@ -112,6 +110,7 @@
         <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
         <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 4. Trang Chủ</button>
     </div>
 
     <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
@@ -232,6 +231,11 @@
             </div>
         </div>
     </div>
+
+    <!-- TAB 4: NHÚNG XEM TRANG CHỦ -->
+    <div id="tabHomeView" class="tab-content">
+        <iframe src="index.html" class="iframe-container" title="Giao diện Trang chủ"></iframe>
+    </div>
 </div>
 
 <!-- MODAL SỬA ĐƠN -->
@@ -299,7 +303,6 @@
 
     let currentCustomers = {};
 
-    // Khởi chạy trực tiếp trang quản lý không cần đăng nhập
     window.onload = function() {
         renderMonthlySchedule();
         listenToCustomersFirebase();
@@ -338,31 +341,30 @@
     };
     const EXTRA_HOURLY_RATE = 40000;
 
-    // HÀM TÍNH GIÁ TỰ ĐỘNG THEO QUY TẮC
+    // HÀM TÍNH GIÁ TỰ ĐỘNG
     function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
         if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
 
         let dtIn = new Date(year, inMonth - 1, inDay);
-        let dayOfWeek = dtIn.getDay(); // 0: CN, 5: T6, 6: T7
+        let dayOfWeek = dtIn.getDay();
         let isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
         let rates = isWeekend ? pricing.weekend : pricing.normal;
 
         // 1. COMBO NGÀY ĐÊM (Check-in từ 15h)
         if (inHour === 15) {
-            let basePrice = rates.nightday; // 450k (T2-T5) hoặc 490k (T6-CN)
+            let basePrice = rates.nightday;
             if (outHour > 10) {
-                // Quá 10h sáng hôm sau -> Phụ thu 40k/giờ
                 basePrice += (outHour - 10) * EXTRA_HOURLY_RATE;
             }
             return basePrice;
         }
 
-        // 2. QUA ĐÊM CHUẨN (22h - 10h) -> 300k / 330k
+        // 2. QUA ĐÊM CHUẨN (22h - 10h)
         if (inHour === 22 && outHour === 10 && inDay !== outDay) {
             return rates.overnight;
         }
 
-        // 3. THEO NGÀY CHUẨN (11h - 21h) -> 380k / 420k
+        // 3. THEO NGÀY CHUẨN (11h - 21h)
         if (inHour === 11 && outHour === 21 && inDay === outDay) {
             return rates.fullday;
         }
@@ -372,8 +374,8 @@
         let diffH = calcOut - inHour;
 
         if (diffH <= 2) return rates.combo2h;
-        if (diffH === 3) return rates.combo2h + EXTRA_HOURLY_RATE; // 150k + 40k = 190k
-        if (diffH === 4) return rates.combo4h; // 210k
+        if (diffH === 3) return rates.combo2h + EXTRA_HOURLY_RATE;
+        if (diffH === 4) return rates.combo4h;
         
         let price = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE);
         return price > rates.fullday ? rates.fullday : price;
@@ -456,7 +458,6 @@
             outMonth = parseInt(outDateMatch[2]);
         }
 
-        // TỰ ĐỘNG TÍNH LẠI TỔNG BILL NẾU TRONG TIN NHẮN CHƯA BÁO TỔNG BILL
         if (totalBill === 0 && inHour !== null && outHour !== null) {
             totalBill = calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, filterYear);
         }
@@ -464,7 +465,6 @@
         let bookedSlots = [];
         let scheduleUpdates = {};
 
-        // Xử lý chuyển đổi các khung giờ sang Đã có khách
         if (inHour !== null && outHour !== null && inDay && inMonth) {
             if (!outDay || (inDay === outDay && inMonth === outMonth)) {
                 let monthKey = `${filterYear}_${inMonth}`;
