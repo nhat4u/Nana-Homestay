@@ -312,7 +312,7 @@
 <!-- MODAL SỬA ĐƠN BOOK -->
 <div class="edit-modal" id="editModal">
     <div class="edit-card">
-        <h3>✏️️ Sửa Thông Tin Đơn Book</h3>
+        <h3>✏️ Sửa Thông Tin Đơn Book</h3>
         <input type="hidden" id="editKey">
         <div class="form-grid">
             <div class="form-item">
@@ -612,4 +612,339 @@
 
         db.ref().update(updates, (error) => {
             if (!error) {
-                alert("
+                alert("🗑️️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
+                renderMonthlySchedule();
+            } else {
+                alert("Lỗi khi xóa: " + error.message);
+            }
+        });
+    }
+
+    // --- TAB 1: QUẢN LÝ LỊCH ---
+    function renderMonthlySchedule() {
+        const month = parseInt(document.getElementById('selectMonth').value);
+        const year = parseInt(document.getElementById('selectYear').value);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        const headerRow = document.getElementById('scheduleHeader');
+        headerRow.innerHTML = '<th class="time-col">Khung giờ</th>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month - 1, day);
+            const dayOfWeek = dayNames[dateObj.getDay()];
+            
+            const th = document.createElement('th');
+            th.innerText = `${dayOfWeek} (${day}/${month})`;
+            headerRow.appendChild(th);
+        }
+
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
+
+        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
+            const savedData = snapshot.val() || {};
+            tbody.innerHTML = "";
+
+            for (let h = 0; h < 24; h++) {
+                const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const key = `d${day}_h${h}`;
+                    const isBusy = savedData[key] === true;
+
+                    tr.innerHTML += `
+                        <td>
+                            <button class="status-btn ${isBusy ? 'btn-busy' : 'btn-free'}" 
+                                    onclick="toggleStatus(this, ${h}, ${day}, ${month})">
+                                ${isBusy ? 'Đã có khách' : 'Trống'}
+                            </button>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            }
+        });
+    }
+
+    function toggleStatus(btn, hour, day, month) {
+        const year = parseInt(document.getElementById('selectYear').value);
+        const key = `d${day}_h${hour}`;
+        const isCurrentlyFree = btn.classList.contains('btn-free');
+        const newStatus = isCurrentlyFree; 
+
+        db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+            if (!error) {
+                if (isCurrentlyFree) {
+                    btn.classList.remove('btn-free');
+                    btn.classList.add('btn-busy');
+                    btn.innerText = "Đã có khách";
+                } else {
+                    btn.classList.remove('btn-busy');
+                    btn.classList.add('btn-free');
+                    btn.innerText = "Trống";
+                }
+            } else {
+                alert("Lỗi lưu CSDL: " + error.message);
+            }
+        });
+    }
+
+    // --- TAB 2: KHÁCH HÀNG ---
+    function listenToCustomersFirebase() {
+        db.ref('customers').on('value', (snapshot) => {
+            currentCustomers = snapshot.val() || {};
+            renderCustomerTable();
+            renderStatsAndExpenses();
+        });
+    }
+
+    function renderCustomerTable() {
+        const tbody = document.getElementById('customerBody');
+        tbody.innerHTML = "";
+
+        const selectedMonth = parseInt(document.getElementById('custFilterMonth').value);
+        const selectedYear = parseInt(document.getElementById('custFilterYear').value);
+        const targetMonthKey = `${selectedYear}_${selectedMonth}`;
+        
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        const keys = Object.keys(currentCustomers);
+        
+        let totalMinibar = 0;
+        let totalBillSum = 0;
+        let totalPaidSum = 0;
+        let totalRemainingSum = 0;
+
+        let visibleCount = 0;
+
+        keys.forEach((key) => {
+            const item = currentCustomers[key];
+            
+            const itemMonthKey = item.monthKey || "2026_10";
+            if (itemMonthKey !== targetMonthKey) return;
+
+            if (searchQuery !== "") {
+                const matchName = (item.name || "").toLowerCase().includes(searchQuery);
+                const matchPhone = (item.phone || "").toLowerCase().includes(searchQuery);
+                const matchBookDate = (item.bookDate || "").toLowerCase().includes(searchQuery);
+                const matchCheckin = (item.checkin || "").toLowerCase().includes(searchQuery);
+                const matchCheckout = (item.checkout || "").toLowerCase().includes(searchQuery);
+                const matchNote = (item.note || "").toLowerCase().includes(searchQuery);
+
+                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote) {
+                    return;
+                }
+            }
+
+            visibleCount++;
+
+            const totalBillVal = parseMoneyInput(item.totalBill);
+            const paidVal = parseMoneyInput(item.paid);
+            const minibarVal = parseMoneyInput(item.minibar);
+            const remainingVal = totalBillVal - paidVal;
+
+            totalMinibar += minibarVal;
+            totalBillSum += totalBillVal;
+            totalPaidSum += paidVal;
+            totalRemainingSum += remainingVal;
+
+            let nameStr = item.name || '';
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${visibleCount}</b></td>
+                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
+                <td>${item.checkin || ''}</td>
+                <td>${item.checkout || ''}</td>
+                <td>${item.bookDate || ''}</td>
+                <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="0" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
+                <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
+                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
+                <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
+                        <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        if (visibleCount === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
+        }
+
+        document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
+        document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
+        document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
+        document.getElementById('sumRemaining').innerText = totalRemainingSum / 1000;
+
+        const nanaTotal = (totalPaidSum + totalMinibar) / 1000;
+        document.getElementById('sumNanaTotal').innerText = nanaTotal;
+    }
+
+    function updateCustomerField(key, field, value) {
+        db.ref(`customers/${key}/${field}`).set(value);
+    }
+
+    function openEditModal(key) {
+        const item = currentCustomers[key];
+
+        document.getElementById('editKey').value = key;
+        document.getElementById('editName').value = item.name || '';
+        document.getElementById('editPhone').value = item.phone || '';
+        document.getElementById('editCheckin').value = item.checkin || '';
+        document.getElementById('editCheckout').value = item.checkout || '';
+        document.getElementById('editTotal').value = formatK(item.totalBill);
+        document.getElementById('editPaid').value = formatK(item.paid);
+        document.getElementById('editMinibar').value = item.minibar || '';
+        document.getElementById('editNote').value = item.note || '';
+
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEditedBooking() {
+        const key = document.getElementById('editKey').value;
+        const updatedData = {
+            name: document.getElementById('editName').value.trim(),
+            phone: document.getElementById('editPhone').value.trim(),
+            checkin: document.getElementById('editCheckin').value.trim(),
+            checkout: document.getElementById('editCheckout').value.trim(),
+            totalBill: parseMoneyInput(document.getElementById('editTotal').value),
+            paid: parseMoneyInput(document.getElementById('editPaid').value),
+            minibar: document.getElementById('editMinibar').value.trim(),
+            note: document.getElementById('editNote').value.trim()
+        };
+
+        db.ref(`customers/${key}`).update(updatedData, (error) => {
+            if (!error) {
+                alert("✅ Đã cập nhật đơn thành công!");
+                closeEditModal();
+            } else {
+                alert("Lỗi cập nhật: " + error.message);
+            }
+        });
+    }
+
+    // --- TAB 3: QUẢN LÝ CHI PHÍ PHÁT SINH & THỐNG KÊ ---
+    function listenToExpensesFirebase() {
+        db.ref('expenses').on('value', (snapshot) => {
+            currentExpenses = snapshot.val() || {};
+            renderStatsAndExpenses();
+        });
+    }
+
+    function addExpenseItem() {
+        const month = parseInt(document.getElementById('statFilterMonth').value);
+        const year = parseInt(document.getElementById('statFilterYear').value);
+        const monthKey = `${year}_${month}`;
+
+        const name = document.getElementById('expName').value.trim();
+        const qty = document.getElementById('expQty').value.trim();
+        const priceStr = document.getElementById('expPrice').value.trim();
+        const note = document.getElementById('expNote').value.trim();
+
+        if (!name) {
+            alert("Vui lòng nhập tên sản phẩm / chi phí!");
+            return;
+        }
+
+        const priceVal = parseMoneyInput(priceStr);
+
+        const newExpense = {
+            name: name,
+            qty: qty || "",
+            price: priceVal,
+            priceStr: priceStr || formatK(priceVal),
+            note: note,
+            monthKey: monthKey
+        };
+
+        db.ref('expenses').push(newExpense, (error) => {
+            if (!error) {
+                document.getElementById('expName').value = "";
+                document.getElementById('expQty').value = "";
+                document.getElementById('expPrice').value = "";
+                document.getElementById('expNote').value = "";
+            } else {
+                alert("Lỗi thêm chi phí: " + error.message);
+            }
+        });
+    }
+
+    function deleteExpenseItem(key) {
+        if (confirm("Bạn có chắc muốn xóa khoản chi phí này?")) {
+            db.ref(`expenses/${key}`).remove();
+        }
+    }
+
+    function renderStatsAndExpenses() {
+        const month = parseInt(document.getElementById('statFilterMonth').value);
+        const year = parseInt(document.getElementById('statFilterYear').value);
+        const targetMonthKey = `${year}_${month}`;
+
+        document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh T${month}`;
+
+        // 1. Tính tổng thu nhập khách book của tháng
+        let totalIncome = 0;
+        Object.values(currentCustomers).forEach(item => {
+            const itemMonthKey = item.monthKey || "2026_10";
+            if (itemMonthKey === targetMonthKey) {
+                totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
+            }
+        });
+
+        // 2. Render danh sách Chi phí phát sinh
+        const tbody = document.getElementById('expenseBody');
+        tbody.innerHTML = "";
+
+        let totalExpenseSum = 0;
+        let count = 0;
+
+        Object.keys(currentExpenses).forEach(key => {
+            const item = currentExpenses[key];
+            const itemMonthKey = item.monthKey || "2026_10";
+
+            if (itemMonthKey === targetMonthKey) {
+                count++;
+                const itemPrice = parseMoneyInput(item.price);
+                totalExpenseSum += itemPrice;
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${count}</td>
+                    <td>${item.name || ''}</td>
+                    <td>${item.qty || ''}</td>
+                    <td>${item.priceStr || formatK(itemPrice)}</td>
+                    <td>${item.note || ''}</td>
+                    <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí phát sinh nào cho tháng này.</td></tr>`;
+        }
+
+        // 3. Hiển thị Hàng Tổng Bảng Chi Phí & Thẻ Thống Kê
+        document.getElementById('sumExpenseTotal').innerText = (totalExpenseSum > 0) ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
+
+        let netProfit = totalIncome - totalExpenseSum;
+
+        document.getElementById('statTotalIncome').innerText = formatK(totalIncome);
+        document.getElementById('statTotalExpense').innerText = formatK(totalExpenseSum);
+        document.getElementById('statNetProfit').innerText = formatK(netProfit);
+    }
+</script>
+
+</body>
+</html>
