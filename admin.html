@@ -12,21 +12,13 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 10px; }
 
-        /* Màn hình đăng nhập */
-        .login-box { max-width: 360px; margin: 80px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        .login-box h2 { color: var(--primary); margin-bottom: 20px; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; text-align: center; }
-        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        .btn-home-login { display: inline-block; margin-top: 15px; color: #8a626a; font-size: 13px; text-decoration: none; font-weight: 600; }
-
         /* Dashboard Admin */
-        .admin-dashboard { display: none; max-width: 1400px; margin: 0 auto; }
+        .admin-dashboard { max-width: 1400px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header h1 { color: var(--primary); font-size: 18px; }
         .header-btns { display: flex; gap: 8px; }
         .btn-header { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
         .btn-go-home { background: #ffe3e8; color: var(--primary); }
-        .btn-logout { background: #eee; color: #666; }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab-btn { padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; font-size: 13px; }
@@ -106,22 +98,12 @@
 </head>
 <body>
 
-<!-- Màn hình Đăng Nhập Admin -->
-<div class="login-box" id="loginBox">
-    <h2>🔐 Nana Homestay</h2>
-    <input type="password" id="adminPass" placeholder="Nhập mật khẩu Admin">
-    <button onclick="checkAdminLogin()">Đăng Nhập</button>
-    <br>
-    <a href="index.html" class="btn-home-login">🏠 Quay về Trang Chủ</a>
-</div>
-
 <!-- Dashboard Admin -->
 <div class="admin-dashboard" id="adminDashboard">
     <div class="header">
         <h1>🏠 Nana Homestay</h1>
         <div class="header-btns">
             <a href="index.html" class="btn-header btn-go-home">🏠 Trang Chủ</a>
-            <button class="btn-header btn-logout" onclick="logout()">Đăng xuất</button>
         </div>
     </div>
 
@@ -313,26 +295,15 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const ADMIN_PASSWORD = "nana123";
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     let currentCustomers = {};
 
-    function checkAdminLogin() {
-        const pass = document.getElementById('adminPass').value;
-        if (pass === ADMIN_PASSWORD) {
-            document.getElementById('loginBox').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            renderMonthlySchedule();
-            listenToCustomersFirebase(); 
-        } else {
-            alert("Mật khẩu Admin không chính xác!");
-        }
-    }
-
-    function logout() {
-        location.reload();
-    }
+    // Khởi chạy trực tiếp trang quản lý không cần đăng nhập
+    window.onload = function() {
+        renderMonthlySchedule();
+        listenToCustomersFirebase();
+    };
 
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -367,7 +338,7 @@
     };
     const EXTRA_HOURLY_RATE = 40000;
 
-    // HÀM TÍNH GIÁ TỰ ĐỘNG THEO QUY TẮC CỦA BẠN
+    // HÀM TÍNH GIÁ TỰ ĐỘNG THEO QUY TẮC
     function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
         if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
 
@@ -433,7 +404,7 @@
         if (phoneMatch) phone = phoneMatch[1].replace(/\s+/g, '').trim();
 
         // 3. Tổng bill & Đã CK
-        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK\vert{}CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
+        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK|CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
         if (billMatch) {
             totalBill = parseMoneyInput(billMatch[1]);
             if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
