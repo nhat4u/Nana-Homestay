@@ -4,3561 +4,946 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nana Homestay - Trang Quản Lý</title>
-
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
-
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --primary: #d17a85;
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --text: #333;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            padding: 10px;
-        }
+        :root { --primary: #d17a85; --bg: #f8f9fa; --card: #ffffff; --text: #333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; }
 
         /* Dashboard Admin */
-        .admin-dashboard {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 12px 18px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .header h1 {
-            color: var(--primary);
-            font-size: 18px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Trang chủ */
-        #tabHomeView {
-            padding: 10px;
-        }
-
-        .iframe-container {
-            width: 100%;
-            height: 85vh;
-            border: none;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-
-        /* Bộ chọn tháng / năm */
-        .month-picker-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            background: #fff0f3;
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px dashed var(--primary);
-            width: fit-content;
-        }
-
-        .month-picker-box label {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 13px;
-        }
-
-        .month-picker-box select {
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #ffd0d7;
-            font-weight: 700;
-            color: #5a3d42;
-            outline: none;
-        }
-
-        /* Thanh lọc */
-        .filter-search-bar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 15px;
-            background: #fff0f3;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px dashed var(--primary);
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-group label {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 13px;
-        }
-
-        .filter-group select {
-            padding: 5px 10px;
-            border-radius: 6px;
-            border: 1px solid #ffd0d7;
-            font-weight: 700;
-            color: #5a3d42;
-            outline: none;
-        }
-
-        .search-box input {
-            padding: 6px 12px;
-            border: 1px solid #ffd0d7;
-            border-radius: 8px;
-            font-size: 13px;
-            outline: none;
-            min-width: 220px;
-        }
-
-        /* Bảng lịch */
-        .table-container {
-            overflow-x: auto;
-            max-width: 100%;
-            border: 1px solid #eee;
-            border-radius: 10px;
-        }
-
-        table.sched-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-            font-size: 11px;
-        }
-
-        table.sched-table th,
-        table.sched-table td {
-            border: 1px solid #eee;
-            padding: 5px 6px;
-            white-space: nowrap;
-        }
-
-        table.sched-table th {
-            background: #ffe3e8;
-            color: var(--primary);
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-        }
-
-        table.sched-table td.time-col {
-            background: #f9f9f9;
-            font-weight: 700;
-            color: #555;
-            position: sticky;
-            left: 0;
-            z-index: 2;
-        }
-
-        .status-btn {
-            padding: 3px 6px;
-            border-radius: 5px;
-            font-weight: 700;
-            font-size: 10px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-free {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .btn-busy {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        /* Form dán booking */
-        .paste-booking-form {
-            background: #fff0f3;
-            border: 1px dashed var(--primary);
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-        }
-
-        .paste-booking-form h4 {
-            color: var(--primary);
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .paste-booking-form textarea {
-            width: 100%;
-            height: 90px;
-            padding: 10px;
-            border: 1px solid #ffd0d7;
-            border-radius: 8px;
-            font-size: 12px;
-            outline: none;
-            resize: vertical;
-            margin-bottom: 8px;
-        }
-
-        .btn-add-booking {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* Bảng khách */
-        table.cust-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        table.cust-table th,
-        table.cust-table td {
-            border: 1px solid #ccc;
-            padding: 6px 4px;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        table.cust-table th {
-            background: #ffe3e8;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 11px;
-        }
-
-        .cust-name-cell {
-            max-width: 90px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 700;
-            text-align: left !important;
-        }
-
-        .admin-input-mini {
-            width: 50px;
-            padding: 3px;
-            border: 1px solid #ffd0d7;
-            border-radius: 4px;
-            font-size: 11px;
-            text-align: center;
-            outline: none;
-        }
-
-        .admin-input-note-mini {
-            width: 85px;
-            padding: 3px;
-            border: 1px solid #ffd0d7;
-            border-radius: 4px;
-            font-size: 11px;
-            outline: none;
-        }
-
-        .btn-action-group {
-            display: flex;
-            gap: 3px;
-            justify-content: center;
-        }
-
-        .btn-edit-cust {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 3px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .btn-del-cust {
-            background: #ff4d4f;
-            color: white;
-            border: none;
-            padding: 3px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        /* Tổng */
-        tr.row-total-summary td {
-            font-weight: 700;
-            font-size: 14px;
-            background: #ffffff;
-        }
-
-        .txt-red-summary {
-            color: #d93025;
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        tr.row-nana-summary td {
-            background: #d0e1f9;
-            font-weight: 700;
-        }
-
-        .cell-nana-title {
-            background: #fff2cc !important;
-            font-size: 15px;
-            font-weight: 700;
-            color: #000;
-        }
-
-        /* Thống kê */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #fff0f3;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px dashed var(--primary);
-        }
-
-        .stat-card h3 {
-            font-size: 13px;
-            color: #8a626a;
-            margin-bottom: 6px;
-        }
-
-        .stat-card .val {
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        /* Chi phí */
-        .expense-section {
-            background: white;
-            border-radius: 12px;
-        }
-
-        .expense-header-title {
-            color: #d32f2f;
-            font-weight: 700;
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        table.expense-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        table.expense-table th,
-        table.expense-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
-        }
-
-        table.expense-table th {
-            background: #ffffff;
-            color: #000;
-            font-weight: 700;
-        }
-
-        table.expense-table tr.total-expense-row td {
-            background: #fce4d6;
-            font-weight: 700;
-            font-size: 18px;
-            color: #d32f2f;
-        }
-
-        /* Ô điền trực tiếp trong bảng chi phí */
-        .expense-input {
-            width: 100%;
-            min-width: 100px;
-            padding: 7px 8px;
-            border: 1px solid #ffd0d7;
-            border-radius: 6px;
-            font-size: 12px;
-            outline: none;
-            text-align: center;
-            background: #fff;
-        }
-
-        .expense-input:focus {
-            border-color: var(--primary);
-            background: #fff8fa;
-        }
-
-        .expense-name-input {
-            min-width: 180px;
-            text-align: left;
-        }
-
-        .expense-qty-input {
-            width: 60px;
-            min-width: 60px;
-        }
-
-        .expense-price-input {
-            width: 110px;
-            min-width: 110px;
-        }
-
-        .expense-note-input {
-            min-width: 180px;
-            text-align: left;
-        }
-
-        .btn-save-expense {
-            background: #2e7d32;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .btn-save-expense:hover {
-            opacity: 0.85;
-        }
-
-        .btn-new-expense {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        /* Modal sửa đơn */
-        .edit-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .edit-card {
-            background: white;
-            width: 90%;
-            max-width: 420px;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .edit-card h3 {
-            color: var(--primary);
-            margin-bottom: 12px;
-            font-size: 15px;
-            text-align: center;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .form-item label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: #8a626a;
-            margin-bottom: 3px;
-        }
-
-        .form-item input {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #ffd0d7;
-            border-radius: 6px;
-            font-size: 12px;
-            outline: none;
-        }
-
-        @media (max-width: 700px) {
-            .expense-name-input,
-            .expense-note-input {
-                min-width: 130px;
-            }
-
-            .search-box input {
-                min-width: 160px;
-            }
-        }
+        .admin-dashboard { max-width: 1400px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header h1 { color: var(--primary); font-size: 18px; }
+        
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; font-size: 13px; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .tab-content { display: none; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .tab-content.active { display: block; }
+
+        /* Khung hiển thị Trang chủ nhúng (Tab 4) */
+        #tabHomeView { padding: 10px; }
+        .iframe-container { width: 100%; height: 85vh; border: none; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+
+        /* Bộ chọn Tháng / Năm */
+        .month-picker-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff0f3; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--primary); width: fit-content; }
+        .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 13px; }
+        .month-picker-box select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
+
+        /* Thanh lọc & Tìm kiếm khách hàng */
+        .filter-search-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; background: #fff0f3; padding: 10px 14px; border-radius: 12px; border: 1px dashed var(--primary); }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-group label { font-weight: 700; color: var(--primary); font-size: 13px; }
+        .filter-group select { padding: 5px 10px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
+        .search-box input { padding: 6px 12px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; outline: none; min-width: 220px; }
+
+        /* Bảng Lịch Cuộn Ngang */
+        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 10px; }
+        table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+        table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 5px 6px; white-space: nowrap; }
+        table.sched-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
+        table.sched-table td.time-col { background: #f9f9f9; font-weight: 700; color: #555; position: sticky; left: 0; z-index: 2; }
+        
+        .status-btn { padding: 3px 6px; border-radius: 5px; font-weight: 700; font-size: 10px; border: none; cursor: pointer; }
+        .btn-free { background: #e8f5e9; color: #2e7d32; }
+        .btn-busy { background: #ffebee; color: #c62828; }
+
+        /* Form dán nhanh tin nhắn */
+        .paste-booking-form { background: #fff0f3; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+        .paste-booking-form h4 { color: var(--primary); margin-bottom: 8px; font-size: 14px; }
+        .paste-booking-form textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; resize: vertical; margin-bottom: 8px; }
+        .btn-add-booking { background: var(--primary); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+        /* Bảng Danh Sách Khách Thu Nhỏ & Hàng Tổng */
+        table.cust-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table.cust-table th, table.cust-table td { border: 1px solid #ccc; padding: 6px 4px; text-align: center; white-space: nowrap; }
+        table.cust-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; font-size: 11px; }
+        
+        .cust-name-cell { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: left !important; }
+        
+        .admin-input-mini { width: 50px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; text-align: center; outline: none; }
+        .admin-input-note-mini { width: 85px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
+        
+        .btn-action-group { display: flex; gap: 3px; justify-content: center; }
+        .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
+        .btn-del-cust { background: #ff4d4f; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
+
+        /* Kiểu dáng Hàng Tổng */
+        tr.row-total-summary td { font-weight: 700; font-size: 14px; background: #ffffff; }
+        .txt-red-summary { color: #d93025; font-weight: 700; font-size: 15px; }
+        tr.row-nana-summary td { background: #d0e1f9; font-weight: 700; }
+        .cell-nana-title { background: #fff2cc !important; font-size: 15px; font-weight: 700; color: #000; }
+
+        /* Thống kê thu chi */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff0f3; padding: 15px; border-radius: 12px; text-align: center; border: 1px dashed var(--primary); }
+        .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 6px; }
+        .stat-card .val { font-size: 22px; font-weight: 700; }
+
+        /* Bảng Chi Phí Phát Sinh */
+        .expense-section { background: white; border-radius: 12px; }
+        .expense-header-title { color: #d32f2f; font-weight: 700; font-size: 18px; text-align: center; margin-bottom: 12px; }
+        .expense-form-box { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: #fff0f3; padding: 10px; border-radius: 10px; border: 1px dashed var(--primary); align-items: center; }
+        .expense-form-box input { padding: 6px 10px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        .expense-form-box input.inp-name { flex: 2; min-width: 140px; }
+        .expense-form-box input.inp-qty { width: 60px; text-align: center; }
+        .expense-form-box input.inp-price { width: 100px; text-align: center; }
+        .expense-form-box input.inp-note { flex: 2; min-width: 140px; }
+        
+        table.expense-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.expense-table th, table.expense-table td { border: 1px solid #000; padding: 8px 6px; text-align: center; }
+        table.expense-table th { background: #ffffff; color: #000; font-weight: 700; }
+        table.expense-table tr.total-expense-row td { background: #fce4d6; font-weight: 700; font-size: 18px; color: #d32f2f; }
+
+        /* Modal Sửa Đơn */
+        .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .edit-card { background: white; width: 90%; max-width: 420px; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .edit-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 15px; text-align: center; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
+        .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
     </style>
 
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
-
 <body>
 
+<!-- Dashboard Admin -->
 <div class="admin-dashboard" id="adminDashboard">
-
-    <!-- HEADER -->
     <div class="header">
         <h1>🏠 Nana Homestay - Trang Quản Lý</h1>
     </div>
 
-    <!-- TABS -->
+    <!-- Thanh chuyển Tab -->
     <div class="tabs">
-
-        <button class="tab-btn active"
-                onclick="switchTab(event, 'tabSchedule')">
-            📅 1. Quản Lý Lịch
-        </button>
-
-        <button class="tab-btn"
-                onclick="switchTab(event, 'tabCustomers')">
-            👥 2. Danh Sách Khách Book
-        </button>
-
-        <button class="tab-btn"
-                onclick="switchTab(event, 'tabStats')">
-            💰 3. Thống Kê Thu Chi
-        </button>
-
-        <button class="tab-btn"
-                onclick="switchTab(event, 'tabHomeView')">
-            🏠 4. Trang Chủ
-        </button>
-
+        <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 4. Trang Chủ</button>
     </div>
 
-
-    <!-- ====================================================== -->
-    <!-- TAB 1: QUẢN LÝ LỊCH -->
-    <!-- ====================================================== -->
-
+    <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
     <div id="tabSchedule" class="tab-content active">
-
         <div class="month-picker-box">
-
-            <label for="selectMonth">
-                📅 Chọn Tháng:
-            </label>
-
-            <select id="selectMonth"
-                    onchange="renderMonthlySchedule()">
-
+            <label for="selectMonth">📅 Chọn Tháng:</label>
+            <select id="selectMonth" onchange="renderMonthlySchedule()">
                 <option value="9">Tháng 9</option>
                 <option value="10" selected>Tháng 10</option>
                 <option value="11">Tháng 11</option>
                 <option value="12">Tháng 12</option>
                 <option value="1">Tháng 1</option>
                 <option value="2">Tháng 2</option>
-
             </select>
-
-            <select id="selectYear"
-                    onchange="renderMonthlySchedule()">
-
+            <select id="selectYear" onchange="renderMonthlySchedule()">
                 <option value="2026" selected>2026</option>
                 <option value="2027">2027</option>
-
             </select>
-
         </div>
 
-
-        <p style="font-size:11px; color:#8a626a; margin-bottom:8px;">
-            👉 Bấm vào từng ô để đổi giữa 🟢 <b>Trống</b> &
-            🔴 <b>Đã có khách</b>
-        </p>
-
-
+        <p style="font-size:11px; color:#8a626a; margin-bottom:8px;">👉 Bấm vào từng ô để đổi giữa 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
+        
         <div class="table-container">
-
-            <table class="sched-table"
-                   id="scheduleTable">
-
+            <table class="sched-table" id="scheduleTable">
                 <thead>
-
                     <tr id="scheduleHeader">
-
-                        <th class="time-col">
-                            Khung giờ
-                        </th>
-
+                        <th class="time-col">Khung giờ</th>
                     </tr>
-
                 </thead>
-
-                <tbody id="scheduleBody"></tbody>
-
+                <tbody id="scheduleBody">
+                </tbody>
             </table>
-
         </div>
-
     </div>
 
-
-    <!-- ====================================================== -->
-    <!-- TAB 2: DANH SÁCH KHÁCH -->
-    <!-- ====================================================== -->
-
-    <div id="tabCustomers"
-         class="tab-content">
-
+    <!-- TAB 2: DANH SÁCH KHÁCH HÀNG BOOK -->
+    <div id="tabCustomers" class="tab-content">
+        <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
         <div class="paste-booking-form">
-
-            <h4>
-                📋 Dán nội dung tin nhắn chốt phòng
-            </h4>
-
-            <textarea
-                id="pasteText"
-                placeholder="................................">
-            </textarea>
-
-            <button
-                class="btn-add-booking"
-                onclick="processPastedBooking()">
-
-                ✨ Phân Tích & Lưu Đơn
-
-            </button>
-
+            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
+            <textarea id="pasteText" placeholder="................................"></textarea>
+            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
-
+        <!-- BỘ LỌC THÁNG & THANH TÌM KIẾM KHÁCH HÀNG -->
         <div class="filter-search-bar">
-
             <div class="filter-group">
-
-                <label for="custFilterMonth">
-                    📅 Lọc xem Tháng:
-                </label>
-
-                <select
-                    id="custFilterMonth"
-                    onchange="renderCustomerTable()">
-
+                <label for="custFilterMonth">📅 Lọc xem Tháng:</label>
+                <select id="custFilterMonth" onchange="renderCustomerTable()">
                     <option value="9">Tháng 9</option>
                     <option value="10" selected>Tháng 10</option>
                     <option value="11">Tháng 11</option>
                     <option value="12">Tháng 12</option>
                     <option value="1">Tháng 1</option>
                     <option value="2">Tháng 2</option>
-
                 </select>
-
-
-                <select
-                    id="custFilterYear"
-                    onchange="renderCustomerTable()">
-
+                <select id="custFilterYear" onchange="renderCustomerTable()">
                     <option value="2026" selected>2026</option>
                     <option value="2027">2027</option>
-
                 </select>
-
             </div>
-
-
             <div class="search-box">
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="🔍 Tìm tên khách, SĐT, ngày..."
-                    oninput="renderCustomerTable()">
-
+                <input type="text" id="searchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderCustomerTable()">
             </div>
-
         </div>
-
 
         <div class="table-container">
-
             <table class="cust-table">
-
                 <thead>
-
                     <tr>
-
-                        <th style="width:25px;">STT</th>
-
-                        <th style="width:85px;">
-                            Tên khách
-                        </th>
-
+                        <th style="width: 25px;">STT</th>
+                        <th style="width: 85px;">Tên khách</th>
                         <th>Check-in</th>
-
                         <th>Check-out</th>
-
-                        <th style="width:60px;">
-                            Ngày book
-                        </th>
-
-                        <th style="width:50px;">
-                            Mini bar
-                        </th>
-
-                        <th style="width:50px;">
-                            Tổng bill
-                        </th>
-
-                        <th style="width:50px;">
-                            Đã ck
-                        </th>
-
-                        <th style="width:50px;">
-                            Còn lại
-                        </th>
-
-                        <th style="width:85px;">
-                            Ghi chú
-                        </th>
-
-                        <th style="width:70px;">
-                            Thao tác
-                        </th>
-
+                        <th style="width: 60px;">Ngày book</th>
+                        <th style="width: 50px;">Mini bar</th>
+                        <th style="width: 50px;">Tổng bill</th>
+                        <th style="width: 50px;">Đã ck</th>
+                        <th style="width: 50px;">Còn lại</th>
+                        <th style="width: 85px;">Ghi chú</th>
+                        <th style="width: 70px;">Thao tác</th>
                     </tr>
-
                 </thead>
-
-
-                <tbody id="customerBody"></tbody>
-
-
+                <tbody id="customerBody">
+                </tbody>
+                <!-- HÀNG TỔNG NANA HOMESTAY -->
                 <tfoot id="customerFoot">
-
                     <tr class="row-total-summary">
-
-                        <td colspan="5"
-                            style="font-size:16px;">
-                            Tổng
-                        </td>
-
-                        <td class="txt-red-summary"
-                            id="sumMinibar">
-                            0
-                        </td>
-
-                        <td class="txt-red-summary"
-                            id="sumTotalBill">
-                            0
-                        </td>
-
-                        <td class="txt-red-summary"
-                            id="sumPaid">
-                            0
-                        </td>
-
-                        <td class="txt-red-summary"
-                            id="sumRemaining">
-                            0
-                        </td>
-
+                        <td colspan="5" style="font-size: 16px;">Tổng</td>
+                        <td class="txt-red-summary" id="sumMinibar">0</td>
+                        <td class="txt-red-summary" id="sumTotalBill">0</td>
+                        <td class="txt-red-summary" id="sumPaid">0</td>
+                        <td class="txt-red-summary" id="sumRemaining">0</td>
                         <td colspan="2"></td>
-
                     </tr>
-
-
                     <tr class="row-nana-summary">
-
-                        <td colspan="5"
-                            class="cell-nana-title">
-                            🏠 Nana Homestay
-                        </td>
-
-                        <td colspan="4"
-                            class="txt-red-summary"
-                            style="font-size:18px;"
-                            id="sumNanaTotal">
-                            0
-                        </td>
-
+                        <td colspan="5" class="cell-nana-title">🏠 Nana Homestay</td>
+                        <td colspan="4" class="txt-red-summary" style="font-size: 18px;" id="sumNanaTotal">0</td>
                         <td colspan="2"></td>
-
                     </tr>
-
                 </tfoot>
-
             </table>
-
         </div>
-
     </div>
 
-
-    <!-- ====================================================== -->
-    <!-- TAB 3: THỐNG KÊ THU CHI -->
-    <!-- ====================================================== -->
-
-    <div id="tabStats"
-         class="tab-content">
-
-
-        <!-- CHỌN THÁNG -->
-
+    <!-- TAB 3: THỐNG KÊ THU CHI & BẢNG CHI PHÍ -->
+    <div id="tabStats" class="tab-content">
+        <!-- BỘ LỌC THÁNG CHO THỐNG KÊ -->
         <div class="month-picker-box">
-
-            <label for="statFilterMonth">
-                📅 Xem Thống Kê Tháng:
-            </label>
-
-            <select
-                id="statFilterMonth"
-                onchange="renderStatsAndExpenses()">
-
+            <label for="statFilterMonth">📅 Xem Thống Kê Tháng:</label>
+            <select id="statFilterMonth" onchange="renderStatsAndExpenses()">
                 <option value="9">Tháng 9</option>
                 <option value="10" selected>Tháng 10</option>
                 <option value="11">Tháng 11</option>
                 <option value="12">Tháng 12</option>
                 <option value="1">Tháng 1</option>
                 <option value="2">Tháng 2</option>
-
             </select>
-
-
-            <select
-                id="statFilterYear"
-                onchange="renderStatsAndExpenses()">
-
+            <select id="statFilterYear" onchange="renderStatsAndExpenses()">
                 <option value="2026" selected>2026</option>
                 <option value="2027">2027</option>
-
             </select>
-
         </div>
 
-
-        <!-- THỐNG KÊ -->
-
+        <!-- THẺ THỐNG KÊ DOANH THU -->
         <div class="stats-grid">
-
             <div class="stat-card">
-
-                <h3>
-                    TỔNG THU (ĐÃ CK)
-                </h3>
-
-                <div
-                    class="val"
-                    style="color:#2e7d32;"
-                    id="statTotalIncome">
-                    0k
-                </div>
-
+                <h3>TỔNG THU (ĐÃ CK)</h3>
+                <div class="val" style="color: #2e7d32;" id="statTotalIncome">0k</div>
             </div>
-
-
             <div class="stat-card">
-
-                <h3>
-                    TỔNG CHI PHÍ PHÁT SINH
-                </h3>
-
-                <div
-                    class="val"
-                    style="color:#c62828;"
-                    id="statTotalExpense">
-                    0k
-                </div>
-
+                <h3>TỔNG CHI PHÍ PHÁT SINH</h3>
+                <div class="val" style="color: #c62828;" id="statTotalExpense">0k</div>
             </div>
-
-
             <div class="stat-card">
-
-                <h3>
-                    DOANH THU THỰC TẾ
-                </h3>
-
-                <div
-                    class="val"
-                    style="color:var(--primary);"
-                    id="statNetProfit">
-                    0k
-                </div>
-
+                <h3>DOANH THU THỰC TẾ</h3>
+                <div class="val" style="color: var(--primary);" id="statNetProfit">0k</div>
             </div>
-
         </div>
 
-
-        <!-- CHI PHÍ -->
-
+        <!-- BẢNG CHI PHÍ PHÁT SINH -->
         <div class="expense-section">
-
-            <div
-                class="expense-header-title"
-                id="expenseTitleText">
-
-                Chi phí phát sinh T10
-
+            <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh T10</div>
+            
+            <!-- FORM THÊM CHI PHÍ PHÁT SINH -->
+            <div class="expense-form-box">
+                <input type="text" id="expName" class="inp-name" placeholder="Tên sản phẩm / Chi phí...">
+                <input type="number" id="expQty" class="inp-qty" placeholder="SL" min="1">
+                <input type="text" id="expPrice" class="inp-price" placeholder="Giá (ví dụ: 360k)">
+                <input type="text" id="expNote" class="inp-note" placeholder="Note / Ghi chú...">
+                <button class="btn-add-booking" onclick="addExpenseItem()">➕ Thêm Chi Phí</button>
             </div>
-
-
-            <!-- KHÔNG CÒN FORM THÊM CHI PHÍ Ở ĐÂY -->
-
 
             <div class="table-container">
-
                 <table class="expense-table">
-
                     <thead>
-
                         <tr>
-
-                            <th style="width:40px;">
-                                STT
-                            </th>
-
-                            <th>
-                                Sản phẩm
-                            </th>
-
-                            <th style="width:70px;">
-                                SL
-                            </th>
-
-                            <th style="width:120px;">
-                                Giá
-                            </th>
-
-                            <th>
-                                Note
-                            </th>
-
-                            <th style="width:70px;">
-                                Thao tác
-                            </th>
-
+                            <th style="width: 40px;">STT</th>
+                            <th>Sản phẩm</th>
+                            <th style="width: 60px;">SL</th>
+                            <th style="width: 100px;">Giá</th>
+                            <th>Note</th>
+                            <th style="width: 60px;">Thao tác</th>
                         </tr>
-
                     </thead>
-
-
-                    <tbody id="expenseBody"></tbody>
-
-
+                    <tbody id="expenseBody">
+                    </tbody>
                     <tfoot>
-
                         <tr class="total-expense-row">
-
-                            <td colspan="3">
-                                Tổng
-                            </td>
-
-                            <td colspan="3"
-                                id="sumExpenseTotal">
-                                0
-                            </td>
-
+                            <td colspan="3">Tổng</td>
+                            <td colspan="3" id="sumExpenseTotal">0</td>
                         </tr>
-
                     </tfoot>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
-
-    <!-- ====================================================== -->
-    <!-- TAB 4: TRANG CHỦ -->
-    <!-- ====================================================== -->
-
-    <div id="tabHomeView"
-         class="tab-content">
-
-        <iframe
-            src="index.html"
-            class="iframe-container"
-            title="Giao diện Trang chủ">
-        </iframe>
-
+    <!-- TAB 4: NHÚNG XEM TRANG CHỦ -->
+    <div id="tabHomeView" class="tab-content">
+        <iframe src="index.html" class="iframe-container" title="Giao diện Trang chủ"></iframe>
     </div>
-
 </div>
 
-
-<!-- ====================================================== -->
-<!-- MODAL SỬA ĐƠN -->
-<!-- ====================================================== -->
-
-<div class="edit-modal"
-     id="editModal">
-
+<!-- MODAL SỬA ĐƠN BOOK -->
+<div class="edit-modal" id="editModal">
     <div class="edit-card">
-
-        <h3>
-            ✏️ Sửa Thông Tin Đơn Book
-        </h3>
-
-        <input
-            type="hidden"
-            id="editKey">
-
-
+        <h3>✏️ Sửa Thông Tin Đơn Book</h3>
+        <input type="hidden" id="editKey">
         <div class="form-grid">
-
             <div class="form-item">
-
-                <label>
-                    Tên khách:
-                </label>
-
-                <input
-                    type="text"
-                    id="editName">
-
+                <label>Tên khách:</label>
+                <input type="text" id="editName">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    SĐT:
-                </label>
-
-                <input
-                    type="text"
-                    id="editPhone">
-
+                <label>SĐT:</label>
+                <input type="text" id="editPhone">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Check-in:
-                </label>
-
-                <input
-                    type="text"
-                    id="editCheckin">
-
+                <label>Check-in:</label>
+                <input type="text" id="editCheckin">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Check-out:
-                </label>
-
-                <input
-                    type="text"
-                    id="editCheckout">
-
+                <label>Check-out:</label>
+                <input type="text" id="editCheckout">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Tổng bill:
-                </label>
-
-                <input
-                    type="text"
-                    id="editTotal">
-
+                <label>Tổng bill:</label>
+                <input type="text" id="editTotal">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Đã CK:
-                </label>
-
-                <input
-                    type="text"
-                    id="editPaid">
-
+                <label>Đã CK:</label>
+                <input type="text" id="editPaid">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Mini bar:
-                </label>
-
-                <input
-                    type="text"
-                    id="editMinibar">
-
+                <label>Mini bar:</label>
+                <input type="text" id="editMinibar">
             </div>
-
-
             <div class="form-item">
-
-                <label>
-                    Ghi chú:
-                </label>
-
-                <input
-                    type="text"
-                    id="editNote">
-
+                <label>Ghi chú:</label>
+                <input type="text" id="editNote">
             </div>
-
         </div>
-
-
-        <div
-            style="display:flex; gap:8px; margin-top:12px;">
-
-            <button
-                class="btn-add-booking"
-                style="flex:1;"
-                onclick="saveEditedBooking()">
-
-                💾 Lưu Chỉnh Sửa
-
-            </button>
-
-
-            <button
-                class="btn-add-booking"
-                style="flex:1;background:#ccc;color:#333;"
-                onclick="closeEditModal()">
-
-                Hủy
-
-            </button>
-
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-add-booking" style="flex:1;" onclick="saveEditedBooking()">💾 Lưu Chỉnh Sửa</button>
+            <button class="btn-add-booking" style="flex:1; background:#ccc; color:#333;" onclick="closeEditModal()">Hủy</button>
         </div>
-
     </div>
-
 </div>
-
 
 <script>
-
-    /* =========================================================
-       FIREBASE
-    ========================================================= */
-
+    // FIREBASE SDK
     const firebaseConfig = {
-
-        apiKey:
-            "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
-
-        authDomain:
-            "nana-homestay.firebaseapp.com",
-
-        projectId:
-            "nana-homestay",
-
-        storageBucket:
-            "nana-homestay.firebasestorage.app",
-
-        messagingSenderId:
-            "479892350682",
-
-        appId:
-            "1:479892350682:web:485d4dd69befd3dfc7a7e3",
-
-        measurementId:
-            "G-4ZE4FVEZHS"
+      apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
+      authDomain: "nana-homestay.firebaseapp.com",
+      projectId: "nana-homestay",
+      storageBucket: "nana-homestay.firebasestorage.app",
+      messagingSenderId: "479892350682",
+      appId: "1:479892350682:web:485d4dd69befd3dfc7a7e3",
+      measurementId: "G-4ZE4FVEZHS"
     };
-
 
     firebase.initializeApp(firebaseConfig);
-
     const db = firebase.database();
 
-
-    const dayNames = [
-        "Chủ Nhật",
-        "Thứ 2",
-        "Thứ 3",
-        "Thứ 4",
-        "Thứ 5",
-        "Thứ 6",
-        "Thứ 7"
-    ];
-
+    const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     let currentCustomers = {};
-
     let currentExpenses = {};
 
-
-    /* =========================================================
-       KHI MỞ TRANG
-    ========================================================= */
-
     window.onload = function() {
-
         renderMonthlySchedule();
-
         listenToCustomersFirebase();
-
         listenToExpensesFirebase();
-
     };
-
-
-    /* =========================================================
-       CHUYỂN TAB
-    ========================================================= */
 
     function switchTab(event, tabId) {
-
-        document
-            .querySelectorAll('.tab-btn')
-            .forEach(b =>
-                b.classList.remove('active')
-            );
-
-
-        document
-            .querySelectorAll('.tab-content')
-            .forEach(c =>
-                c.classList.remove('active')
-            );
-
-
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
         event.target.classList.add('active');
-
-        document
-            .getElementById(tabId)
-            .classList.add('active');
-
+        document.getElementById(tabId).classList.add('active');
     }
-
-
-    /* =========================================================
-       TIỀN
-    ========================================================= */
 
     function parseMoneyInput(val) {
-
         if (!val) return 0;
-
-        let str =
-            val.toString()
-                .toLowerCase()
-                .trim();
-
-
-        if (str.includes('tr')) {
-
-            return (
-                parseFloat(
-                    str.replace('tr', '')
-                ) || 0
-            ) * 1000000;
-
-        }
-
-
+        let str = val.toString().toLowerCase().trim();
         if (str.includes('k')) {
-
-            return (
-                parseFloat(
-                    str.replace('k', '')
-                ) || 0
-            ) * 1000;
-
+            return (parseFloat(str.replace('k', '')) || 0) * 1000;
         }
-
-
-        return (
-            parseFloat(
-                str.replace(/[^0-9]/g, '')
-            ) || 0
-        );
-
+        if (str.includes('tr')) {
+            return (parseFloat(str.replace('tr', '')) || 0) * 1000000;
+        }
+        return parseFloat(str.replace(/[^0-9]/g, '')) || 0;
     }
-
 
     function formatK(val) {
-
-        let num =
-            parseMoneyInput(val);
-
-
-        if (num === 0) {
-            return "0k";
-        }
-
-
-        return (
-            num / 1000
-        ) + "k";
-
+        let num = parseMoneyInput(val);
+        if (num === 0) return "0k";
+        return (num / 1000) + "k";
     }
 
-
-    /* =========================================================
-       BẢNG GIÁ CŨ CHO BOOKING
-    ========================================================= */
-
+    // BẢNG GIÁ QUY ĐỊNH
     const pricing = {
-
-        normal: {
-            combo2h: 150000,
-            combo4h: 210000,
-            overnight: 300000,
-            fullday: 380000,
-            nightday: 450000
-        },
-
-        weekend: {
-            combo2h: 150000,
-            combo4h: 210000,
-            overnight: 330000,
-            fullday: 420000,
-            nightday: 490000
-        }
-
+        normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
+        weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
     };
-
-
     const EXTRA_HOURLY_RATE = 40000;
 
+    // HÀM TÍNH GIÁ TỰ ĐỘNG
+    function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
+        if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
 
-    function calculatePrice(
-        inHour,
-        inDay,
-        inMonth,
-        outHour,
-        outDay,
-        outMonth,
-        year
-    ) {
+        let dtIn = new Date(year, inMonth - 1, inDay);
+        let dayOfWeek = dtIn.getDay();
+        let isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
+        let rates = isWeekend ? pricing.weekend : pricing.normal;
 
-        if (
-            inHour === null ||
-            outHour === null ||
-            !inDay ||
-            !inMonth
-        ) {
-            return 0;
-        }
-
-
-        let dtIn =
-            new Date(
-                year,
-                inMonth - 1,
-                inDay
-            );
-
-
-        let dayOfWeek =
-            dtIn.getDay();
-
-
-        let isWeekend =
-            dayOfWeek === 0 ||
-            dayOfWeek === 5 ||
-            dayOfWeek === 6;
-
-
-        let rates =
-            isWeekend
-                ? pricing.weekend
-                : pricing.normal;
-
-
+        // 1. COMBO NGÀY ĐÊM (Check-in từ 15h)
         if (inHour === 15) {
-
-            let basePrice =
-                rates.nightday;
-
-
+            let basePrice = rates.nightday;
             if (outHour > 10) {
-
-                basePrice +=
-                    (outHour - 10) *
-                    EXTRA_HOURLY_RATE;
-
+                basePrice += (outHour - 10) * EXTRA_HOURLY_RATE;
             }
-
-
             return basePrice;
-
         }
 
-
-        if (
-            inHour === 22 &&
-            outHour === 10 &&
-            inDay !== outDay
-        ) {
-
+        // 2. QUA ĐÊM CHUẨN (22h - 10h)
+        if (inHour === 22 && outHour === 10 && inDay !== outDay) {
             return rates.overnight;
-
         }
 
-
-        if (
-            inHour === 11 &&
-            outHour === 21 &&
-            inDay === outDay
-        ) {
-
+        // 3. THEO NGÀY CHUẨN (11h - 21h)
+        if (inHour === 11 && outHour === 21 && inDay === outDay) {
             return rates.fullday;
-
         }
 
+        // 4. TÍNH THEO GIỜ LẺ
+        let calcOut = (outDay && outDay !== inDay) ? (outHour + 24) : outHour;
+        let diffH = calcOut - inHour;
 
-        let calcOut =
-            (
-                outDay &&
-                outDay !== inDay
-            )
-                ? outHour + 24
-                : outHour;
-
-
-        let diffH =
-            calcOut - inHour;
-
-
-        if (diffH <= 2) {
-            return rates.combo2h;
-        }
-
-
-        if (diffH === 3) {
-
-            return (
-                rates.combo2h +
-                EXTRA_HOURLY_RATE
-            );
-
-        }
-
-
-        if (diffH === 4) {
-
-            return rates.combo4h;
-
-        }
-
-
-        let price =
-            rates.combo4h +
-            (
-                diffH - 4
-            ) *
-            EXTRA_HOURLY_RATE;
-
-
-        return price > rates.fullday
-            ? rates.fullday
-            : price;
-
+        if (diffH <= 2) return rates.combo2h;
+        if (diffH === 3) return rates.combo2h + EXTRA_HOURLY_RATE;
+        if (diffH === 4) return rates.combo4h;
+        
+        let price = rates.combo4h + ((diffH - 4) * EXTRA_HOURLY_RATE);
+        return price > rates.fullday ? rates.fullday : price;
     }
 
-
-    /* =========================================================
-       XỬ LÝ BOOKING DÁN TIN NHẮN
-    ========================================================= */
-
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH
     function processPastedBooking() {
-
-        const text =
-            document
-                .getElementById('pasteText')
-                .value
-                .trim();
-
-
+        const text = document.getElementById('pasteText').value.trim();
         if (!text) {
-
-            alert(
-                "Vui lòng dán nội dung tin nhắn chốt phòng!"
-            );
-
+            alert("Vui lòng dán nội dung tin nhắn chốt phòng!");
             return;
-
         }
-
 
         let name = "";
-
         let phone = "";
-
         let totalBill = 0;
-
         let paid = 0;
-
         let checkin = "";
-
         let checkout = "";
-
         let note = "";
 
+        // 1. Tên khách
+        let nameMatch = text.match(/Tên khách hàng:\s*([^\n\r]+)/i) || text.match(/Tên khách:\s*([^\n\r]+)/i);
+        if (nameMatch) name = nameMatch[1].trim();
 
-        let nameMatch =
-            text.match(
-                /Tên khách hàng:\s*([^\n\r]+)/i
-            ) ||
-            text.match(
-                /Tên khách:\s*([^\n\r]+)/i
-            );
+        // 2. Số điện thoại
+        let phoneMatch = text.match(/SĐT\s*:\s*([0-9\s.]+)/i);
+        if (phoneMatch) phone = phoneMatch[1].replace(/\s+/g, '').trim();
 
-
-        if (nameMatch) {
-
-            name =
-                nameMatch[1].trim();
-
-        }
-
-
-        let phoneMatch =
-            text.match(
-                /SĐT\s*:\s*([0-9\s.]+)/i
-            );
-
-
-        if (phoneMatch) {
-
-            phone =
-                phoneMatch[1]
-                    .replace(/\s+/g, '')
-                    .trim();
-
-        }
-
-
-        let billMatch =
-            text.match(
-                /Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK|CK)?\s*([0-9kKtrTR.]+)\)?)?/i
-            );
-
-
+        // 3. Tổng bill & Đã CK
+        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK|CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
         if (billMatch) {
-
-            totalBill =
-                parseMoneyInput(
-                    billMatch[1]
-                );
-
-
-            if (billMatch[2]) {
-
-                paid =
-                    parseMoneyInput(
-                        billMatch[2]
-                    );
-
-            }
-
+            totalBill = parseMoneyInput(billMatch[1]);
+            if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
         }
-
-
-        let paidMatch =
-            text.match(
-                /ĐÃ CK\s*([0-9kKtrTR.]+)/i
-            ) ||
-            text.match(
-                /Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i
-            );
-
-
+        let paidMatch = text.match(/ĐÃ CK\s*([0-9kKtrTR.]+)/i) || text.match(/Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i);
         if (paidMatch && !paid) {
-
-            paid =
-                parseMoneyInput(
-                    paidMatch[1]
-                );
-
+            paid = parseMoneyInput(paidMatch[1]);
         }
 
-
-        let timeMatch =
-            text.match(
-                /Giờ check in\s*-\s*out:\s*([^-]+)\s*-\s*([^\n\r]+)/i
-            ) ||
-            text.match(
-                /Checkin\s*-\s*checkout:\s*([^-]+)\s*-\s*([^\n\r]+)/i
-            );
-
-
+        // 4. Giờ check in - out
+        let timeMatch = text.match(/Giờ check in\s*-\s*out:\s*([^-]+)\s*-\s*([^\n\r]+)/i) || text.match(/Checkin\s*-\s*checkout:\s*([^-]+)\s*-\s*([^\n\r]+)/i);
         if (timeMatch) {
-
-            checkin =
-                timeMatch[1].trim();
-
-            checkout =
-                timeMatch[2].trim();
-
+            checkin = timeMatch[1].trim();
+            checkout = timeMatch[2].trim();
         }
-
 
         if (!name) {
-
-            alert(
-                "Không tìm thấy Tên khách hàng trong tin nhắn!"
-            );
-
+            alert("Không tìm thấy Tên khách hàng trong tin nhắn! Vui lòng kiểm tra lại định dạng tin nhắn.");
             return;
-
         }
 
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const todayStr = `${day}/${month}`;
 
-        const now =
-            new Date();
+        let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
+        let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
 
+        // Tách ngày & giờ Check-in / Check-out
+        let inHour = null, inDay = null, inMonth = filterMonth;
+        let outHour = null, outDay = null, outMonth = filterMonth;
 
-        const day =
-            String(
-                now.getDate()
-            ).padStart(2, '0');
+        let inHourMatch = checkin.match(/([0-9]{1,2})\s*h/i);
+        if (inHourMatch) inHour = parseInt(inHourMatch[1]);
 
-
-        const month =
-            String(
-                now.getMonth() + 1
-            ).padStart(2, '0');
-
-
-        const todayStr =
-            `${day}/${month}`;
-
-
-        let filterMonth =
-            parseInt(
-                document
-                    .getElementById('custFilterMonth')
-                    .value
-            ) ||
-            (
-                now.getMonth() + 1
-            );
-
-
-        let filterYear =
-            parseInt(
-                document
-                    .getElementById('custFilterYear')
-                    .value
-            ) ||
-            now.getFullYear();
-
-
-        let inHour = null;
-
-        let inDay = null;
-
-        let inMonth =
-            filterMonth;
-
-
-        let outHour = null;
-
-        let outDay = null;
-
-        let outMonth =
-            filterMonth;
-
-
-        let inHourMatch =
-            checkin.match(
-                /([0-9]{1,2})\s*h/i
-            );
-
-
-        if (inHourMatch) {
-
-            inHour =
-                parseInt(
-                    inHourMatch[1]
-                );
-
-        }
-
-
-        let inDateMatch =
-            checkin.match(
-                /([0-9]{1,2})\s*\/\s*([0-9]{1,2})/
-            );
-
-
+        let inDateMatch = checkin.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
         if (inDateMatch) {
-
-            inDay =
-                parseInt(
-                    inDateMatch[1]
-                );
-
-            inMonth =
-                parseInt(
-                    inDateMatch[2]
-                );
-
+            inDay = parseInt(inDateMatch[1]);
+            inMonth = parseInt(inDateMatch[2]);
         }
 
+        let outHourMatch = checkout.match(/([0-9]{1,2})\s*h/i);
+        if (outHourMatch) outHour = parseInt(outHourMatch[1]);
 
-        let outHourMatch =
-            checkout.match(
-                /([0-9]{1,2})\s*h/i
-            );
-
-
-        if (outHourMatch) {
-
-            outHour =
-                parseInt(
-                    outHourMatch[1]
-                );
-
-        }
-
-
-        let outDateMatch =
-            checkout.match(
-                /([0-9]{1,2})\s*\/\s*([0-9]{1,2})/
-            );
-
-
+        let outDateMatch = checkout.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
         if (outDateMatch) {
-
-            outDay =
-                parseInt(
-                    outDateMatch[1]
-                );
-
-            outMonth =
-                parseInt(
-                    outDateMatch[2]
-                );
-
+            outDay = parseInt(outDateMatch[1]);
+            outMonth = parseInt(outDateMatch[2]);
         }
 
-
-        if (
-            totalBill === 0 &&
-            inHour !== null &&
-            outHour !== null
-        ) {
-
-            totalBill =
-                calculatePrice(
-                    inHour,
-                    inDay,
-                    inMonth,
-                    outHour,
-                    outDay,
-                    outMonth,
-                    filterYear
-                );
-
+        if (totalBill === 0 && inHour !== null && outHour !== null) {
+            totalBill = calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, filterYear);
         }
-
 
         let bookedSlots = [];
-
         let scheduleUpdates = {};
 
-
-        if (
-            inHour !== null &&
-            outHour !== null &&
-            inDay &&
-            inMonth
-        ) {
-
-            if (
-                !outDay ||
-                (
-                    inDay === outDay &&
-                    inMonth === outMonth
-                )
-            ) {
-
-                let monthKey =
-                    `${filterYear}_${inMonth}`;
-
-
-                for (
-                    let h = inHour;
-                    h < outHour;
-                    h++
-                ) {
-
-                    let slotKey =
-                        `d${inDay}_h${h}`;
-
-
-                    scheduleUpdates[
-                        `schedules/${monthKey}/${slotKey}`
-                    ] = true;
-
-
-                    bookedSlots.push({
-                        monthKey,
-                        slotKey
-                    });
-
+        if (inHour !== null && outHour !== null && inDay && inMonth) {
+            if (!outDay || (inDay === outDay && inMonth === outMonth)) {
+                let monthKey = `${filterYear}_${inMonth}`;
+                for (let h = inHour; h < outHour; h++) {
+                    let slotKey = `d${inDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
+                    bookedSlots.push({ monthKey, slotKey });
                 }
-
             } else {
-
-                let monthKeyIn =
-                    `${filterYear}_${inMonth}`;
-
-
-                for (
-                    let h = inHour;
-                    h <= 23;
-                    h++
-                ) {
-
-                    let slotKey =
-                        `d${inDay}_h${h}`;
-
-
-                    scheduleUpdates[
-                        `schedules/${monthKeyIn}/${slotKey}`
-                    ] = true;
-
-
-                    bookedSlots.push({
-                        monthKey:
-                            monthKeyIn,
-                        slotKey
-                    });
-
+                let monthKeyIn = `${filterYear}_${inMonth}`;
+                for (let h = inHour; h <= 23; h++) {
+                    let slotKey = `d${inDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKeyIn}/${slotKey}`] = true;
+                    bookedSlots.push({ monthKey: monthKeyIn, slotKey });
                 }
 
-
-                let monthKeyOut =
-                    `${filterYear}_${outMonth}`;
-
-
-                for (
-                    let h = 0;
-                    h < outHour;
-                    h++
-                ) {
-
-                    let slotKey =
-                        `d${outDay}_h${h}`;
-
-
-                    scheduleUpdates[
-                        `schedules/${monthKeyOut}/${slotKey}`
-                    ] = true;
-
-
-                    bookedSlots.push({
-                        monthKey:
-                            monthKeyOut,
-                        slotKey
-                    });
-
+                let monthKeyOut = `${filterYear}_${outMonth}`;
+                for (let h = 0; h < outHour; h++) {
+                    let slotKey = `d${outDay}_h${h}`;
+                    scheduleUpdates[`schedules/${monthKeyOut}/${slotKey}`] = true;
+                    bookedSlots.push({ monthKey: monthKeyOut, slotKey });
                 }
-
             }
 
-
-            db.ref()
-                .update(scheduleUpdates);
-
+            db.ref().update(scheduleUpdates);
         }
-
 
         const newBooking = {
-
             name: name,
-
             phone: phone,
-
             checkin: checkin,
-
             checkout: checkout,
-
             bookDate: todayStr,
-
             totalBill: totalBill,
-
             paid: paid,
-
             minibar: "",
-
             note: note,
-
-            monthKey:
-                `${filterYear}_${inMonth || filterMonth}`,
-
-            bookedSlots:
-                bookedSlots
-
+            monthKey: `${filterYear}_${inMonth || filterMonth}`,
+            bookedSlots: bookedSlots
         };
 
-
-        db.ref('customers')
-            .push(
-                newBooking,
-                (error) => {
-
-                    if (!error) {
-
-                        alert(
-                            `✅ Đã thêm đơn của: ${name} và tự động chuyển lịch phòng sang "Đã có khách"!`
-                        );
-
-
-                        document
-                            .getElementById('pasteText')
-                            .value = "";
-
-
-                        renderMonthlySchedule();
-
-                    } else {
-
-                        alert(
-                            "Lỗi lưu đơn: " +
-                            error.message
-                        );
-
-                    }
-
-                }
-            );
-
+        db.ref('customers').push(newBooking, (error) => {
+            if (!error) {
+                alert(`✅ Đã thêm đơn của: ${name} và tự động chuyển lịch phòng sang "Đã có khách"!`);
+                document.getElementById('pasteText').value = "";
+                renderMonthlySchedule();
+            } else {
+                alert("Lỗi lưu đơn: " + error.message);
+            }
+        });
     }
 
-
-    /* =========================================================
-       XÓA BOOKING
-    ========================================================= */
-
+    // XÓA ĐƠN & TỰ ĐỘNG MỞ TRẢ LỊCH THÀNH "TRỐNG"
     function deleteCustomer(key) {
+        if (!confirm("Bạn có chắc muốn xóa lượt đặt phòng này?")) return;
 
-        if (
-            !confirm(
-                "Bạn có chắc muốn xóa lượt đặt phòng này?"
-            )
-        ) {
-            return;
-        }
-
-
-        const item =
-            currentCustomers[key];
-
-
-        if (!item) {
-            return;
-        }
-
+        const item = currentCustomers[key];
+        if (!item) return;
 
         let updates = {};
+        updates[`customers/${key}`] = null;
 
-
-        updates[
-            `customers/${key}`
-        ] = null;
-
-
-        if (
-            item.bookedSlots &&
-            Array.isArray(item.bookedSlots)
-        ) {
-
-            item.bookedSlots.forEach(
-                slot => {
-
-                    if (
-                        typeof slot === 'object' &&
-                        slot.monthKey &&
-                        slot.slotKey
-                    ) {
-
-                        updates[
-                            `schedules/${slot.monthKey}/${slot.slotKey}`
-                        ] = null;
-
-                    } else if (
-                        typeof slot === 'string' &&
-                        item.monthKey
-                    ) {
-
-                        updates[
-                            `schedules/${item.monthKey}/${slot}`
-                        ] = null;
-
-                    }
-
+        if (item.bookedSlots && Array.isArray(item.bookedSlots)) {
+            item.bookedSlots.forEach(slot => {
+                if (typeof slot === 'object' && slot.monthKey && slot.slotKey) {
+                    updates[`schedules/${slot.monthKey}/${slot.slotKey}`] = null;
+                } else if (typeof slot === 'string' && item.monthKey) {
+                    updates[`schedules/${item.monthKey}/${slot}`] = null;
                 }
-            );
-
+            });
         }
 
-
-        db.ref()
-            .update(
-                updates,
-                error => {
-
-                    if (!error) {
-
-                        alert(
-                            "🗑️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!"
-                        );
-
-
-                        renderMonthlySchedule();
-
-                    } else {
-
-                        alert(
-                            "Lỗi khi xóa: " +
-                            error.message
-                        );
-
-                    }
-
-                }
-            );
-
+        db.ref().update(updates, (error) => {
+            if (!error) {
+                alert("🗑️️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
+                renderMonthlySchedule();
+            } else {
+                alert("Lỗi khi xóa: " + error.message);
+            }
+        });
     }
 
-
-    /* =========================================================
-       TAB 1 - LỊCH
-    ========================================================= */
-
+    // --- TAB 1: QUẢN LÝ LỊCH ---
     function renderMonthlySchedule() {
+        const month = parseInt(document.getElementById('selectMonth').value);
+        const year = parseInt(document.getElementById('selectYear').value);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        const headerRow = document.getElementById('scheduleHeader');
+        headerRow.innerHTML = '<th class="time-col">Khung giờ</th>';
 
-        const month =
-            parseInt(
-                document
-                    .getElementById('selectMonth')
-                    .value
-            );
-
-
-        const year =
-            parseInt(
-                document
-                    .getElementById('selectYear')
-                    .value
-            );
-
-
-        const daysInMonth =
-            new Date(
-                year,
-                month,
-                0
-            ).getDate();
-
-
-        const headerRow =
-            document
-                .getElementById('scheduleHeader');
-
-
-        headerRow.innerHTML =
-            '<th class="time-col">Khung giờ</th>';
-
-
-        for (
-            let day = 1;
-            day <= daysInMonth;
-            day++
-        ) {
-
-            const dateObj =
-                new Date(
-                    year,
-                    month - 1,
-                    day
-                );
-
-
-            const dayOfWeek =
-                dayNames[
-                    dateObj.getDay()
-                ];
-
-
-            const th =
-                document.createElement('th');
-
-
-            th.innerText =
-                `${dayOfWeek} (${day}/${month})`;
-
-
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month - 1, day);
+            const dayOfWeek = dayNames[dateObj.getDay()];
+            
+            const th = document.createElement('th');
+            th.innerText = `${dayOfWeek} (${day}/${month})`;
             headerRow.appendChild(th);
-
         }
 
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
 
-        const tbody =
-            document
-                .getElementById('scheduleBody');
+        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
+            const savedData = snapshot.val() || {};
+            tbody.innerHTML = "";
 
+            for (let h = 0; h < 24; h++) {
+                const timeStr = `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td class="time-col">${timeStr}</td>`;
 
-        tbody.innerHTML =
-            "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const key = `d${day}_h${h}`;
+                    const isBusy = savedData[key] === true;
 
-
-        db.ref(
-            `schedules/${year}_${month}`
-        )
-        .once(
-            'value',
-            snapshot => {
-
-                const savedData =
-                    snapshot.val() || {};
-
-
-                tbody.innerHTML = "";
-
-
-                for (
-                    let h = 0;
-                    h < 24;
-                    h++
-                ) {
-
-                    const timeStr =
-                        `${h.toString().padStart(2, '0')}h - ${h.toString().padStart(2, '0')}h59`;
-
-
-                    let tr =
-                        document.createElement('tr');
-
-
-                    tr.innerHTML =
-                        `<td class="time-col">${timeStr}</td>`;
-
-
-                    for (
-                        let day = 1;
-                        day <= daysInMonth;
-                        day++
-                    ) {
-
-                        const key =
-                            `d${day}_h${h}`;
-
-
-                        const isBusy =
-                            savedData[key] === true;
-
-
-                        tr.innerHTML += `
-
-                            <td>
-
-                                <button
-                                    class="status-btn ${
-                                        isBusy
-                                            ? 'btn-busy'
-                                            : 'btn-free'
-                                    }"
-                                    onclick="toggleStatus(
-                                        this,
-                                        ${h},
-                                        ${day},
-                                        ${month}
-                                    )">
-
-                                    ${
-                                        isBusy
-                                            ? 'Đã có khách'
-                                            : 'Trống'
-                                    }
-
-                                </button>
-
-                            </td>
-
-                        `;
-
-                    }
-
-
-                    tbody.appendChild(tr);
-
+                    tr.innerHTML += `
+                        <td>
+                            <button class="status-btn ${isBusy ? 'btn-busy' : 'btn-free'}" 
+                                    onclick="toggleStatus(this, ${h}, ${day}, ${month})">
+                                ${isBusy ? 'Đã có khách' : 'Trống'}
+                            </button>
+                        </td>
+                    `;
                 }
-
+                tbody.appendChild(tr);
             }
-        );
-
+        });
     }
 
+    function toggleStatus(btn, hour, day, month) {
+        const year = parseInt(document.getElementById('selectYear').value);
+        const key = `d${day}_h${hour}`;
+        const isCurrentlyFree = btn.classList.contains('btn-free');
+        const newStatus = isCurrentlyFree; 
 
-    function toggleStatus(
-        btn,
-        hour,
-        day,
-        month
-    ) {
-
-        const year =
-            parseInt(
-                document
-                    .getElementById('selectYear')
-                    .value
-            );
-
-
-        const key =
-            `d${day}_h${hour}`;
-
-
-        const isCurrentlyFree =
-            btn.classList.contains(
-                'btn-free'
-            );
-
-
-        const newStatus =
-            isCurrentlyFree;
-
-
-        db.ref(
-            `schedules/${year}_${month}/${key}`
-        )
-        .set(
-            newStatus,
-            error => {
-
-                if (!error) {
-
-                    if (isCurrentlyFree) {
-
-                        btn.classList.remove(
-                            'btn-free'
-                        );
-
-                        btn.classList.add(
-                            'btn-busy'
-                        );
-
-                        btn.innerText =
-                            "Đã có khách";
-
-                    } else {
-
-                        btn.classList.remove(
-                            'btn-busy'
-                        );
-
-                        btn.classList.add(
-                            'btn-free'
-                        );
-
-                        btn.innerText =
-                            "Trống";
-
-                    }
-
+        db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+            if (!error) {
+                if (isCurrentlyFree) {
+                    btn.classList.remove('btn-free');
+                    btn.classList.add('btn-busy');
+                    btn.innerText = "Đã có khách";
                 } else {
-
-                    alert(
-                        "Lỗi lưu CSDL: " +
-                        error.message
-                    );
-
+                    btn.classList.remove('btn-busy');
+                    btn.classList.add('btn-free');
+                    btn.innerText = "Trống";
                 }
-
+            } else {
+                alert("Lỗi lưu CSDL: " + error.message);
             }
-        );
-
+        });
     }
 
-
-    /* =========================================================
-       TAB 2 - KHÁCH HÀNG
-    ========================================================= */
-
+    // --- TAB 2: KHÁCH HÀNG ---
     function listenToCustomersFirebase() {
-
-        db.ref('customers')
-            .on(
-                'value',
-                snapshot => {
-
-                    currentCustomers =
-                        snapshot.val() || {};
-
-
-                    renderCustomerTable();
-
-                    renderStatsAndExpenses();
-
-                }
-            );
-
+        db.ref('customers').on('value', (snapshot) => {
+            currentCustomers = snapshot.val() || {};
+            renderCustomerTable();
+            renderStatsAndExpenses();
+        });
     }
-
 
     function renderCustomerTable() {
-
-        const tbody =
-            document
-                .getElementById('customerBody');
-
-
+        const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
 
+        const selectedMonth = parseInt(document.getElementById('custFilterMonth').value);
+        const selectedYear = parseInt(document.getElementById('custFilterYear').value);
+        const targetMonthKey = `${selectedYear}_${selectedMonth}`;
+        
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
 
-        const selectedMonth =
-            parseInt(
-                document
-                    .getElementById('custFilterMonth')
-                    .value
-            );
-
-
-        const selectedYear =
-            parseInt(
-                document
-                    .getElementById('custFilterYear')
-                    .value
-            );
-
-
-        const targetMonthKey =
-            `${selectedYear}_${selectedMonth}`;
-
-
-        const searchQuery =
-            document
-                .getElementById('searchInput')
-                .value
-                .toLowerCase()
-                .trim();
-
-
-        const keys =
-            Object.keys(
-                currentCustomers
-            );
-
-
+        const keys = Object.keys(currentCustomers);
+        
         let totalMinibar = 0;
-
         let totalBillSum = 0;
-
         let totalPaidSum = 0;
-
         let totalRemainingSum = 0;
 
         let visibleCount = 0;
 
-
-        keys.forEach(key => {
-
-            const item =
-                currentCustomers[key];
-
-
-            const itemMonthKey =
-                item.monthKey ||
-                "2026_10";
-
-
-            if (
-                itemMonthKey !==
-                targetMonthKey
-            ) {
-                return;
-            }
-
+        keys.forEach((key) => {
+            const item = currentCustomers[key];
+            
+            const itemMonthKey = item.monthKey || "2026_10";
+            if (itemMonthKey !== targetMonthKey) return;
 
             if (searchQuery !== "") {
+                const matchName = (item.name || "").toLowerCase().includes(searchQuery);
+                const matchPhone = (item.phone || "").toLowerCase().includes(searchQuery);
+                const matchBookDate = (item.bookDate || "").toLowerCase().includes(searchQuery);
+                const matchCheckin = (item.checkin || "").toLowerCase().includes(searchQuery);
+                const matchCheckout = (item.checkout || "").toLowerCase().includes(searchQuery);
+                const matchNote = (item.note || "").toLowerCase().includes(searchQuery);
 
-                const matchName =
-                    (
-                        item.name || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                const matchPhone =
-                    (
-                        item.phone || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                const matchBookDate =
-                    (
-                        item.bookDate || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                const matchCheckin =
-                    (
-                        item.checkin || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                const matchCheckout =
-                    (
-                        item.checkout || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                const matchNote =
-                    (
-                        item.note || ""
-                    )
-                    .toLowerCase()
-                    .includes(
-                        searchQuery
-                    );
-
-
-                if (
-                    !matchName &&
-                    !matchPhone &&
-                    !matchBookDate &&
-                    !matchCheckin &&
-                    !matchCheckout &&
-                    !matchNote
-                ) {
+                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote) {
                     return;
                 }
-
             }
-
 
             visibleCount++;
 
+            const totalBillVal = parseMoneyInput(item.totalBill);
+            const paidVal = parseMoneyInput(item.paid);
+            const minibarVal = parseMoneyInput(item.minibar);
+            const remainingVal = totalBillVal - paidVal;
 
-            const totalBillVal =
-                parseMoneyInput(
-                    item.totalBill
-                );
+            totalMinibar += minibarVal;
+            totalBillSum += totalBillVal;
+            totalPaidSum += paidVal;
+            totalRemainingSum += remainingVal;
 
+            let nameStr = item.name || '';
 
-            const paidVal =
-                parseMoneyInput(
-                    item.paid
-                );
-
-
-            const minibarVal =
-                parseMoneyInput(
-                    item.minibar
-                );
-
-
-            const remainingVal =
-                totalBillVal -
-                paidVal;
-
-
-            totalMinibar +=
-                minibarVal;
-
-
-            totalBillSum +=
-                totalBillVal;
-
-
-            totalPaidSum +=
-                paidVal;
-
-
-            totalRemainingSum +=
-                remainingVal;
-
-
-            let nameStr =
-                item.name || '';
-
-
-            let tr =
-                document.createElement('tr');
-
-
+            let tr = document.createElement('tr');
             tr.innerHTML = `
-
+                <td><b>${visibleCount}</b></td>
+                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
+                <td>${item.checkin || ''}</td>
+                <td>${item.checkout || ''}</td>
+                <td>${item.bookDate || ''}</td>
+                <td><input type="text" class="admin-input-mini" value="${item.minibar || ''}" placeholder="0" onchange="updateCustomerField('${key}', 'minibar', this.value)"></td>
+                <td style="color: var(--primary); font-weight:700;">${formatK(totalBillVal)}</td>
+                <td style="color: #2e7d32; font-weight:700;">${formatK(paidVal)}</td>
+                <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
+                <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
                 <td>
-                    <b>${visibleCount}</b>
-                </td>
-
-                <td
-                    class="cust-name-cell"
-                    title="${nameStr}">
-                    ${nameStr}
-                </td>
-
-                <td>
-                    ${item.checkin || ''}
-                </td>
-
-                <td>
-                    ${item.checkout || ''}
-                </td>
-
-                <td>
-                    ${item.bookDate || ''}
-                </td>
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="admin-input-mini"
-                        value="${item.minibar || ''}"
-                        placeholder="0"
-                        onchange="
-                            updateCustomerField(
-                                '${key}',
-                                'minibar',
-                                this.value
-                            )
-                        ">
-
-                </td>
-
-                <td
-                    style="
-                        color:var(--primary);
-                        font-weight:700;
-                    ">
-
-                    ${formatK(totalBillVal)}
-
-                </td>
-
-                <td
-                    style="
-                        color:#2e7d32;
-                        font-weight:700;
-                    ">
-
-                    ${formatK(paidVal)}
-
-                </td>
-
-                <td
-                    style="
-                        color:
-                        ${
-                            remainingVal > 0
-                                ? '#c62828'
-                                : '#2e7d32'
-                        };
-                        font-weight:700;
-                    ">
-
-                    ${formatK(remainingVal)}
-
-                </td>
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="admin-input-note-mini"
-                        value="${item.note || ''}"
-                        placeholder="Ghi chú"
-                        onchange="
-                            updateCustomerField(
-                                '${key}',
-                                'note',
-                                this.value
-                            )
-                        ">
-
-                </td>
-
-                <td>
-
                     <div class="btn-action-group">
-
-                        <button
-                            class="btn-edit-cust"
-                            onclick="
-                                openEditModal('${key}')
-                            ">
-                            Sửa
-                        </button>
-
-                        <button
-                            class="btn-del-cust"
-                            onclick="
-                                deleteCustomer('${key}')
-                            ">
-                            Xóa
-                        </button>
-
+                        <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
+                        <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
                     </div>
-
                 </td>
-
             `;
-
-
             tbody.appendChild(tr);
-
         });
 
-
         if (visibleCount === 0) {
-
-            tbody.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="11"
-                        style="
-                            text-align:center;
-                            padding:15px;
-                        ">
-
-                        Chưa có lịch book nào
-                        cho tháng/kết quả tìm kiếm này.
-
-                    </td>
-
-                </tr>
-
-            `;
-
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
         }
 
+        document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
+        document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
+        document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
+        document.getElementById('sumRemaining').innerText = totalRemainingSum / 1000;
 
-        document
-            .getElementById('sumMinibar')
-            .innerText =
-            totalMinibar / 1000;
-
-
-        document
-            .getElementById('sumTotalBill')
-            .innerText =
-            totalBillSum / 1000;
-
-
-        document
-            .getElementById('sumPaid')
-            .innerText =
-            totalPaidSum / 1000;
-
-
-        document
-            .getElementById('sumRemaining')
-            .innerText =
-            totalRemainingSum / 1000;
-
-
-        const nanaTotal =
-            (
-                totalPaidSum +
-                totalMinibar
-            ) / 1000;
-
-
-        document
-            .getElementById('sumNanaTotal')
-            .innerText =
-            nanaTotal;
-
+        const nanaTotal = (totalPaidSum + totalMinibar) / 1000;
+        document.getElementById('sumNanaTotal').innerText = nanaTotal;
     }
 
-
-    function updateCustomerField(
-        key,
-        field,
-        value
-    ) {
-
-        db.ref(
-            `customers/${key}/${field}`
-        )
-        .set(value);
-
+    function updateCustomerField(key, field, value) {
+        db.ref(`customers/${key}/${field}`).set(value);
     }
-
-
-    /* =========================================================
-       MODAL SỬA BOOKING
-    ========================================================= */
 
     function openEditModal(key) {
+        const item = currentCustomers[key];
 
-        const item =
-            currentCustomers[key];
+        document.getElementById('editKey').value = key;
+        document.getElementById('editName').value = item.name || '';
+        document.getElementById('editPhone').value = item.phone || '';
+        document.getElementById('editCheckin').value = item.checkin || '';
+        document.getElementById('editCheckout').value = item.checkout || '';
+        document.getElementById('editTotal').value = formatK(item.totalBill);
+        document.getElementById('editPaid').value = formatK(item.paid);
+        document.getElementById('editMinibar').value = item.minibar || '';
+        document.getElementById('editNote').value = item.note || '';
 
-
-        document
-            .getElementById('editKey')
-            .value = key;
-
-
-        document
-            .getElementById('editName')
-            .value =
-            item.name || '';
-
-
-        document
-            .getElementById('editPhone')
-            .value =
-            item.phone || '';
-
-
-        document
-            .getElementById('editCheckin')
-            .value =
-            item.checkin || '';
-
-
-        document
-            .getElementById('editCheckout')
-            .value =
-            item.checkout || '';
-
-
-        document
-            .getElementById('editTotal')
-            .value =
-            formatK(
-                item.totalBill
-            );
-
-
-        document
-            .getElementById('editPaid')
-            .value =
-            formatK(
-                item.paid
-            );
-
-
-        document
-            .getElementById('editMinibar')
-            .value =
-            item.minibar || '';
-
-
-        document
-            .getElementById('editNote')
-            .value =
-            item.note || '';
-
-
-        document
-            .getElementById('editModal')
-            .style.display =
-            'flex';
-
+        document.getElementById('editModal').style.display = 'flex';
     }
-
 
     function closeEditModal() {
-
-        document
-            .getElementById('editModal')
-            .style.display =
-            'none';
-
+        document.getElementById('editModal').style.display = 'none';
     }
-
 
     function saveEditedBooking() {
-
-        const key =
-            document
-                .getElementById('editKey')
-                .value;
-
-
+        const key = document.getElementById('editKey').value;
         const updatedData = {
-
-            name:
-                document
-                    .getElementById('editName')
-                    .value
-                    .trim(),
-
-            phone:
-                document
-                    .getElementById('editPhone')
-                    .value
-                    .trim(),
-
-            checkin:
-                document
-                    .getElementById('editCheckin')
-                    .value
-                    .trim(),
-
-            checkout:
-                document
-                    .getElementById('editCheckout')
-                    .value
-                    .trim(),
-
-            totalBill:
-                parseMoneyInput(
-                    document
-                        .getElementById('editTotal')
-                        .value
-                ),
-
-            paid:
-                parseMoneyInput(
-                    document
-                        .getElementById('editPaid')
-                        .value
-                ),
-
-            minibar:
-                document
-                    .getElementById('editMinibar')
-                    .value
-                    .trim(),
-
-            note:
-                document
-                    .getElementById('editNote')
-                    .value
-                    .trim()
-
+            name: document.getElementById('editName').value.trim(),
+            phone: document.getElementById('editPhone').value.trim(),
+            checkin: document.getElementById('editCheckin').value.trim(),
+            checkout: document.getElementById('editCheckout').value.trim(),
+            totalBill: parseMoneyInput(document.getElementById('editTotal').value),
+            paid: parseMoneyInput(document.getElementById('editPaid').value),
+            minibar: document.getElementById('editMinibar').value.trim(),
+            note: document.getElementById('editNote').value.trim()
         };
 
-
-        db.ref(
-            `customers/${key}`
-        )
-        .update(
-            updatedData,
-            error => {
-
-                if (!error) {
-
-                    alert(
-                        "✅ Đã cập nhật đơn thành công!"
-                    );
-
-                    closeEditModal();
-
-                } else {
-
-                    alert(
-                        "Lỗi cập nhật: " +
-                        error.message
-                    );
-
-                }
-
+        db.ref(`customers/${key}`).update(updatedData, (error) => {
+            if (!error) {
+                alert("✅ Đã cập nhật đơn thành công!");
+                closeEditModal();
+            } else {
+                alert("Lỗi cập nhật: " + error.message);
             }
-        );
-
+        });
     }
 
-
-    /* =========================================================
-       TAB 3 - CHI PHÍ
-       
-       LƯU Ý:
-       - KHÔNG NHÂN SỐ LƯỢNG
-       - GIÁ DO BẠN TỰ NHẬP
-       - GIÁ = SỐ TIỀN CỦA DÒNG ĐÓ
-    ========================================================= */
-
+    // --- TAB 3: QUẢN LÝ CHI PHÍ PHÁT SINH & THỐNG KÊ ---
     function listenToExpensesFirebase() {
-
-        db.ref('expenses')
-            .on(
-                'value',
-                snapshot => {
-
-                    currentExpenses =
-                        snapshot.val() || {};
-
-
-                    renderStatsAndExpenses();
-
-                }
-            );
-
+        db.ref('expenses').on('value', (snapshot) => {
+            currentExpenses = snapshot.val() || {};
+            renderStatsAndExpenses();
+        });
     }
 
-
-    /* =========================================================
-       RENDER BẢNG CHI PHÍ
-    ========================================================= */
-
-    function renderStatsAndExpenses() {
-
-        const month =
-            parseInt(
-                document
-                    .getElementById('statFilterMonth')
-                    .value
-            );
-
-
-        const year =
-            parseInt(
-                document
-                    .getElementById('statFilterYear')
-                    .value
-            );
-
-
-        const targetMonthKey =
-            `${year}_${month}`;
-
-
-        document
-            .getElementById('expenseTitleText')
-            .innerText =
-            `Chi phí phát sinh T${month}`;
-
-
-        const tbody =
-            document
-                .getElementById('expenseBody');
-
-
-        tbody.innerHTML = "";
-
-
-        let totalExpenseSum = 0;
-
-        let count = 0;
-
-
-        /* =====================================================
-           HIỂN THỊ CÁC DÒNG ĐÃ LƯU
-        ===================================================== */
-
-        Object.keys(currentExpenses)
-            .forEach(key => {
-
-                const item =
-                    currentExpenses[key];
-
-
-                const itemMonthKey =
-                    item.monthKey ||
-                    "2026_10";
-
-
-                if (
-                    itemMonthKey !==
-                    targetMonthKey
-                ) {
-                    return;
-                }
-
-
-                count++;
-
-
-                /*
-                    GIÁ LÀ DO NGƯỜI DÙNG NHẬP.
-                    KHÔNG NHÂN VỚI SỐ LƯỢNG.
-                */
-
-                const price =
-                    parseMoneyInput(
-                        item.price
-                    );
-
-
-                totalExpenseSum +=
-                    price;
-
-
-                const tr =
-                    document.createElement('tr');
-
-
-                tr.innerHTML = `
-
-                    <td>
-                        ${count}
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="text"
-                            class="expense-input expense-name-input"
-                            value="${escapeHtml(item.name || '')}"
-                            placeholder="Tên sản phẩm..."
-                            onchange="
-                                updateExpenseField(
-                                    '${key}',
-                                    'name',
-                                    this.value
-                                )
-                            ">
-
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="text"
-                            class="expense-input expense-qty-input"
-                            value="${escapeHtml(item.qty || '')}"
-                            placeholder="SL"
-                            onchange="
-                                updateExpenseField(
-                                    '${key}',
-                                    'qty',
-                                    this.value
-                                )
-                            ">
-
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="text"
-                            class="expense-input expense-price-input"
-                            value="${escapeHtml(item.priceStr || '')}"
-                            placeholder="Ví dụ: 360k"
-                            onchange="
-                                updateExpenseField(
-                                    '${key}',
-                                    'priceStr',
-                                    this.value
-                                )
-                            ">
-
-                    </td>
-
-
-                    <td>
-
-                        <input
-                            type="text"
-                            class="expense-input expense-note-input"
-                            value="${escapeHtml(item.note || '')}"
-                            placeholder="Ghi chú..."
-                            onchange="
-                                updateExpenseField(
-                                    '${key}',
-                                    'note',
-                                    this.value
-                                )
-                            ">
-
-                    </td>
-
-
-                    <td>
-
-                        <button
-                            class="btn-del-cust"
-                            onclick="
-                                deleteExpenseItem('${key}')
-                            ">
-
-                            Xóa
-
-                        </button>
-
-                    </td>
-
-                `;
-
-
-                tbody.appendChild(tr);
-
-            });
-
-
-        /* =====================================================
-           LUÔN CÓ 5 DÒNG TRỐNG ĐỂ NHẬP
-        ===================================================== */
-
-        for (
-            let i = 1;
-            i <= 5;
-            i++
-        ) {
-
-            const tr =
-                document.createElement('tr');
-
-
-            tr.innerHTML = `
-
-                <td>
-                    ${count + i}
-                </td>
-
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="expense-input expense-name-input"
-                        placeholder="Nhập sản phẩm...">
-
-                </td>
-
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="expense-input expense-qty-input"
-                        placeholder="SL">
-
-                </td>
-
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="expense-input expense-price-input"
-                        placeholder="Ví dụ: 360k">
-
-                </td>
-
-
-                <td>
-
-                    <input
-                        type="text"
-                        class="expense-input expense-note-input"
-                        placeholder="Ghi chú...">
-
-                </td>
-
-
-                <td>
-
-                    <button
-                        class="btn-save-expense"
-                        onclick="
-                            saveManualExpense(this)
-                        ">
-
-                        Lưu
-
-                    </button>
-
-                </td>
-
-            `;
-
-
-            tbody.appendChild(tr);
-
-        }
-
-
-        /* =====================================================
-           TỔNG CHI PHÍ
-        ===================================================== */
-
-        document
-            .getElementById('sumExpenseTotal')
-            .innerText =
-            totalExpenseSum > 0
-                ? formatK(totalExpenseSum)
-                : "0k";
-
-
-        /* =====================================================
-           TỔNG THU
-        ===================================================== */
-
-        let totalIncome = 0;
-
-
-        Object.values(currentCustomers)
-            .forEach(item => {
-
-                const itemMonthKey =
-                    item.monthKey ||
-                    "2026_10";
-
-
-                if (
-                    itemMonthKey ===
-                    targetMonthKey
-                ) {
-
-                    totalIncome +=
-                        parseMoneyInput(
-                            item.paid
-                        ) +
-                        parseMoneyInput(
-                            item.minibar
-                        );
-
-                }
-
-            });
-
-
-        /* =====================================================
-           DOANH THU THỰC TẾ
-        ===================================================== */
-
-        const netProfit =
-            totalIncome -
-            totalExpenseSum;
-
-
-        document
-            .getElementById('statTotalIncome')
-            .innerText =
-            formatK(totalIncome);
-
-
-        document
-            .getElementById('statTotalExpense')
-            .innerText =
-            formatK(totalExpenseSum);
-
-
-        document
-            .getElementById('statNetProfit')
-            .innerText =
-            formatK(netProfit);
-
-    }
-
-
-    /* =========================================================
-       LƯU DÒNG NHẬP THỦ CÔNG
-    ========================================================= */
-
-    function saveManualExpense(button) {
-
-        const row =
-            button.closest('tr');
-
-
-        const inputs =
-            row.querySelectorAll('input');
-
-
-        const name =
-            inputs[0]
-                .value
-                .trim();
-
-
-        const qty =
-            inputs[1]
-                .value
-                .trim();
-
-
-        const priceStr =
-            inputs[2]
-                .value
-                .trim();
-
-
-        const note =
-            inputs[3]
-                .value
-                .trim();
-
+    function addExpenseItem() {
+        const month = parseInt(document.getElementById('statFilterMonth').value);
+        const year = parseInt(document.getElementById('statFilterYear').value);
+        const monthKey = `${year}_${month}`;
+
+        const name = document.getElementById('expName').value.trim();
+        const qty = document.getElementById('expQty').value.trim();
+        const priceStr = document.getElementById('expPrice').value.trim();
+        const note = document.getElementById('expNote').value.trim();
 
         if (!name) {
-
-            alert(
-                "Vui lòng nhập tên sản phẩm / khoản chi!"
-            );
-
+            alert("Vui lòng nhập tên sản phẩm / chi phí!");
             return;
-
         }
 
-
-        if (!priceStr) {
-
-            alert(
-                "Vui lòng nhập giá!"
-            );
-
-            return;
-
-        }
-
-
-        const month =
-            parseInt(
-                document
-                    .getElementById('statFilterMonth')
-                    .value
-            );
-
-
-        const year =
-            parseInt(
-                document
-                    .getElementById('statFilterYear')
-                    .value
-            );
-
-
-        const monthKey =
-            `${year}_${month}`;
-
-
-        /*
-            GIÁ BẠN TỰ NHẬP.
-            KHÔNG TÍNH SL x GIÁ.
-        */
-
-        const price =
-            parseMoneyInput(
-                priceStr
-            );
-
+        const priceVal = parseMoneyInput(priceStr);
 
         const newExpense = {
-
             name: name,
-
-            qty: qty,
-
-            price: price,
-
-            priceStr: priceStr,
-
+            qty: qty || "",
+            price: priceVal,
+            priceStr: priceStr || formatK(priceVal),
             note: note,
-
             monthKey: monthKey
-
         };
 
-
-        db.ref('expenses')
-            .push(
-                newExpense,
-                error => {
-
-                    if (error) {
-
-                        alert(
-                            "Lỗi lưu chi phí: " +
-                            error.message
-                        );
-
-                    } else {
-
-                        /*
-                            Firebase tự cập nhật bảng.
-                        */
-
-                        renderStatsAndExpenses();
-
-                    }
-
-                }
-            );
-
+        db.ref('expenses').push(newExpense, (error) => {
+            if (!error) {
+                document.getElementById('expName').value = "";
+                document.getElementById('expQty').value = "";
+                document.getElementById('expPrice').value = "";
+                document.getElementById('expNote').value = "";
+            } else {
+                alert("Lỗi thêm chi phí: " + error.message);
+            }
+        });
     }
-
-
-    /* =========================================================
-       SỬA TRỰC TIẾP CHI PHÍ
-    ========================================================= */
-
-    function updateExpenseField(
-        key,
-        field,
-        value
-    ) {
-
-        const updates = {};
-
-
-        if (field === 'priceStr') {
-
-            updates.priceStr =
-                value;
-
-
-            updates.price =
-                parseMoneyInput(
-                    value
-                );
-
-        } else {
-
-            updates[field] =
-                value;
-
-        }
-
-
-        db.ref(
-            `expenses/${key}`
-        )
-        .update(updates);
-
-    }
-
-
-    /* =========================================================
-       XÓA CHI PHÍ
-    ========================================================= */
 
     function deleteExpenseItem(key) {
+        if (confirm("Bạn có chắc muốn xóa khoản chi phí này?")) {
+            db.ref(`expenses/${key}`).remove();
+        }
+    }
 
-        if (
-            !confirm(
-                "Bạn có chắc muốn xóa khoản chi phí này?"
-            )
-        ) {
-            return;
+    function renderStatsAndExpenses() {
+        const month = parseInt(document.getElementById('statFilterMonth').value);
+        const year = parseInt(document.getElementById('statFilterYear').value);
+        const targetMonthKey = `${year}_${month}`;
+
+        document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh T${month}`;
+
+        // 1. Tính tổng thu nhập khách book của tháng
+        let totalIncome = 0;
+        Object.values(currentCustomers).forEach(item => {
+            const itemMonthKey = item.monthKey || "2026_10";
+            if (itemMonthKey === targetMonthKey) {
+                totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
+            }
+        });
+
+        // 2. Render danh sách Chi phí phát sinh
+        const tbody = document.getElementById('expenseBody');
+        tbody.innerHTML = "";
+
+        let totalExpenseSum = 0;
+        let count = 0;
+
+        Object.keys(currentExpenses).forEach(key => {
+            const item = currentExpenses[key];
+            const itemMonthKey = item.monthKey || "2026_10";
+
+            if (itemMonthKey === targetMonthKey) {
+                count++;
+                const itemPrice = parseMoneyInput(item.price);
+                totalExpenseSum += itemPrice;
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${count}</td>
+                    <td>${item.name || ''}</td>
+                    <td>${item.qty || ''}</td>
+                    <td>${item.priceStr || formatK(itemPrice)}</td>
+                    <td>${item.note || ''}</td>
+                    <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+
+        if (count === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí phát sinh nào cho tháng này.</td></tr>`;
         }
 
+        // 3. Hiển thị Hàng Tổng Bảng Chi Phí & Thẻ Thống Kê
+        document.getElementById('sumExpenseTotal').innerText = (totalExpenseSum > 0) ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
 
-        db.ref(
-            `expenses/${key}`
-        )
-        .remove();
+        let netProfit = totalIncome - totalExpenseSum;
 
+        document.getElementById('statTotalIncome').innerText = formatK(totalIncome);
+        document.getElementById('statTotalExpense').innerText = formatK(totalExpenseSum);
+        document.getElementById('statNetProfit').innerText = formatK(netProfit);
     }
-
-
-    /* =========================================================
-       TRÁNH HTML LỖI KHI HIỂN THỊ TEXT
-    ========================================================= */
-
-    function escapeHtml(value) {
-
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-
-    }
-
 </script>
 
 </body>
