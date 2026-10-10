@@ -66,6 +66,7 @@
         
         .admin-input-mini { width: 50px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; text-align: center; outline: none; }
         .admin-input-note-mini { width: 85px; padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; outline: none; }
+        .admin-select-cleaner { padding: 3px; border: 1px solid #ffd0d7; border-radius: 4px; font-size: 11px; font-weight: 700; color: #5a3d42; outline: none; }
         
         .btn-action-group { display: flex; gap: 3px; justify-content: center; }
         .btn-edit-cust { background: #4a90e2; color: white; border: none; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
@@ -83,20 +84,21 @@
         .stat-card h3 { font-size: 13px; color: #8a626a; margin-bottom: 6px; }
         .stat-card .val { font-size: 22px; font-weight: 700; }
 
-        /* Bảng Chi Phí Phát Sinh */
+        /* Bảng Chi Phí Phát Sinh Điền Thủ Công */
         .expense-section { background: white; border-radius: 12px; }
         .expense-header-title { color: #d32f2f; font-weight: 700; font-size: 18px; text-align: center; margin-bottom: 12px; }
-        .expense-form-box { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: #fff0f3; padding: 10px; border-radius: 10px; border: 1px dashed var(--primary); align-items: center; }
-        .expense-form-box input { padding: 6px 10px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
-        .expense-form-box input.inp-name { flex: 2; min-width: 140px; }
-        .expense-form-box input.inp-qty { width: 60px; text-align: center; }
-        .expense-form-box input.inp-price { width: 100px; text-align: center; }
-        .expense-form-box input.inp-note { flex: 2; min-width: 140px; }
         
         table.expense-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        table.expense-table th, table.expense-table td { border: 1px solid #000; padding: 8px 6px; text-align: center; }
+        table.expense-table th, table.expense-table td { border: 1px solid #000; padding: 4px; text-align: center; }
         table.expense-table th { background: #ffffff; color: #000; font-weight: 700; }
         table.expense-table tr.total-expense-row td { background: #fce4d6; font-weight: 700; font-size: 18px; color: #d32f2f; }
+
+        /* Input gõ trực tiếp trong bảng */
+        .exp-tbl-input { width: 100%; padding: 5px; border: 1px solid transparent; border-radius: 4px; font-size: 12px; text-align: center; outline: none; }
+        .exp-tbl-input:hover, .exp-tbl-input:focus { border-color: #ffd0d7; background: #fff0f3; }
+        .exp-tbl-input.left-align { text-align: left; }
+
+        .btn-add-row { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; margin-top: 10px; display: inline-block; }
 
         /* Modal Sửa Đơn */
         .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
@@ -104,7 +106,7 @@
         .edit-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 15px; text-align: center; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
-        .form-item input { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        .form-item input, .form-item select { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
     </style>
 
     <!-- FIREBASE SDK -->
@@ -205,6 +207,7 @@
                         <th style="width: 50px;">Đã ck</th>
                         <th style="width: 50px;">Còn lại</th>
                         <th style="width: 85px;">Ghi chú</th>
+                        <th style="width: 90px;">Dọn</th>
                         <th style="width: 70px;">Thao tác</th>
                     </tr>
                 </thead>
@@ -218,19 +221,19 @@
                         <td class="txt-red-summary" id="sumTotalBill">0</td>
                         <td class="txt-red-summary" id="sumPaid">0</td>
                         <td class="txt-red-summary" id="sumRemaining">0</td>
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
                     </tr>
                     <tr class="row-nana-summary">
                         <td colspan="5" class="cell-nana-title">🏠 Nana Homestay</td>
                         <td colspan="4" class="txt-red-summary" style="font-size: 18px;" id="sumNanaTotal">0</td>
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
-    <!-- TAB 3: THỐNG KÊ THU CHI & BẢNG CHI PHÍ -->
+    <!-- TAB 3: THỐNG KÊ THU CHI & BẢNG CHI PHÍ TỰ ĐIỀN THỦ CÔNG -->
     <div id="tabStats" class="tab-content">
         <!-- BỘ LỌC THÁNG CHO THỐNG KÊ -->
         <div class="month-picker-box">
@@ -265,18 +268,9 @@
             </div>
         </div>
 
-        <!-- BẢNG CHI PHÍ PHÁT SINH -->
+        <!-- BẢNG CHI PHÍ PHÁT SINH (GÕ TRỰC TIẾP TRÊN BẢNG) -->
         <div class="expense-section">
             <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh T10</div>
-            
-            <!-- FORM THÊM CHI PHÍ PHÁT SINH -->
-            <div class="expense-form-box">
-                <input type="text" id="expName" class="inp-name" placeholder="Tên sản phẩm / Chi phí...">
-                <input type="number" id="expQty" class="inp-qty" placeholder="SL" min="1">
-                <input type="text" id="expPrice" class="inp-price" placeholder="Giá (ví dụ: 360k)">
-                <input type="text" id="expNote" class="inp-note" placeholder="Note / Ghi chú...">
-                <button class="btn-add-booking" onclick="addExpenseItem()">➕ Thêm Chi Phí</button>
-            </div>
 
             <div class="table-container">
                 <table class="expense-table">
@@ -300,6 +294,8 @@
                     </tfoot>
                 </table>
             </div>
+
+            <button class="btn-add-row" onclick="addNewExpenseRow()">➕ Thêm hàng mới</button>
         </div>
     </div>
 
@@ -344,6 +340,15 @@
                 <input type="text" id="editMinibar">
             </div>
             <div class="form-item">
+                <label>Dọn phòng:</label>
+                <select id="editCleaner">
+                    <option value="">-- Chọn --</option>
+                    <option value="Chị Chung">Chị Chung</option>
+                    <option value="Nhật">Nhật</option>
+                    <option value="Cún">Cún</option>
+                </select>
+            </div>
+            <div class="form-item" style="grid-column: span 2;">
                 <label>Ghi chú:</label>
                 <input type="text" id="editNote">
             </div>
@@ -479,7 +484,7 @@
         if (phoneMatch) phone = phoneMatch[1].replace(/\s+/g, '').trim();
 
         // 3. Tổng bill & Đã CK
-        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK|CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
+        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK\vert{}CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
         if (billMatch) {
             totalBill = parseMoneyInput(billMatch[1]);
             if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
@@ -574,6 +579,7 @@
             totalBill: totalBill,
             paid: paid,
             minibar: "",
+            cleaner: "",
             note: note,
             monthKey: `${filterYear}_${inMonth || filterMonth}`,
             bookedSlots: bookedSlots
@@ -612,7 +618,7 @@
 
         db.ref().update(updates, (error) => {
             if (!error) {
-                alert("🗑️️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
+                alert("🗑️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
                 renderMonthlySchedule();
             } else {
                 alert("Lỗi khi xóa: " + error.message);
@@ -732,8 +738,9 @@
                 const matchCheckin = (item.checkin || "").toLowerCase().includes(searchQuery);
                 const matchCheckout = (item.checkout || "").toLowerCase().includes(searchQuery);
                 const matchNote = (item.note || "").toLowerCase().includes(searchQuery);
+                const matchCleaner = (item.cleaner || "").toLowerCase().includes(searchQuery);
 
-                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote) {
+                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote && !matchCleaner) {
                     return;
                 }
             }
@@ -751,6 +758,7 @@
             totalRemainingSum += remainingVal;
 
             let nameStr = item.name || '';
+            let cleanerVal = item.cleaner || '';
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
@@ -765,6 +773,14 @@
                 <td style="color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'}; font-weight:700;">${formatK(remainingVal)}</td>
                 <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
                 <td>
+                    <select class="admin-select-cleaner" onchange="updateCustomerField('${key}', 'cleaner', this.value)">
+                        <option value="" ${cleanerVal === '' ? 'selected' : ''}>-- Chọn --</option>
+                        <option value="Chị Chung" ${cleanerVal === 'Chị Chung' ? 'selected' : ''}>Chị Chung</option>
+                        <option value="Nhật" ${cleanerVal === 'Nhật' ? 'selected' : ''}>Nhật</option>
+                        <option value="Cún" ${cleanerVal === 'Cún' ? 'selected' : ''}>Cún</option>
+                    </select>
+                </td>
+                <td>
                     <div class="btn-action-group">
                         <button class="btn-edit-cust" onclick="openEditModal('${key}')">Sửa</button>
                         <button class="btn-del-cust" onclick="deleteCustomer('${key}')">Xóa</button>
@@ -775,7 +791,7 @@
         });
 
         if (visibleCount === 0) {
-            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
         }
 
         document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
@@ -802,6 +818,7 @@
         document.getElementById('editTotal').value = formatK(item.totalBill);
         document.getElementById('editPaid').value = formatK(item.paid);
         document.getElementById('editMinibar').value = item.minibar || '';
+        document.getElementById('editCleaner').value = item.cleaner || '';
         document.getElementById('editNote').value = item.note || '';
 
         document.getElementById('editModal').style.display = 'flex';
@@ -821,6 +838,7 @@
             totalBill: parseMoneyInput(document.getElementById('editTotal').value),
             paid: parseMoneyInput(document.getElementById('editPaid').value),
             minibar: document.getElementById('editMinibar').value.trim(),
+            cleaner: document.getElementById('editCleaner').value,
             note: document.getElementById('editNote').value.trim()
         };
 
@@ -834,7 +852,7 @@
         });
     }
 
-    // --- TAB 3: QUẢN LÝ CHI PHÍ PHÁT SINH & THỐNG KÊ ---
+    // --- TAB 3: CHI PHÍ PHÁT SINH TỰ ĐIỀN THỦ CÔNG & THỐNG KÊ ---
     function listenToExpensesFirebase() {
         db.ref('expenses').on('value', (snapshot) => {
             currentExpenses = snapshot.val() || {};
@@ -842,42 +860,33 @@
         });
     }
 
-    function addExpenseItem() {
+    function addNewExpenseRow() {
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
         const monthKey = `${year}_${month}`;
 
-        const name = document.getElementById('expName').value.trim();
-        const qty = document.getElementById('expQty').value.trim();
-        const priceStr = document.getElementById('expPrice').value.trim();
-        const note = document.getElementById('expNote').value.trim();
-
-        if (!name) {
-            alert("Vui lòng nhập tên sản phẩm / chi phí!");
-            return;
-        }
-
-        const priceVal = parseMoneyInput(priceStr);
-
         const newExpense = {
-            name: name,
-            qty: qty || "",
-            price: priceVal,
-            priceStr: priceStr || formatK(priceVal),
-            note: note,
+            name: "",
+            qty: "",
+            priceStr: "",
+            price: 0,
+            note: "",
             monthKey: monthKey
         };
 
-        db.ref('expenses').push(newExpense, (error) => {
-            if (!error) {
-                document.getElementById('expName').value = "";
-                document.getElementById('expQty').value = "";
-                document.getElementById('expPrice').value = "";
-                document.getElementById('expNote').value = "";
-            } else {
-                alert("Lỗi thêm chi phí: " + error.message);
-            }
-        });
+        db.ref('expenses').push(newExpense);
+    }
+
+    function updateExpenseCell(key, field, value) {
+        if (field === 'priceStr') {
+            const numVal = parseMoneyInput(value);
+            db.ref(`expenses/${key}`).update({
+                priceStr: value,
+                price: numVal
+            });
+        } else {
+            db.ref(`expenses/${key}/${field}`).set(value);
+        }
     }
 
     function deleteExpenseItem(key) {
@@ -902,7 +911,7 @@
             }
         });
 
-        // 2. Render danh sách Chi phí phát sinh
+        // 2. Render bảng gõ tay chi phí
         const tbody = document.getElementById('expenseBody');
         tbody.innerHTML = "";
 
@@ -915,16 +924,16 @@
 
             if (itemMonthKey === targetMonthKey) {
                 count++;
-                const itemPrice = parseMoneyInput(item.price);
+                const itemPrice = parseMoneyInput(item.priceStr || item.price);
                 totalExpenseSum += itemPrice;
 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${count}</td>
-                    <td>${item.name || ''}</td>
-                    <td>${item.qty || ''}</td>
-                    <td>${item.priceStr || formatK(itemPrice)}</td>
-                    <td>${item.note || ''}</td>
+                    <td><b>${count}</b></td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên sản phẩm..." onchange="updateExpenseCell('${key}', 'name', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${key}', 'qty', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá (ví dụ: 50k)" onchange="updateExpenseCell('${key}', 'priceStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateExpenseCell('${key}', 'note', this.value)"></td>
                     <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -932,10 +941,10 @@
         });
 
         if (count === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí phát sinh nào cho tháng này.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có dữ liệu. Bấm <b>"➕ Thêm hàng mới"</b> bên dưới để tự điền thủ công.</td></tr>`;
         }
 
-        // 3. Hiển thị Hàng Tổng Bảng Chi Phí & Thẻ Thống Kê
+        // 3. Hiển thị Tổng cộng
         document.getElementById('sumExpenseTotal').innerText = (totalExpenseSum > 0) ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
 
         let netProfit = totalIncome - totalExpenseSum;
