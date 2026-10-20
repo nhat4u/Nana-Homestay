@@ -459,7 +459,7 @@
         return price > rates.fullday ? rates.fullday : price;
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (CÓ KIỂM TRA TRÙNG LỊCH)
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (ĐÃ TÍNH CẢ THỜI GIAN DỌN PHÒNG)
     async function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -548,9 +548,11 @@
             const currentScheduleSnap = await db.ref(`schedules/${filterYear}_${inMonth}`).once('value');
             const scheduleData = currentScheduleSnap.val() || {};
 
+            // KHÓA LỊCH ĐẾN HẾT SLOT GIỜ CHECK-OUT ĐỂ GIỮ THỜI GIAN DỌN PHÒNG (Ví dụ 12-16h sẽ khóa từ 12h đến 16h59)
             if (!outDay || (inDay === outDay && inMonth === outMonth)) {
                 let monthKey = `${filterYear}_${inMonth}`;
-                for (let h = inHour; h < outHour; h++) {
+                for (let h = inHour; h <= outHour; h++) {
+                    if (h > 23) break;
                     let slotKey = `d${inDay}_h${h}`;
                     if (scheduleData[slotKey] === true) {
                         isConflict = true;
@@ -573,7 +575,8 @@
                 const scheduleDataOutSnap = (inMonth === outMonth) ? currentScheduleSnap : await db.ref(`schedules/${filterYear}_${outMonth}`).once('value');
                 const scheduleDataOut = scheduleDataOutSnap.val() || {};
 
-                for (let h = 0; h < outHour; h++) {
+                for (let h = 0; h <= outHour; h++) {
+                    if (h > 23) break;
                     let slotKey = `d${outDay}_h${h}`;
                     if (scheduleDataOut[slotKey] === true) {
                         isConflict = true;
@@ -586,8 +589,8 @@
 
         if (isConflict) {
             const confirmSave = confirm(
-                `⚠️ CẢNH BÁO TRÙNG LỊCH PHÒNG!\n\n` +
-                `Khung giờ chốt phòng của "${name}" (${checkin} - ${checkout}) đã bị trùng với lượt book khác!\n\n` +
+                `⚠️ CẢNH BÁO TRÙNG HOẶC SÁT LỊCH DỌN PHÒNG!\n\n` +
+                `Lượt book của "${name}" (${checkin} - ${checkout}) bị trùng hoặc quá sát ca khác (không đủ 30p-1 tiếng dọn phòng)!\n\n` +
                 `Bạn có muốn tiếp tục lưu đơn này vào danh sách không?`
             );
             if (!confirmSave) {
