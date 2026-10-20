@@ -459,7 +459,12 @@
         return price > rates.fullday ? rates.fullday : price;
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (ĐÃ TÍNH CẢ THỜI GIAN DỌN PHÒNG)
+    // HÀM CHUYỂN NGÀY GIỜ THÀNH DẠNG MỐC THỜI GIAN (TIMESTAMP) ĐỂ SO SÁNH NGUYÊN KHỐI
+    function getBookingTimestamp(hour, day, month, year) {
+        return new Date(year, month - 1, day, hour, 0, 0).getTime();
+    }
+
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH
     async function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -543,20 +548,52 @@
         let bookedSlots = [];
         let scheduleUpdates = {};
         let isConflict = false;
+        let conflictingCustName = "";
 
         if (inHour !== null && outHour !== null && inDay && inMonth) {
-            const currentScheduleSnap = await db.ref(`schedules/${filterYear}_${inMonth}`).once('value');
-            const scheduleData = currentScheduleSnap.val() || {};
+            if (!outDay) {
+                outDay = (inHour > outHour) ? (inDay + 1) : inDay;
+            }
 
-            // KHÓA LỊCH ĐẾN HẾT SLOT GIỜ CHECK-OUT ĐỂ GIỮ THỜI GIAN DỌN PHÒNG (Ví dụ 12-16h sẽ khóa từ 12h đến 16h59)
+            // Quy đổi đơn mới sang mốc Timestamp
+            const newStartTs = getBookingTimestamp(inHour, inDay, inMonth, filterYear);
+            const newEndTs = getBookingTimestamp(outHour, outDay, outMonth, filterYear);
+
+            // BẮT BẮT LỖI TRÙNG BẰNG CÁCH SO SÁNH TRỰC TIẾP VỚI CÁC ĐƠN TRONG DANH SÁCH
+            Object.values(currentCustomers).forEach(cust => {
+                let cInH = null, cInD = null, cInM = filterMonth;
+                let cOutH = null, cOutD = null, cOutM = filterMonth;
+
+                let cInHMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*h/i);
+                if (cInHMatch) cInH = parseInt(cInHMatch[1]);
+                let cInDMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+                if (cInDMatch) { cInD = parseInt(cInDMatch[1]); cInM = parseInt(cInDMatch[2]); }
+
+                let cOutHMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*h/i);
+                if (cOutHMatch) cOutH = parseInt(cOutHMatch[1]);
+                let cOutDMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+                if (cOutDMatch) { cOutD = parseInt(cOutDMatch[1]); cOutM = parseInt(cOutDMatch[2]); }
+
+                if (cInH !== null && cOutH !== null && cInD && cInM) {
+                    if (!cOutD) cOutD = (cInH > cOutH) ? (cInD + 1) : cInD;
+
+                    const existStartTs = getBookingTimestamp(cInH, cInD, cInM, filterYear);
+                    const existEndTs = getBookingTimestamp(cOutH, cOutD, cOutM, filterYear);
+
+                    // QUY TẮC DỌN PHÒNG: Ca sau phải vào cách ca trước ít nhất 1 tiếng (existEndTs < newStartTs)
+                    // Nếu newStartTs < existEndTs -> Trùng trực tiếp hoặc ca mới Check-in trùng đúng giờ Check-out ca trước
+                    if (newStartTs < existEndTs && newEndTs > existStartTs) {
+                        isConflict = true;
+                        conflictingCustName = cust.name || "khách khác";
+                    }
+                }
+            });
+
+            // Tự động tạo danh sách slot khóa lịch
             if (!outDay || (inDay === outDay && inMonth === outMonth)) {
                 let monthKey = `${filterYear}_${inMonth}`;
-                for (let h = inHour; h <= outHour; h++) {
-                    if (h > 23) break;
+                for (let h = inHour; h < outHour; h++) {
                     let slotKey = `d${inDay}_h${h}`;
-                    if (scheduleData[slotKey] === true) {
-                        isConflict = true;
-                    }
                     scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey, slotKey });
                 }
@@ -564,37 +601,28 @@
                 let monthKeyIn = `${filterYear}_${inMonth}`;
                 for (let h = inHour; h <= 23; h++) {
                     let slotKey = `d${inDay}_h${h}`;
-                    if (scheduleData[slotKey] === true) {
-                        isConflict = true;
-                    }
                     scheduleUpdates[`schedules/${monthKeyIn}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey: monthKeyIn, slotKey });
                 }
 
                 let monthKeyOut = `${filterYear}_${outMonth}`;
-                const scheduleDataOutSnap = (inMonth === outMonth) ? currentScheduleSnap : await db.ref(`schedules/${filterYear}_${outMonth}`).once('value');
-                const scheduleDataOut = scheduleDataOutSnap.val() || {};
-
-                for (let h = 0; h <= outHour; h++) {
-                    if (h > 23) break;
+                for (let h = 0; h < outHour; h++) {
                     let slotKey = `d${outDay}_h${h}`;
-                    if (scheduleDataOut[slotKey] === true) {
-                        isConflict = true;
-                    }
                     scheduleUpdates[`schedules/${monthKeyOut}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey: monthKeyOut, slotKey });
                 }
             }
         }
 
+        // BẬT HỘP THOẠI HỎI Ý KIẾN KHI CÓ TRÙNG / KHÔNG ĐỦ THỜI GIAN DỌN PHÒNG
         if (isConflict) {
             const confirmSave = confirm(
                 `⚠️ CẢNH BÁO TRÙNG HOẶC SÁT LỊCH DỌN PHÒNG!\n\n` +
-                `Lượt book của "${name}" (${checkin} - ${checkout}) bị trùng hoặc quá sát ca khác (không đủ 30p-1 tiếng dọn phòng)!\n\n` +
+                `Đơn của "${name}" (${checkin} - ${checkout}) bị TRÙNG hoặc SÁT GIỜ CHECK-OUT ca của "${conflictingCustName}" (chưa cách đủ 1 tiếng dọn phòng)!\n\n` +
                 `Bạn có muốn tiếp tục lưu đơn này vào danh sách không?`
             );
             if (!confirmSave) {
-                return;
+                return; // Người dùng chọn HỦY
             }
         }
 
