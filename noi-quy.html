@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nana Homestay - Nội Quy</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
@@ -11,12 +13,13 @@
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
         .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
         
-        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); }
+        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); align-items: center; }
         .nav-link { flex: 1; text-align: center; padding: 12px 5px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 13px; }
         .nav-link.active { background: var(--primary); color: white; }
 
         .header { text-align: center; padding: 20px 15px 10px; }
         .header h1 { color: var(--primary); font-size: 22px; text-transform: uppercase; }
+        .room-subtitle { font-size: 12px; color: #8a626a; margin-top: 4px; font-weight: 600; }
 
         .rule-card { background: #fff9fa; border: 1px solid #ffd0d7; border-radius: 15px; padding: 12px 15px; margin: 10px 15px; }
         .rule-title { font-size: 14px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
@@ -24,25 +27,24 @@
         .rule-content li { margin-left: 15px; margin-bottom: 4px; }
         .penalty { color: #d32f2f; font-weight: 700; }
         
-        .hotline-box { background: #ffe3e8; border-radius: 15px; padding: 12px; text-align: center; margin: 15px; font-weight: 700; color: var(--primary); }
+        .hotline-box { background: #ffe3e8; border-radius: 15px; padding: 12px; text-align: center; margin: 15px; font-weight: 700; color: var(--primary); font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Menu 3 nút kết nối chuyển trang -->
+    <!-- Menu đồng bộ chuyển trang -->
     <div class="nav-bar">
-        <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
-        <a href="bang-gia.html" class="nav-link active">🏷️ Bảng Giá</a>
-        <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
-        <!-- <a href="lich-trong.html" class="nav-link">🟢 Lịch Trống</a>
-        <button class="admin-nav-btn" onclick="openAdminModal()">🔑 Admin</button>-->
+        <a href="index.html" id="linkHome" class="nav-link">🏠 Trang Chủ</a>
+        <a href="bang-gia.html" id="linkBangGia" class="nav-link">🏷️ Bảng Giá</a>
+        <a href="noi-quy.html" id="linkNoiQuy" class="nav-link active">📜 Nội Quy</a>
     </div>
 
     <div class="header">
         <div style="font-size: 30px;">🎀</div>
         <h1>Nội Quy Homestay</h1>
-        <p style="font-size: 12px; color: #8a626a; margin-top: 2px;">Vui lòng tuân thủ các quy định để có trải nghiệm tốt nhất</p>
+        <div class="room-subtitle" id="roomTitleLabel">Cơ sở 1 - P101</div>
+        <p style="font-size: 11.5px; color: #8a626a; margin-top: 4px;">Vui lòng tuân thủ các quy định để có trải nghiệm tốt nhất</p>
     </div>
 
     <div class="rule-card">
@@ -99,7 +101,7 @@
     <div class="rule-card">
         <div class="rule-title">⏳ 7. Gia hạn & Đổi ngày</div>
         <ul class="rule-content">
-            <li>Ở quá giờ không báo trước: Phụ thu <span class="penalty">20k/15phút </span>.</li>
+            <li>Ở quá giờ không báo trước: Phụ thu <span class="penalty">20k/15phút</span>.</li>
             <li>Hỗ trợ free đổi giờ/ngày trước 48h. Mất 30% phí phòng trước 12h.</li>
         </ul>
     </div>
@@ -108,6 +110,29 @@
         📞 Hotline hỗ trợ: 0962292229 / 0836859883
     </div>
 </div>
+
+<script>
+    window.onload = function() {
+        // Nhận mã phòng từ URL hoặc bộ nhớ tạm
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentRoom = urlParams.get('room') || localStorage.getItem('selectedRoom') || 'cs1_p101';
+
+        // Gắn lại tham số ?room=... để giữ liên kết giữa các trang
+        document.getElementById('linkHome').href = `index.html`;
+        document.getElementById('linkBangGia').href = `bang-gia.html?room=${currentRoom}`;
+        document.getElementById('linkNoiQuy').href = `noi-quy.html?room=${currentRoom}`;
+
+        // Cập nhật tiêu đề phụ cho đúng phòng
+        const titleLabel = document.getElementById('roomTitleLabel');
+        if (currentRoom === 'cs2_p205') {
+            titleLabel.innerText = "Cơ sở 2 - Phòng 205";
+        } else if (currentRoom === 'cs2_p305') {
+            titleLabel.innerText = "Cơ sở 2 - Phòng 305";
+        } else {
+            titleLabel.innerText = "Cơ sở 1 - P101";
+        }
+    };
+</script>
 
 </body>
 </html>
