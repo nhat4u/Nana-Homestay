@@ -144,8 +144,9 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 4. Trang Chủ</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi (Phòng)</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabAllRoomsSummary')">📊 4. Tổng Doanh Thu & Chi Tổng</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 5. Trang Chủ</button>
     </div>
 
     <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
@@ -252,9 +253,8 @@
         </div>
     </div>
 
-    <!-- TAB 3: THỐNG KÊ THU CHI & BẢNG CHI PHÍ TỰ ĐIỀN THỦ CÔNG -->
+    <!-- TAB 3: THỐNG KÊ THU CHI TỪNG PHÒNG -->
     <div id="tabStats" class="tab-content">
-        <!-- BỘ LỌC THÁNG CHO THỐNG KÊ -->
         <div class="month-picker-box">
             <label for="statFilterMonth">📅 Xem Thống Kê Tháng:</label>
             <select id="statFilterMonth" onchange="renderStatsAndExpenses()">
@@ -271,7 +271,6 @@
             </select>
         </div>
 
-        <!-- THẺ THỐNG KÊ DOANH THU -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>TỔNG THU (ĐÃ CK)</h3>
@@ -287,10 +286,8 @@
             </div>
         </div>
 
-        <!-- BẢNG CHI PHÍ PHÁT SINH (GÕ TRỰC TIẾP TRÊN BẢNG) -->
         <div class="expense-section">
-            <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh T10</div>
-
+            <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh T11</div>
             <div class="table-container">
                 <table class="expense-table">
                     <thead>
@@ -313,12 +310,63 @@
                     </tfoot>
                 </table>
             </div>
-
             <button class="btn-add-row" onclick="addNewExpenseRow()">➕ Thêm hàng mới</button>
         </div>
     </div>
 
-    <!-- TAB 4: NHÚNG XEM TRANG CHỦ -->
+    <!-- TAB 4: TỔNG DOANH THU & CHI TỔNG TOÀN HỆ THỐNG -->
+    <div id="tabAllRoomsSummary" class="tab-content">
+        <div class="month-picker-box">
+            <label for="allFilterMonth">📅 Chọn Tháng Tổng Kết:</label>
+            <select id="allFilterMonth" onchange="renderAllRoomsSummary()">
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11" selected>Tháng 11</option>
+                <option value="12">Tháng 12</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+            </select>
+            <select id="allFilterYear" onchange="renderAllRoomsSummary()">
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+            </select>
+        </div>
+
+        <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 16px;">📈 Tổng Hợp Thu - Chi Toàn Hệ Thống Nana Homestay</h3>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="background: #e8f5e9;">
+                <h3>TỔNG DOANH THU TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: #2e7d32;" id="allTotalIncome">0k</div>
+            </div>
+            <div class="stat-card" style="background: #ffebee;">
+                <h3>TỔNG CHI PHÍ TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: #c62828;" id="allTotalExpense">0k</div>
+            </div>
+            <div class="stat-card" style="background: #fff0f3;">
+                <h3>LỢI NHUẬN RÒNG TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: var(--primary);" id="allNetProfit">0k</div>
+            </div>
+        </div>
+
+        <div class="table-container" style="margin-top: 15px;">
+            <table class="cust-table">
+                <thead>
+                    <tr>
+                        <th>Tên Cơ Sở / Phòng</th>
+                        <th>Tổng Thu (Đã CK + Minibar)</th>
+                        <th>Tổng Chi Phí Phát Sinh</th>
+                        <th>Lợi Nhuận Ròng</th>
+                    </tr>
+                </thead>
+                <tbody id="allRoomsSummaryBody">
+                    <tr><td colspan="4" style="padding: 15px;">Đang tải dữ liệu tổng hợp các phòng...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: NHÚNG XEM TRANG CHỦ -->
     <div id="tabHomeView" class="tab-content">
         <iframe src="index.html" class="iframe-container" title="Giao diện Trang chủ"></iframe>
     </div>
@@ -405,9 +453,9 @@
     window.onload = async function() {
         await checkAndMigrateOldData();
         initRoomDataListeners();
+        renderAllRoomsSummary();
     };
 
-    // HÀM KHÔI PHỤC TỰ ĐỘNG DỮ LIỆU CŨ SANG CƠ SỞ 1 - P101
     async function checkAndMigrateOldData() {
         try {
             const oldSchedSnap = await db.ref('schedules').once('value');
@@ -435,37 +483,34 @@
 
             if (hasOldData) {
                 await db.ref().update(updates);
-                console.log("✅ Đã chuyển thành công dữ liệu cũ sang Cơ sở 1 - P101!");
             }
         } catch (e) {
             console.error("Lỗi đồng bộ dữ liệu cũ:", e);
         }
     }
 
-    // HÀM LẤY MÃ PHÒNG HIỆN TẠI VÀ GẮN LẠI LẮNG NGHE DỮ LIỆU TỪ FIREBASE
     function initRoomDataListeners() {
         const select = document.getElementById('globalRoomSelect');
         currentRoomId = select.value;
         const selectedText = select.options[select.selectedIndex].text;
         document.getElementById('roomSummaryTitle').innerText = `🏠 ${selectedText}`;
 
-        // Hủy lắng nghe cũ nếu có
         if (customersListener) db.ref(`rooms/${currentRoomId}/customers`).off('value', customersListener);
         if (expensesListener) db.ref(`rooms/${currentRoomId}/expenses`).off('value', expensesListener);
 
         renderMonthlySchedule();
 
-        // Lắng nghe danh sách khách của phòng hiện tại
         customersListener = db.ref(`rooms/${currentRoomId}/customers`).on('value', (snapshot) => {
             currentCustomers = snapshot.val() || {};
             renderCustomerTable();
             renderStatsAndExpenses();
+            renderAllRoomsSummary();
         });
 
-        // Lắng nghe chi phí phát sinh của phòng hiện tại
         expensesListener = db.ref(`rooms/${currentRoomId}/expenses`).on('value', (snapshot) => {
             currentExpenses = snapshot.val() || {};
             renderStatsAndExpenses();
+            renderAllRoomsSummary();
         });
     }
 
@@ -479,6 +524,10 @@
         
         event.target.classList.add('active');
         document.getElementById(tabId).classList.add('active');
+
+        if (tabId === 'tabAllRoomsSummary') {
+            renderAllRoomsSummary();
+        }
     }
 
     function parseMoneyInput(val) {
@@ -499,7 +548,6 @@
         return (num / 1000) + "k";
     }
 
-    // BẢNG GIÁ QUY ĐỊNH
     const pricing = {
         normal: { combo2h: 150000, combo4h: 210000, overnight: 300000, fullday: 380000, nightday: 450000 },
         weekend: { combo2h: 150000, combo4h: 210000, overnight: 330000, fullday: 420000, nightday: 490000 }
@@ -508,7 +556,6 @@
 
     function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
         if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
-
         let dtIn = new Date(year, inMonth - 1, inDay);
         let dayOfWeek = dtIn.getDay();
         let isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
@@ -516,19 +563,11 @@
 
         if (inHour === 15) {
             let basePrice = rates.nightday;
-            if (outHour > 10) {
-                basePrice += (outHour - 10) * EXTRA_HOURLY_RATE;
-            }
+            if (outHour > 10) basePrice += (outHour - 10) * EXTRA_HOURLY_RATE;
             return basePrice;
         }
-
-        if (inHour === 22 && outHour === 10 && inDay !== outDay) {
-            return rates.overnight;
-        }
-
-        if (inHour === 11 && outHour === 21 && inDay === outDay) {
-            return rates.fullday;
-        }
+        if (inHour === 22 && outHour === 10 && inDay !== outDay) return rates.overnight;
+        if (inHour === 11 && outHour === 21 && inDay === outDay) return rates.fullday;
 
         let calcOut = (outDay && outDay !== inDay) ? (outHour + 24) : outHour;
         let diffH = calcOut - inHour;
@@ -545,21 +584,11 @@
         return new Date(year, month - 1, day, hour, 0, 0).getTime();
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KIỂM TRA TRÙNG LỊCH (RIÊNG CHO TỪNG PHÒNG)
     async function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
-        if (!text) {
-            alert("Vui lòng dán nội dung tin nhắn chốt phòng!");
-            return;
-        }
+        if (!text) { alert("Vui lòng dán nội dung tin nhắn chốt phòng!"); return; }
 
-        let name = "";
-        let phone = "";
-        let totalBill = 0;
-        let paid = 0;
-        let checkin = "";
-        let checkout = "";
-        let note = "";
+        let name = "", phone = "", totalBill = 0, paid = 0, checkin = "", checkout = "", note = "";
 
         let nameMatch = text.match(/Tên khách hàng:\s*([^\n\r]+)/i) || text.match(/Tên khách:\s*([^\n\r]+)/i);
         if (nameMatch) name = nameMatch[1].trim();
@@ -573,20 +602,12 @@
             if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
         }
         let paidMatch = text.match(/ĐÃ CK\s*([0-9kKtrTR.]+)/i) || text.match(/Đã chuyển khoản:\s*([0-9kKtrTR.]+)/i);
-        if (paidMatch && !paid) {
-            paid = parseMoneyInput(paidMatch[1]);
-        }
+        if (paidMatch && !paid) paid = parseMoneyInput(paidMatch[1]);
 
         let timeMatch = text.match(/Giờ check in\s*-\s*out:\s*([^-]+)\s*-\s*([^\n\r]+)/i) || text.match(/Checkin\s*-\s*checkout:\s*([^-]+)\s*-\s*([^\n\r]+)/i);
-        if (timeMatch) {
-            checkin = timeMatch[1].trim();
-            checkout = timeMatch[2].trim();
-        }
+        if (timeMatch) { checkin = timeMatch[1].trim(); checkout = timeMatch[2].trim(); }
 
-        if (!name) {
-            alert("Không tìm thấy Tên khách hàng trong tin nhắn! Vui lòng kiểm tra lại định dạng tin nhắn.");
-            return;
-        }
+        if (!name) { alert("Không tìm thấy Tên khách hàng trong tin nhắn!"); return; }
 
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -601,21 +622,13 @@
 
         let inHourMatch = checkin.match(/([0-9]{1,2})\s*h/i);
         if (inHourMatch) inHour = parseInt(inHourMatch[1]);
-
         let inDateMatch = checkin.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
-        if (inDateMatch) {
-            inDay = parseInt(inDateMatch[1]);
-            inMonth = parseInt(inDateMatch[2]);
-        }
+        if (inDateMatch) { inDay = parseInt(inDateMatch[1]); inMonth = parseInt(inDateMatch[2]); }
 
         let outHourMatch = checkout.match(/([0-9]{1,2})\s*h/i);
         if (outHourMatch) outHour = parseInt(outHourMatch[1]);
-
         let outDateMatch = checkout.match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
-        if (outDateMatch) {
-            outDay = parseInt(outDateMatch[1]);
-            outMonth = parseInt(outDateMatch[2]);
-        }
+        if (outDateMatch) { outDay = parseInt(outDateMatch[1]); outMonth = parseInt(outDateMatch[2]); }
 
         if (totalBill === 0 && inHour !== null && outHour !== null) {
             totalBill = calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, filterYear);
@@ -627,22 +640,17 @@
         let conflictingCustName = "";
 
         if (inHour !== null && outHour !== null && inDay && inMonth) {
-            if (!outDay) {
-                outDay = (inHour > outHour) ? (inDay + 1) : inDay;
-            }
-
+            if (!outDay) outDay = (inHour > outHour) ? (inDay + 1) : inDay;
             const newStartTs = getBookingTimestamp(inHour, inDay, inMonth, filterYear);
             const newEndTs = getBookingTimestamp(outHour, outDay, outMonth, filterYear);
 
             Object.values(currentCustomers).forEach(cust => {
                 let cInH = null, cInD = null, cInM = filterMonth;
                 let cOutH = null, cOutD = null, cOutM = filterMonth;
-
                 let cInHMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*h/i);
                 if (cInHMatch) cInH = parseInt(cInHMatch[1]);
                 let cInDMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
                 if (cInDMatch) { cInD = parseInt(cInDMatch[1]); cInM = parseInt(cInDMatch[2]); }
-
                 let cOutHMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*h/i);
                 if (cOutHMatch) cOutH = parseInt(cOutHMatch[1]);
                 let cOutDMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
@@ -650,10 +658,8 @@
 
                 if (cInH !== null && cOutH !== null && cInD && cInM) {
                     if (!cOutD) cOutD = (cInH > cOutH) ? (cInD + 1) : cInD;
-
                     const existStartTs = getBookingTimestamp(cInH, cInD, cInM, filterYear);
                     const existEndTs = getBookingTimestamp(cOutH, cOutD, cOutM, filterYear);
-
                     if (newStartTs < existEndTs && newEndTs > existStartTs) {
                         isConflict = true;
                         conflictingCustName = cust.name || "khách khác";
@@ -675,7 +681,6 @@
                     scheduleUpdates[`rooms/${currentRoomId}/schedules/${monthKeyIn}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey: monthKeyIn, slotKey });
                 }
-
                 let monthKeyOut = `${filterYear}_${outMonth}`;
                 for (let h = 0; h < outHour; h++) {
                     let slotKey = `d${outDay}_h${h}`;
@@ -686,31 +691,18 @@
         }
 
         if (isConflict) {
-            const confirmSave = confirm(
-                `⚠️ CẢNH BÁO TRÙNG HOẶC SÁT LỊCH DỌN PHÒNG!\n\n` +
-                `Đơn của "${name}" (${checkin} - ${checkout}) bị TRÙNG hoặc SÁT GIỜ CHECK-OUT ca của "${conflictingCustName}" tại phòng này!\n\n` +
-                `Bạn có muốn tiếp tục lưu đơn này vào danh sách không?`
-            );
-            if (!confirmSave) return;
+            if (!confirm(`⚠️ CẢNH BÁO TRÙNG HOẶC SÁT LỊCH!\nTrùng ca của "${conflictingCustName}". Tiếp tục lưu?`)) return;
         }
 
-        if (Object.keys(scheduleUpdates).length > 0) {
-            db.ref().update(scheduleUpdates);
-        }
+        if (Object.keys(scheduleUpdates).length > 0) db.ref().update(scheduleUpdates);
 
         const newBooking = {
-            name: name,
-            phone: phone,
-            checkin: checkin,
-            checkout: checkout,
+            name, phone, checkin, checkout,
             bookDate: todayStr,
-            totalBill: totalBill,
-            paid: paid,
-            minibar: "",
-            cleaner: "",
-            note: note,
+            totalBill, paid,
+            minibar: "", cleaner: "", note,
             monthKey: `${filterYear}_${inMonth || filterMonth}`,
-            bookedSlots: bookedSlots
+            bookedSlots
         };
 
         db.ref(`rooms/${currentRoomId}/customers`).push(newBooking, (error) => {
@@ -718,22 +710,17 @@
                 alert(`✅ Đã thêm đơn của: ${name} thành công!`);
                 document.getElementById('pasteText').value = "";
                 renderMonthlySchedule();
-            } else {
-                alert("Lỗi lưu đơn: " + error.message);
             }
         });
     }
 
-    // XÓA ĐƠN & TỰ ĐỘNG TRẢ LỊCH
     function deleteCustomer(key) {
         if (!confirm("Bạn có chắc muốn xóa lượt đặt phòng này?")) return;
-
         const item = currentCustomers[key];
         if (!item) return;
 
         let updates = {};
         updates[`rooms/${currentRoomId}/customers/${key}`] = null;
-
         if (item.bookedSlots && Array.isArray(item.bookedSlots)) {
             item.bookedSlots.forEach(slot => {
                 if (typeof slot === 'object' && slot.monthKey && slot.slotKey) {
@@ -741,18 +728,9 @@
                 }
             });
         }
-
-        db.ref().update(updates, (error) => {
-            if (!error) {
-                alert("🗑️ Đã xóa đơn và trả lại lịch trống!");
-                renderMonthlySchedule();
-            } else {
-                alert("Lỗi khi xóa: " + error.message);
-            }
-        });
+        db.ref().update(updates, () => { alert("🗑️ Đã xóa đơn!"); renderMonthlySchedule(); });
     }
 
-    // --- TAB 1: QUẢN LÝ LỊCH ---
     function renderMonthlySchedule() {
         const month = parseInt(document.getElementById('selectMonth').value);
         const year = parseInt(document.getElementById('selectYear').value);
@@ -763,15 +741,11 @@
 
         for (let day = 1; day <= daysInMonth; day++) {
             const dateObj = new Date(year, month - 1, day);
-            const dayOfWeek = dayNames[dateObj.getDay()];
-            
-            const th = document.createElement('th');
-            th.innerText = `${dayOfWeek} (${day}/${month})`;
-            headerRow.appendChild(th);
+            headerRow.innerHTML += `<th>${dayNames[dateObj.getDay()]} (${day}/${month})</th>`;
         }
 
         const tbody = document.getElementById('scheduleBody');
-        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải...</td></tr>";
 
         db.ref(`rooms/${currentRoomId}/schedules/${year}_${month}`).once('value', (snapshot) => {
             const savedData = snapshot.val() || {};
@@ -785,15 +759,7 @@
                 for (let day = 1; day <= daysInMonth; day++) {
                     const key = `d${day}_h${h}`;
                     const isBusy = savedData[key] === true;
-
-                    tr.innerHTML += `
-                        <td>
-                            <button class="status-btn ${isBusy ? 'btn-busy' : 'btn-free'}" 
-                                    onclick="toggleStatus(this, ${h}, ${day}, ${month})">
-                                ${isBusy ? 'Đã có khách' : 'Trống'}
-                            </button>
-                        </td>
-                    `;
+                    tr.innerHTML += `<td><button class="status-btn ${isBusy ? 'btn-busy' : 'btn-free'}" onclick="toggleStatus(this, ${h}, ${day}, ${month})">${isBusy ? 'Đã có khách' : 'Trống'}</button></td>`;
                 }
                 tbody.appendChild(tr);
             }
@@ -804,26 +770,14 @@
         const year = parseInt(document.getElementById('selectYear').value);
         const key = `d${day}_h${hour}`;
         const isCurrentlyFree = btn.classList.contains('btn-free');
-        const newStatus = isCurrentlyFree; 
-
-        db.ref(`rooms/${currentRoomId}/schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+        db.ref(`rooms/${currentRoomId}/schedules/${year}_${month}/${key}`).set(isCurrentlyFree, (error) => {
             if (!error) {
-                if (isCurrentlyFree) {
-                    btn.classList.remove('btn-free');
-                    btn.classList.add('btn-busy');
-                    btn.innerText = "Đã có khách";
-                } else {
-                    btn.classList.remove('btn-busy');
-                    btn.classList.add('btn-free');
-                    btn.innerText = "Trống";
-                }
-            } else {
-                alert("Lỗi lưu CSDL: " + error.message);
+                btn.className = `status-btn ${isCurrentlyFree ? 'btn-busy' : 'btn-free'}`;
+                btn.innerText = isCurrentlyFree ? 'Đã có khách' : 'Trống';
             }
         });
     }
 
-    // --- TAB 2: KHÁCH HÀNG ---
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
@@ -831,37 +785,20 @@
         const selectedMonth = parseInt(document.getElementById('custFilterMonth').value);
         const selectedYear = parseInt(document.getElementById('custFilterYear').value);
         const targetMonthKey = `${selectedYear}_${selectedMonth}`;
-        
         const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-        const keys = Object.keys(currentCustomers);
         
-        let totalMinibar = 0;
-        let totalBillSum = 0;
-        let totalPaidSum = 0;
-        let totalRemainingSum = 0;
-        let visibleCount = 0;
+        let totalMinibar = 0, totalBillSum = 0, totalPaidSum = 0, totalRemainingSum = 0, visibleCount = 0;
 
-        keys.forEach((key) => {
+        Object.keys(currentCustomers).forEach((key) => {
             const item = currentCustomers[key];
-            const itemMonthKey = item.monthKey || "2026_10";
-            if (itemMonthKey !== targetMonthKey) return;
+            if ((item.monthKey || "2026_10") !== targetMonthKey) return;
 
             if (searchQuery !== "") {
-                const matchName = (item.name || "").toLowerCase().includes(searchQuery);
-                const matchPhone = (item.phone || "").toLowerCase().includes(searchQuery);
-                const matchBookDate = (item.bookDate || "").toLowerCase().includes(searchQuery);
-                const matchCheckin = (item.checkin || "").toLowerCase().includes(searchQuery);
-                const matchCheckout = (item.checkout || "").toLowerCase().includes(searchQuery);
-                const matchNote = (item.note || "").toLowerCase().includes(searchQuery);
-                const matchCleaner = (item.cleaner || "").toLowerCase().includes(searchQuery);
-
-                if (!matchName && !matchPhone && !matchBookDate && !matchCheckin && !matchCheckout && !matchNote && !matchCleaner) {
-                    return;
-                }
+                const match = Object.values(item).some(val => (val || "").toString().toLowerCase().includes(searchQuery));
+                if (!match) return;
             }
 
             visibleCount++;
-
             const totalBillVal = parseMoneyInput(item.totalBill);
             const paidVal = parseMoneyInput(item.paid);
             const minibarVal = parseMoneyInput(item.minibar);
@@ -872,13 +809,10 @@
             totalPaidSum += paidVal;
             totalRemainingSum += remainingVal;
 
-            let nameStr = item.name || '';
-            let cleanerVal = item.cleaner || '';
-
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><b>${visibleCount}</b></td>
-                <td class="cust-name-cell" title="${nameStr}">${nameStr}</td>
+                <td class="cust-name-cell" title="${item.name || ''}">${item.name || ''}</td>
                 <td>${item.checkin || ''}</td>
                 <td>${item.checkout || ''}</td>
                 <td>${item.bookDate || ''}</td>
@@ -889,10 +823,10 @@
                 <td><input type="text" class="admin-input-note-mini" value="${item.note || ''}" placeholder="Ghi chú" onchange="updateCustomerField('${key}', 'note', this.value)"></td>
                 <td>
                     <select class="admin-select-cleaner" onchange="updateCustomerField('${key}', 'cleaner', this.value)">
-                        <option value="" ${cleanerVal === '' ? 'selected' : ''}>-- Chọn --</option>
-                        <option value="Chị Chung" ${cleanerVal === 'Chị Chung' ? 'selected' : ''}>Chị Chung</option>
-                        <option value="Nhật" ${cleanerVal === 'Nhật' ? 'selected' : ''}>Nhật</option>
-                        <option value="Cún" ${cleanerVal === 'Cún' ? 'selected' : ''}>Cún</option>
+                        <option value="" ${!item.cleaner ? 'selected' : ''}>-- Chọn --</option>
+                        <option value="Bác" ${item.cleaner === 'Bác' ? 'selected' : ''}>Bác</option>
+                        <option value="Nhật" ${item.cleaner === 'Nhật' ? 'selected' : ''}>Nhật</option>
+                        <option value="Cún" ${item.cleaner === 'Cún' ? 'selected' : ''}>Cún</option>
                     </select>
                 </td>
                 <td>
@@ -905,17 +839,13 @@
             tbody.appendChild(tr);
         });
 
-        if (visibleCount === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho phòng này trong tháng/kết quả tìm kiếm.</td></tr>`;
-        }
+        if (visibleCount === 0) tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào.</td></tr>`;
 
         document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
         document.getElementById('sumTotalBill').innerText = totalBillSum / 1000;
         document.getElementById('sumPaid').innerText = totalPaidSum / 1000;
         document.getElementById('sumRemaining').innerText = totalRemainingSum / 1000;
-
-        const nanaTotal = (totalPaidSum + totalMinibar) / 1000;
-        document.getElementById('sumNanaTotal').innerText = nanaTotal;
+        document.getElementById('sumNanaTotal').innerText = (totalPaidSum + totalMinibar) / 1000;
     }
 
     function updateCustomerField(key, field, value) {
@@ -934,13 +864,10 @@
         document.getElementById('editMinibar').value = item.minibar || '';
         document.getElementById('editCleaner').value = item.cleaner || '';
         document.getElementById('editNote').value = item.note || '';
-
         document.getElementById('editModal').style.display = 'flex';
     }
 
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
     function saveEditedBooking() {
         const key = document.getElementById('editKey').value;
@@ -955,107 +882,141 @@
             cleaner: document.getElementById('editCleaner').value,
             note: document.getElementById('editNote').value.trim()
         };
-
         db.ref(`rooms/${currentRoomId}/customers/${key}`).update(updatedData, (error) => {
-            if (!error) {
-                alert("✅ Đã cập nhật đơn thành công!");
-                closeEditModal();
-            } else {
-                alert("Lỗi cập nhật: " + error.message);
-            }
+            if (!error) { alert("✅ Đã cập nhật!"); closeEditModal(); }
         });
     }
 
-    // --- TAB 3: CHI PHÍ PHÁT SINH & THỐNG KÊ ---
     function addNewExpenseRow() {
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
-        const monthKey = `${year}_${month}`;
-
-        const newExpense = {
-            name: "",
-            qty: "",
-            priceStr: "",
-            price: 0,
-            note: "",
-            monthKey: monthKey
-        };
-
-        db.ref(`rooms/${currentRoomId}/expenses`).push(newExpense);
+        db.ref(`rooms/${currentRoomId}/expenses`).push({ name: "", qty: "", priceStr: "", price: 0, note: "", monthKey: `${year}_${month}` });
     }
 
     function updateExpenseCell(key, field, value) {
         if (field === 'priceStr') {
-            const numVal = parseMoneyInput(value);
-            db.ref(`rooms/${currentRoomId}/expenses/${key}`).update({
-                priceStr: value,
-                price: numVal
-            });
+            db.ref(`rooms/${currentRoomId}/expenses/${key}`).update({ priceStr: value, price: parseMoneyInput(value) });
         } else {
             db.ref(`rooms/${currentRoomId}/expenses/${key}/${field}`).set(value);
         }
     }
 
     function deleteExpenseItem(key) {
-        if (confirm("Bạn có chắc muốn xóa khoản chi phí này?")) {
-            db.ref(`rooms/${currentRoomId}/expenses/${key}`).remove();
-        }
+        if (confirm("Xóa khoản chi phí này?")) db.ref(`rooms/${currentRoomId}/expenses/${key}`).remove();
     }
 
     function renderStatsAndExpenses() {
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
         const targetMonthKey = `${year}_${month}`;
-
         document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh T${month}`;
 
         let totalIncome = 0;
         Object.values(currentCustomers).forEach(item => {
-            const itemMonthKey = item.monthKey || "2026_10";
-            if (itemMonthKey === targetMonthKey) {
+            if ((item.monthKey || "2026_10") === targetMonthKey) {
                 totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
             }
         });
 
         const tbody = document.getElementById('expenseBody');
         tbody.innerHTML = "";
-
-        let totalExpenseSum = 0;
-        let count = 0;
+        let totalExpenseSum = 0, count = 0;
 
         Object.keys(currentExpenses).forEach(key => {
             const item = currentExpenses[key];
-            const itemMonthKey = item.monthKey || "2026_10";
-
-            if (itemMonthKey === targetMonthKey) {
+            if ((item.monthKey || "2026_10") === targetMonthKey) {
                 count++;
                 const itemPrice = parseMoneyInput(item.priceStr || item.price);
                 totalExpenseSum += itemPrice;
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${count}</b></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên sản phẩm..." onchange="updateExpenseCell('${key}', 'name', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${key}', 'qty', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá (...)" onchange="updateExpenseCell('${key}', 'priceStr', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateExpenseCell('${key}', 'note', this.value)"></td>
-                    <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${count}</b></td>
+                        <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên..." onchange="updateExpenseCell('${key}', 'name', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${key}', 'qty', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá" onchange="updateExpenseCell('${key}', 'priceStr', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Note..." onchange="updateExpenseCell('${key}', 'note', this.value)"></td>
+                        <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             }
         });
 
-        if (count === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí nào. Bấm <b>"➕ Thêm hàng mới"</b> để nhập.</td></tr>`;
-        }
-
-        document.getElementById('sumExpenseTotal').innerText = (totalExpenseSum > 0) ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
+        if (count === 0) tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí.</td></tr>`;
+        document.getElementById('sumExpenseTotal').innerText = totalExpenseSum > 0 ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
 
         let netProfit = totalIncome - totalExpenseSum;
-
         document.getElementById('statTotalIncome').innerText = formatK(totalIncome);
         document.getElementById('statTotalExpense').innerText = formatK(totalExpenseSum);
         document.getElementById('statNetProfit').innerText = formatK(netProfit);
+    }
+
+    // --- TỔNG HỢP TOÀN BỘ CÁC PHÒNG ---
+    async function renderAllRoomsSummary() {
+        const month = parseInt(document.getElementById('allFilterMonth').value);
+        const year = parseInt(document.getElementById('allFilterYear').value);
+        const targetMonthKey = `${year}_${month}`;
+
+        const roomConfigs = [
+            { id: "cs1_p101", name: "Cơ sở 1 - P101" },
+            { id: "cs2_p205", name: "Cơ sở 2 - Phòng 205" },
+            { id: "cs2_p305", name: "Cơ sở 2 - Phòng 305" }
+        ];
+
+        let summaryBody = document.getElementById('allRoomsSummaryBody');
+        summaryBody.innerHTML = `<tr><td colspan="4" style="padding:15px;">Đang tính toán tổng hợp dữ liệu các phòng...</td></tr>`;
+
+        try {
+            const snapshot = await db.ref('rooms').once('value');
+            const allRoomsData = snapshot.val() || {};
+
+            let grandTotalIncome = 0;
+            let grandTotalExpense = 0;
+            let htmlContent = "";
+
+            roomConfigs.forEach(room => {
+                let roomData = allRoomsData[room.id] || {};
+                let customers = roomData.customers || {};
+                let expenses = roomData.expenses || {};
+
+                let roomIncome = 0;
+                Object.values(customers).forEach(cust => {
+                    if ((cust.monthKey || "2026_10") === targetMonthKey) {
+                        roomIncome += parseMoneyInput(cust.paid) + parseMoneyInput(cust.minibar);
+                    }
+                });
+
+                let roomExpense = 0;
+                Object.values(expenses).forEach(exp => {
+                    if ((exp.monthKey || "2026_10") === targetMonthKey) {
+                        roomExpense += parseMoneyInput(exp.priceStr || exp.price);
+                    }
+                });
+
+                let roomNetProfit = roomIncome - roomExpense;
+                grandTotalIncome += roomIncome;
+                grandTotalExpense += roomExpense;
+
+                htmlContent += `
+                    <tr>
+                        <td style="font-weight: 700; text-align: left; padding-left: 15px;">🏠 ${room.name}</td>
+                        <td style="color: #2e7d32; font-weight: 700;">${formatK(roomIncome)}</td>
+                        <td style="color: #c62828; font-weight: 700;">${formatK(roomExpense)}</td>
+                        <td style="color: var(--primary); font-weight: 700;">${formatK(roomNetProfit)}</td>
+                    </tr>
+                `;
+            });
+
+            let grandNetProfit = grandTotalIncome - grandTotalExpense;
+            summaryBody.innerHTML = htmlContent;
+
+            document.getElementById('allTotalIncome').innerText = formatK(grandTotalIncome);
+            document.getElementById('allTotalExpense').innerText = formatK(grandTotalExpense);
+            document.getElementById('allNetProfit').innerText = formatK(grandNetProfit);
+
+        } catch (e) {
+            console.error("Lỗi tải tổng hợp phòng:", e);
+            summaryBody.innerHTML = `<tr><td colspan="4" style="color: red; padding: 15px;">Lỗi tải dữ liệu.</td></tr>`;
+        }
     }
 </script>
 
