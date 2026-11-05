@@ -138,7 +138,6 @@
                 <option value="cs2_p305">Cơ sở 2 - Phòng 305</option>
             </optgroup>
         </select>
-        <span id="currentRoomIndicator" style="font-size: 12px; color: #666; font-weight: 600;">(Lịch và dữ liệu đang hiển thị riêng cho phòng này)</span>
     </div>
 
     <!-- Thanh chuyển Tab -->
@@ -167,7 +166,7 @@
             </select>
         </div>
 
-        <p style="font-size:11px; color:#8a626a; margin-bottom:8px;">👉 Bấm vào từng ô để đổi giữa 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
+        <p style="font-size:11px; color:#8a626a; margin-bottom:8px;"> 🟢 <b>Trống</b> & 🔴 <b>Đã có khách</b></p>
         
         <div class="table-container">
             <table class="sched-table" id="scheduleTable">
@@ -186,7 +185,7 @@
     <div id="tabCustomers" class="tab-content">
         <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
         <div class="paste-booking-form">
-            <h4>📋 Dán nội dung tin nhắn chốt phòng (Tự động áp dụng cho phòng đang chọn)</h4>
+            <h4>📋 Dán nội dung tin nhắn chốt phòng </h4>
             <textarea id="pasteText" placeholder="................................"></textarea>
             <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
@@ -1038,7 +1037,7 @@
                     <td><b>${count}</b></td>
                     <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên sản phẩm..." onchange="updateExpenseCell('${key}', 'name', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${key}', 'qty', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá (ví dụ: 50k)" onchange="updateExpenseCell('${key}', 'priceStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá (...)" onchange="updateExpenseCell('${key}', 'priceStr', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateExpenseCell('${key}', 'note', this.value)"></td>
                     <td><button class="btn-del-cust" onclick="deleteExpenseItem('${key}')">Xóa</button></td>
                 `;
