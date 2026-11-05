@@ -19,6 +19,7 @@
 
         .header { text-align: center; padding: 15px 15px 5px; }
         .header h1 { color: var(--primary); font-size: 20px; }
+        .room-subtitle { font-size: 12px; color: #8a626a; margin-top: 4px; font-weight: 600; }
 
         .section { padding: 15px 20px; }
         .price-card { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; box-shadow: 0 4px 10px rgba(209,122,133,0.1); }
@@ -31,24 +32,51 @@
 
 <div class="container">
     <div class="nav-bar">
-        <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
-        <a href="bang-gia.html" class="nav-link active">🏷️ Bảng Giá</a>
-      <!--   <a href="lich-trong.html" class="nav-link">🟢 Lịch Trống</a>
-       <a href="dat-phong.html" class="nav-link">📅 Đặt Phòng</a>-->
-        <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
+        <a href="index.html" id="linkHome" class="nav-link">🏠 Trang Chủ</a>
+        <a href="bang-gia.html" id="linkBangGia" class="nav-link active">🏷️ Bảng Giá</a>
+        <a href="noi-quy.html" id="linkNoiQuy" class="nav-link">📜 Nội Quy</a>
     </div>
 
     <div class="header">
         <h1>🏷️ Bảng Giá Nana Homestay</h1>
+        <div class="room-subtitle" id="roomTitleLabel">Cơ sở 1 - P101</div>
     </div>
 
     <div class="section">
         <div class="price-card">
-            <img src="bang-gia.jpg" alt="Bảng Giá Nana Homestay">
+            <!-- Ảnh bảng giá sẽ tự động thay đổi theo phòng -->
+            <img id="priceImage" src="bang-gia.jpg" alt="Bảng Giá Nana Homestay">
         </div>
     </div>
-
 </div>
+
+<script>
+    window.onload = function() {
+        // Nhận mã phòng từ URL hoặc bộ nhớ tạm
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentRoom = urlParams.get('room') || localStorage.getItem('selectedRoom') || 'cs1_p101';
+
+        // Gắn lại tham số ?room=... vào các thẻ điều hướng để khách không bị mất dấu phòng đang xem
+        document.getElementById('linkHome').href = `index.html`;
+        document.getElementById('linkBangGia').href = `bang-gia.html?room=${currentRoom}`;
+        document.getElementById('linkNoiQuy').href = `noi-quy.html?room=${currentRoom}`;
+
+        // Đổi nội dung tiêu đề và hình ảnh bảng giá tương ứng
+        const imgElement = document.getElementById('priceImage');
+        const titleLabel = document.getElementById('roomTitleLabel');
+
+        if (currentRoom === 'cs2_p205') {
+            titleLabel.innerText = "Cơ sở 2 - Phòng 205";
+            imgElement.src = "bang-gia-cs2.jpg"; // Ảnh bảng giá Cơ sở 2
+        } else if (currentRoom === 'cs2_p305') {
+            titleLabel.innerText = "Cơ sở 2 - Phòng 305";
+            imgElement.src = "bang-gia-cs2.jpg"; // Ảnh bảng giá Cơ sở 2
+        } else {
+            titleLabel.innerText = "Cơ sở 1 - P101";
+            imgElement.src = "bang-gia.jpg"; // Ảnh bảng giá Cơ sở 1
+        }
+    };
+</script>
 
 </body>
 </html>
