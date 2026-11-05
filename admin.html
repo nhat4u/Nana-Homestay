@@ -403,9 +403,45 @@
     let customersListener = null;
     let expensesListener = null;
 
-    window.onload = function() {
+    window.onload = async function() {
+        await checkAndMigrateOldData();
         initRoomDataListeners();
     };
+
+    // HÀM KHÔI PHỤC TỰ ĐỘNG DỮ LIỆU CŨ SANG CƠ SỞ 1 - P101
+    async function checkAndMigrateOldData() {
+        try {
+            const oldSchedSnap = await db.ref('schedules').once('value');
+            const oldCustSnap = await db.ref('customers').once('value');
+            const oldExpSnap = await db.ref('expenses').once('value');
+
+            let updates = {};
+            let hasOldData = false;
+
+            if (oldSchedSnap.exists()) {
+                updates['rooms/cs1_p101/schedules'] = oldSchedSnap.val();
+                updates['schedules'] = null;
+                hasOldData = true;
+            }
+            if (oldCustSnap.exists()) {
+                updates['rooms/cs1_p101/customers'] = oldCustSnap.val();
+                updates['customers'] = null;
+                hasOldData = true;
+            }
+            if (oldExpSnap.exists()) {
+                updates['rooms/cs1_p101/expenses'] = oldExpSnap.val();
+                updates['expenses'] = null;
+                hasOldData = true;
+            }
+
+            if (hasOldData) {
+                await db.ref().update(updates);
+                console.log("✅ Đã chuyển thành công dữ liệu cũ sang Cơ sở 1 - P101!");
+            }
+        } catch (e) {
+            console.error("Lỗi đồng bộ dữ liệu cũ:", e);
+        }
+    }
 
     // HÀM LẤY MÃ PHÒNG HIỆN TẠI VÀ GẮN LẠI LẮNG NGHE DỮ LIỆU TỪ FIREBASE
     function initRoomDataListeners() {
