@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Trang Quản Lý</title>
+    <title>Nana Homestay - Trang Quản Lý Đa Phòng</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,6 +16,11 @@
         .admin-dashboard { max-width: 1400px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header h1 { color: var(--primary); font-size: 18px; }
+
+        /* THANH CHỌN PHÒNG CHUNG CHO TOÀN HỆ THỐNG */
+        .room-selector-bar { display: flex; align-items: center; gap: 10px; background: #ffe3e8; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--primary); flex-wrap: wrap; }
+        .room-selector-bar label { font-weight: 700; color: var(--primary); font-size: 14px; }
+        .room-selector-bar select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; outline: none; font-size: 13px; background: white; }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tab-btn { padding: 8px 16px; background: white; border: 1px solid #e0e0e0; border-radius: 10px; font-weight: 700; cursor: pointer; color: #666; font-size: 13px; }
@@ -118,7 +123,22 @@
 <!-- Dashboard Admin -->
 <div class="admin-dashboard" id="adminDashboard">
     <div class="header">
-        <h1>🏠 Nana Homestay - Trang Quản Lý</h1>
+        <h1>🏠 Nana Homestay - Quản Lý Đa Phòng</h1>
+    </div>
+
+    <!-- THANH CHỌN PHÒNG CHÍNH -->
+    <div class="room-selector-bar">
+        <label for="globalRoomSelect">📍 Đang quản lý phòng:</label>
+        <select id="globalRoomSelect" onchange="onRoomChanged()">
+            <optgroup label="Cơ sở 1">
+                <option value="cs1_p101" selected>Cơ sở 1 - P101</option>
+            </optgroup>
+            <optgroup label="Cơ sở 2">
+                <option value="cs2_p205">Cơ sở 2 - Phòng 205</option>
+                <option value="cs2_p305">Cơ sở 2 - Phòng 305</option>
+            </optgroup>
+        </select>
+        <span id="currentRoomIndicator" style="font-size: 12px; color: #666; font-weight: 600;">(Lịch và dữ liệu đang hiển thị riêng cho phòng này)</span>
     </div>
 
     <!-- Thanh chuyển Tab -->
@@ -135,8 +155,8 @@
             <label for="selectMonth">📅 Chọn Tháng:</label>
             <select id="selectMonth" onchange="renderMonthlySchedule()">
                 <option value="9">Tháng 9</option>
-                <option value="10">Tháng 10</option>
-                <option value="11" selected>Tháng 11</option>
+                <option value="10" selected>Tháng 10</option>
+                <option value="11">Tháng 11</option>
                 <option value="12">Tháng 12</option>
                 <option value="1">Tháng 1</option>
                 <option value="2">Tháng 2</option>
@@ -166,7 +186,7 @@
     <div id="tabCustomers" class="tab-content">
         <!-- FORM DÁN NHANH TIN NHẮN CHỐT KHÁCH -->
         <div class="paste-booking-form">
-            <h4>📋 Dán nội dung tin nhắn chốt phòng</h4>
+            <h4>📋 Dán nội dung tin nhắn chốt phòng (Tự động áp dụng cho phòng đang chọn)</h4>
             <textarea id="pasteText" placeholder="................................"></textarea>
             <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
@@ -177,8 +197,8 @@
                 <label for="custFilterMonth">📅 Lọc xem Tháng:</label>
                 <select id="custFilterMonth" onchange="renderCustomerTable()">
                     <option value="9">Tháng 9</option>
-                    <option value="10">Tháng 10</option>
-                    <option value="11" selected>Tháng 11</option>
+                    <option value="10" selected>Tháng 10</option>
+                    <option value="11">Tháng 11</option>
                     <option value="12">Tháng 12</option>
                     <option value="1">Tháng 1</option>
                     <option value="2">Tháng 2</option>
@@ -224,7 +244,7 @@
                         <td colspan="3"></td>
                     </tr>
                     <tr class="row-nana-summary">
-                        <td colspan="5" class="cell-nana-title">🏠 Nana Homestay</td>
+                        <td colspan="5" class="cell-nana-title" id="roomSummaryTitle">🏠 Cơ sở 1 - P101</td>
                         <td colspan="4" class="txt-red-summary" style="font-size: 18px;" id="sumNanaTotal">0</td>
                         <td colspan="3"></td>
                     </tr>
@@ -240,8 +260,8 @@
             <label for="statFilterMonth">📅 Xem Thống Kê Tháng:</label>
             <select id="statFilterMonth" onchange="renderStatsAndExpenses()">
                 <option value="9">Tháng 9</option>
-                <option value="10">Tháng 10</option>
-                <option value="11" selected>Tháng 11</option>
+                <option value="10" selected>Tháng 10</option>
+                <option value="11">Tháng 11</option>
                 <option value="12">Tháng 12</option>
                 <option value="1">Tháng 1</option>
                 <option value="2">Tháng 2</option>
@@ -377,14 +397,46 @@
 
     const dayNames = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
+    let currentRoomId = "cs1_p101";
     let currentCustomers = {};
     let currentExpenses = {};
+    let customersListener = null;
+    let expensesListener = null;
 
     window.onload = function() {
-        renderMonthlySchedule();
-        listenToCustomersFirebase();
-        listenToExpensesFirebase();
+        initRoomDataListeners();
     };
+
+    // HÀM LẤY MÃ PHÒNG HIỆN TẠI VÀ GẮN LẠI LẮNG NGHE DỮ LIỆU TỪ FIREBASE
+    function initRoomDataListeners() {
+        const select = document.getElementById('globalRoomSelect');
+        currentRoomId = select.value;
+        const selectedText = select.options[select.selectedIndex].text;
+        document.getElementById('roomSummaryTitle').innerText = `🏠 ${selectedText}`;
+
+        // Hủy lắng nghe cũ nếu có
+        if (customersListener) db.ref(`rooms/${currentRoomId}/customers`).off('value', customersListener);
+        if (expensesListener) db.ref(`rooms/${currentRoomId}/expenses`).off('value', expensesListener);
+
+        renderMonthlySchedule();
+
+        // Lắng nghe danh sách khách của phòng hiện tại
+        customersListener = db.ref(`rooms/${currentRoomId}/customers`).on('value', (snapshot) => {
+            currentCustomers = snapshot.val() || {};
+            renderCustomerTable();
+            renderStatsAndExpenses();
+        });
+
+        // Lắng nghe chi phí phát sinh của phòng hiện tại
+        expensesListener = db.ref(`rooms/${currentRoomId}/expenses`).on('value', (snapshot) => {
+            currentExpenses = snapshot.val() || {};
+            renderStatsAndExpenses();
+        });
+    }
+
+    function onRoomChanged() {
+        initRoomDataListeners();
+    }
 
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -419,7 +471,6 @@
     };
     const EXTRA_HOURLY_RATE = 40000;
 
-    // HÀM TÍNH GIÁ TỰ ĐỘNG
     function calculatePrice(inHour, inDay, inMonth, outHour, outDay, outMonth, year) {
         if (inHour === null || outHour === null || !inDay || !inMonth) return 0;
 
@@ -428,7 +479,6 @@
         let isWeekend = (dayOfWeek === 0 || dayOfWeek === 5 || dayOfWeek === 6);
         let rates = isWeekend ? pricing.weekend : pricing.normal;
 
-        // 1. COMBO NGÀY ĐÊM (Check-in từ 15h)
         if (inHour === 15) {
             let basePrice = rates.nightday;
             if (outHour > 10) {
@@ -437,17 +487,14 @@
             return basePrice;
         }
 
-        // 2. QUA ĐÊM CHUẨN (22h - 10h)
         if (inHour === 22 && outHour === 10 && inDay !== outDay) {
             return rates.overnight;
         }
 
-        // 3. THEO NGÀY CHUẨN (11h - 21h)
         if (inHour === 11 && outHour === 21 && inDay === outDay) {
             return rates.fullday;
         }
 
-        // 4. TÍNH THEO GIỜ LẺ
         let calcOut = (outDay && outDay !== inDay) ? (outHour + 24) : outHour;
         let diffH = calcOut - inHour;
 
@@ -459,7 +506,11 @@
         return price > rates.fullday ? rates.fullday : price;
     }
 
-    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KHÓA LỊCH (CÓ KIỂM TRA TRÙNG LỊCH)
+    function getBookingTimestamp(hour, day, month, year) {
+        return new Date(year, month - 1, day, hour, 0, 0).getTime();
+    }
+
+    // PHÂN TÍCH TỰ ĐỘNG TIN NHẮN CHỐT KHÁCH & KIỂM TRA TRÙNG LỊCH (RIÊNG CHO TỪNG PHÒNG)
     async function processPastedBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) {
@@ -475,16 +526,13 @@
         let checkout = "";
         let note = "";
 
-        // 1. Tên khách
         let nameMatch = text.match(/Tên khách hàng:\s*([^\n\r]+)/i) || text.match(/Tên khách:\s*([^\n\r]+)/i);
         if (nameMatch) name = nameMatch[1].trim();
 
-        // 2. Số điện thoại
         let phoneMatch = text.match(/SĐT\s*:\s*([0-9\s.]+)/i);
         if (phoneMatch) phone = phoneMatch[1].replace(/\s+/g, '').trim();
 
-        // 3. Tổng bill & Đã CK
-        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK\vert{}CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
+        let billMatch = text.match(/Tổng bill:\s*([0-9kKtrTR.]+)(?:\s*\((?:ĐÃ CK|CK)?\s*([0-9kKtrTR.]+)\)?)?/i);
         if (billMatch) {
             totalBill = parseMoneyInput(billMatch[1]);
             if (billMatch[2]) paid = parseMoneyInput(billMatch[2]);
@@ -494,7 +542,6 @@
             paid = parseMoneyInput(paidMatch[1]);
         }
 
-        // 4. Giờ check in - out
         let timeMatch = text.match(/Giờ check in\s*-\s*out:\s*([^-]+)\s*-\s*([^\n\r]+)/i) || text.match(/Checkin\s*-\s*checkout:\s*([^-]+)\s*-\s*([^\n\r]+)/i);
         if (timeMatch) {
             checkin = timeMatch[1].trim();
@@ -514,7 +561,6 @@
         let filterMonth = parseInt(document.getElementById('custFilterMonth').value) || (now.getMonth() + 1);
         let filterYear = parseInt(document.getElementById('custFilterYear').value) || now.getFullYear();
 
-        // Tách ngày & giờ Check-in / Check-out
         let inHour = null, inDay = null, inMonth = filterMonth;
         let outHour = null, outDay = null, outMonth = filterMonth;
 
@@ -543,42 +589,62 @@
         let bookedSlots = [];
         let scheduleUpdates = {};
         let isConflict = false;
+        let conflictingCustName = "";
 
         if (inHour !== null && outHour !== null && inDay && inMonth) {
-            const currentScheduleSnap = await db.ref(`schedules/${filterYear}_${inMonth}`).once('value');
-            const scheduleData = currentScheduleSnap.val() || {};
+            if (!outDay) {
+                outDay = (inHour > outHour) ? (inDay + 1) : inDay;
+            }
+
+            const newStartTs = getBookingTimestamp(inHour, inDay, inMonth, filterYear);
+            const newEndTs = getBookingTimestamp(outHour, outDay, outMonth, filterYear);
+
+            Object.values(currentCustomers).forEach(cust => {
+                let cInH = null, cInD = null, cInM = filterMonth;
+                let cOutH = null, cOutD = null, cOutM = filterMonth;
+
+                let cInHMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*h/i);
+                if (cInHMatch) cInH = parseInt(cInHMatch[1]);
+                let cInDMatch = (cust.checkin || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+                if (cInDMatch) { cInD = parseInt(cInDMatch[1]); cInM = parseInt(cInDMatch[2]); }
+
+                let cOutHMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*h/i);
+                if (cOutHMatch) cOutH = parseInt(cOutHMatch[1]);
+                let cOutDMatch = (cust.checkout || "").match(/([0-9]{1,2})\s*\/\s*([0-9]{1,2})/);
+                if (cOutDMatch) { cOutD = parseInt(cOutDMatch[1]); cOutM = parseInt(cOutDMatch[2]); }
+
+                if (cInH !== null && cOutH !== null && cInD && cInM) {
+                    if (!cOutD) cOutD = (cInH > cOutH) ? (cInD + 1) : cInD;
+
+                    const existStartTs = getBookingTimestamp(cInH, cInD, cInM, filterYear);
+                    const existEndTs = getBookingTimestamp(cOutH, cOutD, cOutM, filterYear);
+
+                    if (newStartTs < existEndTs && newEndTs > existStartTs) {
+                        isConflict = true;
+                        conflictingCustName = cust.name || "khách khác";
+                    }
+                }
+            });
 
             if (!outDay || (inDay === outDay && inMonth === outMonth)) {
                 let monthKey = `${filterYear}_${inMonth}`;
                 for (let h = inHour; h < outHour; h++) {
                     let slotKey = `d${inDay}_h${h}`;
-                    if (scheduleData[slotKey] === true) {
-                        isConflict = true;
-                    }
-                    scheduleUpdates[`schedules/${monthKey}/${slotKey}`] = true;
+                    scheduleUpdates[`rooms/${currentRoomId}/schedules/${monthKey}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey, slotKey });
                 }
             } else {
                 let monthKeyIn = `${filterYear}_${inMonth}`;
                 for (let h = inHour; h <= 23; h++) {
                     let slotKey = `d${inDay}_h${h}`;
-                    if (scheduleData[slotKey] === true) {
-                        isConflict = true;
-                    }
-                    scheduleUpdates[`schedules/${monthKeyIn}/${slotKey}`] = true;
+                    scheduleUpdates[`rooms/${currentRoomId}/schedules/${monthKeyIn}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey: monthKeyIn, slotKey });
                 }
 
                 let monthKeyOut = `${filterYear}_${outMonth}`;
-                const scheduleDataOutSnap = (inMonth === outMonth) ? currentScheduleSnap : await db.ref(`schedules/${filterYear}_${outMonth}`).once('value');
-                const scheduleDataOut = scheduleDataOutSnap.val() || {};
-
                 for (let h = 0; h < outHour; h++) {
                     let slotKey = `d${outDay}_h${h}`;
-                    if (scheduleDataOut[slotKey] === true) {
-                        isConflict = true;
-                    }
-                    scheduleUpdates[`schedules/${monthKeyOut}/${slotKey}`] = true;
+                    scheduleUpdates[`rooms/${currentRoomId}/schedules/${monthKeyOut}/${slotKey}`] = true;
                     bookedSlots.push({ monthKey: monthKeyOut, slotKey });
                 }
             }
@@ -586,13 +652,11 @@
 
         if (isConflict) {
             const confirmSave = confirm(
-                `⚠️ CẢNH BÁO TRÙNG LỊCH PHÒNG!\n\n` +
-                `Khung giờ chốt phòng của "${name}" (${checkin} - ${checkout}) đã bị trùng với lượt book khác!\n\n` +
+                `⚠️ CẢNH BÁO TRÙNG HOẶC SÁT LỊCH DỌN PHÒNG!\n\n` +
+                `Đơn của "${name}" (${checkin} - ${checkout}) bị TRÙNG hoặc SÁT GIỜ CHECK-OUT ca của "${conflictingCustName}" tại phòng này!\n\n` +
                 `Bạn có muốn tiếp tục lưu đơn này vào danh sách không?`
             );
-            if (!confirmSave) {
-                return;
-            }
+            if (!confirmSave) return;
         }
 
         if (Object.keys(scheduleUpdates).length > 0) {
@@ -614,9 +678,9 @@
             bookedSlots: bookedSlots
         };
 
-        db.ref('customers').push(newBooking, (error) => {
+        db.ref(`rooms/${currentRoomId}/customers`).push(newBooking, (error) => {
             if (!error) {
-                alert(`✅ Đã thêm đơn của: ${name} vào danh sách!`);
+                alert(`✅ Đã thêm đơn của: ${name} thành công!`);
                 document.getElementById('pasteText').value = "";
                 renderMonthlySchedule();
             } else {
@@ -625,7 +689,7 @@
         });
     }
 
-    // XÓA ĐƠN & TỰ ĐỘNG MỞ TRẢ LỊCH THÀNH "TRỐNG"
+    // XÓA ĐƠN & TỰ ĐỘNG TRẢ LỊCH
     function deleteCustomer(key) {
         if (!confirm("Bạn có chắc muốn xóa lượt đặt phòng này?")) return;
 
@@ -633,21 +697,19 @@
         if (!item) return;
 
         let updates = {};
-        updates[`customers/${key}`] = null;
+        updates[`rooms/${currentRoomId}/customers/${key}`] = null;
 
         if (item.bookedSlots && Array.isArray(item.bookedSlots)) {
             item.bookedSlots.forEach(slot => {
                 if (typeof slot === 'object' && slot.monthKey && slot.slotKey) {
-                    updates[`schedules/${slot.monthKey}/${slot.slotKey}`] = null;
-                } else if (typeof slot === 'string' && item.monthKey) {
-                    updates[`schedules/${item.monthKey}/${slot}`] = null;
+                    updates[`rooms/${currentRoomId}/schedules/${slot.monthKey}/${slot.slotKey}`] = null;
                 }
             });
         }
 
         db.ref().update(updates, (error) => {
             if (!error) {
-                alert("🗑️ Đã xóa đơn và tự động trả lại lịch thành 'Trống'!");
+                alert("🗑️ Đã xóa đơn và trả lại lịch trống!");
                 renderMonthlySchedule();
             } else {
                 alert("Lỗi khi xóa: " + error.message);
@@ -676,7 +738,7 @@
         const tbody = document.getElementById('scheduleBody');
         tbody.innerHTML = "<tr><td colspan='32' style='padding:15px;'>Đang tải dữ liệu lịch...</td></tr>";
 
-        db.ref(`schedules/${year}_${month}`).once('value', (snapshot) => {
+        db.ref(`rooms/${currentRoomId}/schedules/${year}_${month}`).once('value', (snapshot) => {
             const savedData = snapshot.val() || {};
             tbody.innerHTML = "";
 
@@ -709,7 +771,7 @@
         const isCurrentlyFree = btn.classList.contains('btn-free');
         const newStatus = isCurrentlyFree; 
 
-        db.ref(`schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
+        db.ref(`rooms/${currentRoomId}/schedules/${year}_${month}/${key}`).set(newStatus, (error) => {
             if (!error) {
                 if (isCurrentlyFree) {
                     btn.classList.remove('btn-free');
@@ -727,14 +789,6 @@
     }
 
     // --- TAB 2: KHÁCH HÀNG ---
-    function listenToCustomersFirebase() {
-        db.ref('customers').on('value', (snapshot) => {
-            currentCustomers = snapshot.val() || {};
-            renderCustomerTable();
-            renderStatsAndExpenses();
-        });
-    }
-
     function renderCustomerTable() {
         const tbody = document.getElementById('customerBody');
         tbody.innerHTML = "";
@@ -744,19 +798,16 @@
         const targetMonthKey = `${selectedYear}_${selectedMonth}`;
         
         const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-
         const keys = Object.keys(currentCustomers);
         
         let totalMinibar = 0;
         let totalBillSum = 0;
         let totalPaidSum = 0;
         let totalRemainingSum = 0;
-
         let visibleCount = 0;
 
         keys.forEach((key) => {
             const item = currentCustomers[key];
-            
             const itemMonthKey = item.monthKey || "2026_10";
             if (itemMonthKey !== targetMonthKey) return;
 
@@ -820,7 +871,7 @@
         });
 
         if (visibleCount === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho tháng/kết quả tìm kiếm này.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 15px;">Chưa có lịch book nào cho phòng này trong tháng/kết quả tìm kiếm.</td></tr>`;
         }
 
         document.getElementById('sumMinibar').innerText = totalMinibar / 1000;
@@ -833,12 +884,11 @@
     }
 
     function updateCustomerField(key, field, value) {
-        db.ref(`customers/${key}/${field}`).set(value);
+        db.ref(`rooms/${currentRoomId}/customers/${key}/${field}`).set(value);
     }
 
     function openEditModal(key) {
         const item = currentCustomers[key];
-
         document.getElementById('editKey').value = key;
         document.getElementById('editName').value = item.name || '';
         document.getElementById('editPhone').value = item.phone || '';
@@ -871,7 +921,7 @@
             note: document.getElementById('editNote').value.trim()
         };
 
-        db.ref(`customers/${key}`).update(updatedData, (error) => {
+        db.ref(`rooms/${currentRoomId}/customers/${key}`).update(updatedData, (error) => {
             if (!error) {
                 alert("✅ Đã cập nhật đơn thành công!");
                 closeEditModal();
@@ -881,14 +931,7 @@
         });
     }
 
-    // --- TAB 3: CHI PHÍ PHÁT SINH TỰ ĐIỀN THỦ CÔNG & THỐNG KÊ ---
-    function listenToExpensesFirebase() {
-        db.ref('expenses').on('value', (snapshot) => {
-            currentExpenses = snapshot.val() || {};
-            renderStatsAndExpenses();
-        });
-    }
-
+    // --- TAB 3: CHI PHÍ PHÁT SINH & THỐNG KÊ ---
     function addNewExpenseRow() {
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
@@ -903,24 +946,24 @@
             monthKey: monthKey
         };
 
-        db.ref('expenses').push(newExpense);
+        db.ref(`rooms/${currentRoomId}/expenses`).push(newExpense);
     }
 
     function updateExpenseCell(key, field, value) {
         if (field === 'priceStr') {
             const numVal = parseMoneyInput(value);
-            db.ref(`expenses/${key}`).update({
+            db.ref(`rooms/${currentRoomId}/expenses/${key}`).update({
                 priceStr: value,
                 price: numVal
             });
         } else {
-            db.ref(`expenses/${key}/${field}`).set(value);
+            db.ref(`rooms/${currentRoomId}/expenses/${key}/${field}`).set(value);
         }
     }
 
     function deleteExpenseItem(key) {
         if (confirm("Bạn có chắc muốn xóa khoản chi phí này?")) {
-            db.ref(`expenses/${key}`).remove();
+            db.ref(`rooms/${currentRoomId}/expenses/${key}`).remove();
         }
     }
 
@@ -931,7 +974,6 @@
 
         document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh T${month}`;
 
-        // 1. Tính tổng thu nhập khách book của tháng
         let totalIncome = 0;
         Object.values(currentCustomers).forEach(item => {
             const itemMonthKey = item.monthKey || "2026_10";
@@ -940,7 +982,6 @@
             }
         });
 
-        // 2. Render bảng gõ tay chi phí
         const tbody = document.getElementById('expenseBody');
         tbody.innerHTML = "";
 
@@ -970,10 +1011,9 @@
         });
 
         if (count === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có dữ liệu. Bấm <b>"➕ Thêm hàng mới"</b> bên dưới để tự điền thủ công.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí nào. Bấm <b>"➕ Thêm hàng mới"</b> để nhập.</td></tr>`;
         }
 
-        // 3. Hiển thị Tổng cộng
         document.getElementById('sumExpenseTotal').innerText = (totalExpenseSum > 0) ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
 
         let netProfit = totalIncome - totalExpenseSum;
