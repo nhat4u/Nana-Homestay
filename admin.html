@@ -16,7 +16,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header h1 { color: var(--primary); font-size: 18px; }
 
-        /* THANH CHỌN PHÒNG ĐỂ ĐIỀU HÀNH LỊCH & ĐƠN KHÁCH */
+        /* THANH CHỌN PHÒNG CHÍNH */
         .room-selector-bar { display: flex; align-items: center; gap: 10px; background: #ffe3e8; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--primary); flex-wrap: wrap; }
         .room-selector-bar label { font-weight: 700; color: var(--primary); font-size: 14px; }
         .room-selector-bar select { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; outline: none; font-size: 13px; background: white; }
@@ -31,9 +31,9 @@
         #tabHomeView { padding: 10px; }
         .iframe-container { width: 100%; height: 85vh; border: none; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
 
-        .month-picker-box { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; background: #fff0f3; padding: 10px 14px; border-radius: 10px; border: 1px dashed var(--primary); width: fit-content; flex-wrap: wrap; }
+        .month-picker-box { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff0f3; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--primary); width: fit-content; }
         .month-picker-box label { font-weight: 700; color: var(--primary); font-size: 13px; }
-        .month-picker-box select { padding: 5px 10px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
+        .month-picker-box select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
 
         .filter-search-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; background: #fff0f3; padding: 10px 14px; border-radius: 12px; border: 1px dashed var(--primary); }
         .filter-group { display: flex; align-items: center; gap: 8px; }
@@ -81,7 +81,7 @@
         .stat-card .val { font-size: 22px; font-weight: 700; }
 
         .expense-section { background: white; border-radius: 12px; }
-        .expense-header-title { color: #d32f2f; font-weight: 700; font-size: 16px; text-align: center; margin-bottom: 12px; }
+        .expense-header-title { color: #d32f2f; font-weight: 700; font-size: 18px; text-align: center; margin-bottom: 12px; }
         
         table.expense-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         table.expense-table th, table.expense-table td { border: 1px solid #000; padding: 4px; text-align: center; }
@@ -113,9 +113,9 @@
         <h1>🏠 Nana Homestay - Quản Lý Đa Phòng</h1>
     </div>
 
-    <!-- THANH CHỌN PHÒNG ĐỂ ĐIỀU HÀNH LỊCH & ĐƠN KHÁCH -->
+    <!-- THANH CHỌN PHÒNG CHÍNH -->
     <div class="room-selector-bar">
-        <label for="globalRoomSelect">📍 Đang làm việc với phòng:</label>
+        <label for="globalRoomSelect">📍 Đang quản lý phòng:</label>
         <select id="globalRoomSelect" onchange="onRoomChanged()">
             <optgroup label="Cơ sở 1">
                 <option value="cs1_p101" selected>Cơ sở 1 - P101</option>
@@ -127,12 +127,13 @@
         </select>
     </div>
 
-    <!-- Thanh chuyển Tab -->
+    <!-- 5 TAB CHUẨN GỐC -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 4. Trang Chủ</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi (Phòng)</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabAllRoomsSummary')">📊 4. Tổng Doanh Thu & Chi Tổng</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 5. Trang Chủ</button>
     </div>
 
     <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
@@ -236,17 +237,10 @@
         </div>
     </div>
 
-    <!-- TAB 3: THỐNG KÊ THU CHI -->
+    <!-- TAB 3: THỐNG KÊ THU CHI (PHÒNG) -->
     <div id="tabStats" class="tab-content">
         <div class="month-picker-box">
-            <label for="statFilterScope">🎯 Xem Thu Chi Cho:</label>
-            <select id="statFilterScope" onchange="renderStatsAndExpenses()" style="background:#ffe3e8; border-color:var(--primary); font-size:13px;">
-                <option value="cs1_p101">🏠 Cơ sở 1 - P101 (Riêng)</option>
-                <option value="cs2_combine" selected>🏢 Cơ sở 2 - Gộp Chi Phí (P205 & P305)</option>
-                <option value="all_total">📊 TỔNG TOÀN NANA HOMESTAY</option>
-            </select>
-
-            <label for="statFilterMonth" style="margin-left: 10px;">📅 Tháng:</label>
+            <label for="statFilterMonth">📅 Xem Thống Kê Tháng:</label>
             <select id="statFilterMonth" onchange="renderStatsAndExpenses()">
                 <option value="9">Tháng 9</option>
                 <option value="10">Tháng 10</option>
@@ -277,14 +271,13 @@
         </div>
 
         <div class="expense-section">
-            <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh</div>
-
+            <div class="expense-header-title" id="expenseTitleText">Chi phí phát sinh T11</div>
             <div class="table-container">
                 <table class="expense-table">
                     <thead>
                         <tr>
                             <th style="width: 40px;">STT</th>
-                            <th>Sản phẩm / Khoản chi</th>
+                            <th>Sản phẩm</th>
                             <th style="width: 60px;">SL</th>
                             <th style="width: 100px;">Giá</th>
                             <th>Note</th>
@@ -295,18 +288,69 @@
                     </tbody>
                     <tfoot>
                         <tr class="total-expense-row">
-                            <td colspan="3">Tổng Chi Phí</td>
+                            <td colspan="3">Tổng</td>
                             <td colspan="3" id="sumExpenseTotal">0</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-
-            <button class="btn-add-row" id="btnAddExpenseRow" onclick="addNewExpenseRow()">➕ Thêm hàng chi phí mới</button>
+            <button class="btn-add-row" onclick="addNewExpenseRow()">➕ Thêm hàng mới</button>
         </div>
     </div>
 
-    <!-- TAB 4: NHÚNG XEM TRANG CHỦ -->
+    <!-- TAB 4: TỔNG DOANH THU & CHI TỔNG -->
+    <div id="tabAllRoomsSummary" class="tab-content">
+        <div class="month-picker-box">
+            <label for="allFilterMonth">📅 Chọn Tháng Tổng Kết:</label>
+            <select id="allFilterMonth" onchange="renderAllRoomsSummary()">
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11" selected>Tháng 11</option>
+                <option value="12">Tháng 12</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+            </select>
+            <select id="allFilterYear" onchange="renderAllRoomsSummary()">
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+            </select>
+        </div>
+
+        <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 16px;">📈 Tổng Hợp Thu - Chi Toàn Hệ Thống Nana Homestay</h3>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="background: #e8f5e9;">
+                <h3>TỔNG DOANH THU TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: #2e7d32;" id="allTotalIncome">0k</div>
+            </div>
+            <div class="stat-card" style="background: #ffebee;">
+                <h3>TỔNG CHI PHÍ TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: #c62828;" id="allTotalExpense">0k</div>
+            </div>
+            <div class="stat-card" style="background: #fff0f3;">
+                <h3>LỢI NHUẬN RÒNG TOÀN HỆ THỐNG</h3>
+                <div class="val" style="color: var(--primary);" id="allNetProfit">0k</div>
+            </div>
+        </div>
+
+        <div class="table-container" style="margin-top: 15px;">
+            <table class="cust-table">
+                <thead>
+                    <tr>
+                        <th>Tên Cơ Sở / Phòng</th>
+                        <th>Tổng Thu (Đã CK + Minibar)</th>
+                        <th>Tổng Chi Phí Phát Sinh</th>
+                        <th>Lợi Nhuận Ròng</th>
+                    </tr>
+                </thead>
+                <tbody id="allRoomsSummaryBody">
+                    <tr><td colspan="4" style="padding: 15px;">Đang tải dữ liệu tổng hợp các phòng...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: TRANG CHỦ -->
     <div id="tabHomeView" class="tab-content">
         <iframe src="index.html" class="iframe-container" title="Giao diện Trang chủ"></iframe>
     </div>
@@ -368,7 +412,6 @@
 </div>
 
 <script>
-    // FIREBASE SDK
     const firebaseConfig = {
       apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
       authDomain: "nana-homestay.firebaseapp.com",
@@ -427,6 +470,7 @@
         customersListener = db.ref(`rooms/${currentRoomId}/customers`).on('value', (snapshot) => {
             currentCustomers = snapshot.val() || {};
             renderCustomerTable();
+            renderStatsAndExpenses();
         });
     }
 
@@ -434,6 +478,7 @@
         db.ref('rooms').on('value', (snapshot) => {
             allRoomsDataCache = snapshot.val() || {};
             renderStatsAndExpenses();
+            renderAllRoomsSummary();
         });
     }
 
@@ -449,6 +494,7 @@
         document.getElementById(tabId).classList.add('active');
 
         if (tabId === 'tabStats') renderStatsAndExpenses();
+        if (tabId === 'tabAllRoomsSummary') renderAllRoomsSummary();
     }
 
     function parseMoneyInput(val) {
@@ -804,22 +850,19 @@
         });
     }
 
-    // --- QUẢN LÝ CHI PHÍ & THỐNG KÊ GỘP ---
+    // --- XỬ LÝ THỐNG KÊ THU CHI CHO TỪNG PHÒNG (P205 VÀ P305 DÙNG CHUNG CHI PHÍ) ---
     function addNewExpenseRow() {
-        const scope = document.getElementById('statFilterScope').value;
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
         const monthKey = `${year}_${month}`;
 
-        if (scope === 'all_total') {
-            alert("⚠️ Vui lòng chọn Cơ sở 1 hoặc Cơ sở 2 để thêm chi phí!");
-            return;
+        // Nếu đang chọn P205 hoặc P305 -> lưu vào chung kho chi phí của cs2_p205 để tự động đồng bộ cả 2 phòng
+        let targetExpenseRoom = currentRoomId;
+        if (currentRoomId === 'cs2_p205' || currentRoomId === 'cs2_p305') {
+            targetExpenseRoom = 'cs2_p205';
         }
 
-        // Nếu chọn Cơ sở 2 gộp -> Lưu vào kho dữ liệu của phòng 205 để ghi nhận chung cho Cơ sở 2
-        const targetRoom = (scope === 'cs2_combine') ? 'cs2_p205' : scope;
-
-        db.ref(`rooms/${targetRoom}/expenses`).push({
+        db.ref(`rooms/${targetExpenseRoom}/expenses`).push({
             name: "", qty: "", priceStr: "", price: 0, note: "", monthKey: monthKey
         });
     }
@@ -841,90 +884,132 @@
     }
 
     function renderStatsAndExpenses() {
-        const scope = document.getElementById('statFilterScope').value;
         const month = parseInt(document.getElementById('statFilterMonth').value);
         const year = parseInt(document.getElementById('statFilterYear').value);
         const targetMonthKey = `${year}_${month}`;
 
-        const btnAdd = document.getElementById('btnAddExpenseRow');
-
-        let incomeRooms = [];
-        let expenseRooms = [];
-        let scopeTitle = "";
-
-        if (scope === 'cs1_p101') {
-            incomeRooms = ['cs1_p101'];
-            expenseRooms = ['cs1_p101'];
-            scopeTitle = "Cơ sở 1 - P101";
-            btnAdd.style.display = "inline-block";
-        } else if (scope === 'cs2_combine') {
-            // Doanh thu tính gộp cả P205 và P305, Chi phí lấy từ cs2_p205 (hoặc gộp cả 2 phòng nếu cần)
-            incomeRooms = ['cs2_p205', 'cs2_p305'];
-            expenseRooms = ['cs2_p205', 'cs2_p305']; // Gộp chi phí của cả 2 phòng P205 và P305 lại với nhau!
-            scopeTitle = "Cơ sở 2 - Gộp (P205 & P305)";
-            btnAdd.style.display = "inline-block";
-        } else {
-            incomeRooms = ['cs1_p101', 'cs2_p205', 'cs2_p305'];
-            expenseRooms = ['cs1_p101', 'cs2_p205', 'cs2_p305'];
-            scopeTitle = "TỔNG TOÀN NANA HOMESTAY";
-            btnAdd.style.display = "none";
-        }
-
-        document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh ${scopeTitle} (T${month})`;
+        const roomNameText = document.getElementById('globalRoomSelect').selectedOptions[0].text;
+        document.getElementById('expenseTitleText').innerText = `Chi phí phát sinh T${month} (${roomNameText})`;
 
         let totalIncome = 0;
-        let totalExpenseSum = 0;
-        let count = 0;
+        let roomObj = allRoomsDataCache[currentRoomId] || {};
+        let customers = roomObj.customers || {};
+
+        // 1. Tính tổng thu riêng của phòng đang chọn
+        Object.values(customers).forEach(item => {
+            if ((item.monthKey || "2026_10") === targetMonthKey) {
+                totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
+            }
+        });
+
+        // 2. Lấy chi phí: Nếu là P205 hoặc P305 thì lấy chung nguồn chi phí của cs2_p205
+        let expenseRoomId = currentRoomId;
+        if (currentRoomId === 'cs2_p205' || currentRoomId === 'cs2_p305') {
+            expenseRoomId = 'cs2_p205';
+        }
+
+        let expenseRoomObj = allRoomsDataCache[expenseRoomId] || {};
+        let expenses = expenseRoomObj.expenses || {};
 
         const tbody = document.getElementById('expenseBody');
         tbody.innerHTML = "";
+        let totalExpenseSum = 0, count = 0;
 
-        // 1. Tính tổng Thu
-        incomeRooms.forEach(rId => {
-            const roomObj = allRoomsDataCache[rId] || {};
-            const customers = roomObj.customers || {};
-            Object.values(customers).forEach(item => {
-                if ((item.monthKey || "2026_10") === targetMonthKey) {
-                    totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
-                }
-            });
-        });
+        Object.keys(expenses).forEach(key => {
+            const item = expenses[key];
+            if ((item.monthKey || "2026_10") === targetMonthKey) {
+                count++;
+                let itemPrice = parseMoneyInput(item.priceStr || item.price);
+                totalExpenseSum += itemPrice;
 
-        // 2. Lấy danh sách Chi
-        expenseRooms.forEach(rId => {
-            const roomObj = allRoomsDataCache[rId] || {};
-            const expenses = roomObj.expenses || {};
-            Object.keys(expenses).forEach(key => {
-                const item = expenses[key];
-                if ((item.monthKey || "2026_10") === targetMonthKey) {
-                    count++;
-                    const itemPrice = parseMoneyInput(item.priceStr || item.price);
-                    totalExpenseSum += itemPrice;
-
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = `
+                tbody.innerHTML += `
+                    <tr>
                         <td><b>${count}</b></td>
-                        <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên khoản chi..." onchange="updateExpenseCell('${rId}', '${key}', 'name', this.value)"></td>
-                        <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${rId}', '${key}', 'qty', this.value)"></td>
-                        <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá" onchange="updateExpenseCell('${rId}', '${key}', 'priceStr', this.value)"></td>
-                        <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú (${rId === 'cs2_p205' ? 'P205' : 'P305'})..." onchange="updateExpenseCell('${rId}', '${key}', 'note', this.value)"></td>
-                        <td><button class="btn-del-cust" onclick="deleteExpenseItem('${rId}', '${key}')">Xóa</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-            });
+                        <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên..." onchange="updateExpenseCell('${expenseRoomId}', '${key}', 'name', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input" value="${item.qty || ''}" placeholder="SL" onchange="updateExpenseCell('${expenseRoomId}', '${key}', 'qty', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input" value="${item.priceStr || (itemPrice ? formatK(itemPrice) : '')}" placeholder="Giá" onchange="updateExpenseCell('${expenseRoomId}', '${key}', 'priceStr', this.value)"></td>
+                        <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Note..." onchange="updateExpenseCell('${expenseRoomId}', '${key}', 'note', this.value)"></td>
+                        <td><button class="btn-del-cust" onclick="deleteExpenseItem('${expenseRoomId}', '${key}')">Xóa</button></td>
+                    </tr>
+                `;
+            }
         });
 
-        if (count === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí nào trong Tháng ${month}.</td></tr>`;
-        }
-
+        if (count === 0) tbody.innerHTML = `<tr><td colspan="6" style="padding:15px; color:#666;">Chưa có chi phí.</td></tr>`;
         document.getElementById('sumExpenseTotal').innerText = totalExpenseSum > 0 ? (totalExpenseSum / 1000).toLocaleString('vi-VN') : "0";
 
         let netProfit = totalIncome - totalExpenseSum;
         document.getElementById('statTotalIncome').innerText = formatK(totalIncome);
         document.getElementById('statTotalExpense').innerText = formatK(totalExpenseSum);
         document.getElementById('statNetProfit').innerText = formatK(netProfit);
+    }
+
+    // --- TAB 4: TỔNG DOANH THU & CHI TỔNG ---
+    async function renderAllRoomsSummary() {
+        const month = parseInt(document.getElementById('allFilterMonth').value);
+        const year = parseInt(document.getElementById('allFilterYear').value);
+        const targetMonthKey = `${year}_${month}`;
+
+        const roomConfigs = [
+            { id: "cs1_p101", name: "Cơ sở 1 - P101" },
+            { id: "cs2_p205", name: "Cơ sở 2 - Phòng 205" },
+            { id: "cs2_p305", name: "Cơ sở 2 - Phòng 305" }
+        ];
+
+        let summaryBody = document.getElementById('allRoomsSummaryBody');
+        if (!summaryBody) return;
+        summaryBody.innerHTML = `<tr><td colspan="4" style="padding:15px;">Đang tính toán tổng hợp dữ liệu các phòng...</td></tr>`;
+
+        let grandTotalIncome = 0;
+        let grandTotalExpense = 0;
+        let htmlContent = "";
+
+        roomConfigs.forEach(room => {
+            let roomData = allRoomsDataCache[room.id] || {};
+            let customers = roomData.customers || {};
+            
+            // Lấy chi phí: P205 và P305 dùng chung nguồn chi phí cs2_p205
+            let expRoomId = (room.id === 'cs2_p305') ? 'cs2_p205' : room.id;
+            let expRoomData = allRoomsDataCache[expRoomId] || {};
+            let expenses = expRoomData.expenses || {};
+
+            let roomIncome = 0;
+            Object.values(customers).forEach(cust => {
+                if ((cust.monthKey || "2026_10") === targetMonthKey) {
+                    roomIncome += parseMoneyInput(cust.paid) + parseMoneyInput(cust.minibar);
+                }
+            });
+
+            let roomExpense = 0;
+            Object.values(expenses).forEach(exp => {
+                if ((exp.monthKey || "2026_10") === targetMonthKey) {
+                    roomExpense += parseMoneyInput(exp.priceStr || exp.price);
+                }
+            });
+
+            let roomNetProfit = roomIncome - roomExpense;
+            grandTotalIncome += roomIncome;
+            grandTotalExpense += roomExpense;
+
+            htmlContent += `
+                <tr>
+                    <td style="font-weight: 700; text-align: left; padding-left: 15px;">🏠 ${room.name}</td>
+                    <td style="color: #2e7d32; font-weight: 700;">${formatK(roomIncome)}</td>
+                    <td style="color: #c62828; font-weight: 700;">${formatK(roomExpense)}</td>
+                    <td style="color: var(--primary); font-weight: 700;">${formatK(roomNetProfit)}</td>
+                </tr>
+            `;
+        });
+
+        let grandNetProfit = grandTotalIncome - grandTotalExpense;
+        summaryBody.innerHTML = htmlContent;
+
+        const incEl = document.getElementById('allTotalIncome');
+        const expEl = document.getElementById('allTotalExpense');
+        const proEl = document.getElementById('allNetProfit');
+        if (incEl) incEl.innerText = formatK(grandTotalIncome);
+        if (expEl) expEl.innerText = formatK(grandTotalExpense);
+        if (proEl) proEl.innerText = formatK(grandNetProfit);
     }
 </script>
 
