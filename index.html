@@ -44,16 +44,6 @@
         .btn-map { display: block; background: #4285F4; color: white; text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(66,133,244,0.25); }
         
         .contact-box { background: #fff0f3; border: 1px dashed #ffd0d7; border-radius: 15px; padding: 12px 15px; margin-top: 10px; }
-
-        /* Popup nhập mật khẩu Admin */
-        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .admin-card { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .admin-card h3 { color: var(--primary); margin-bottom: 12px; font-size: 16px; }
-        .admin-card input { width: 100%; padding: 10px; border: 1px solid #ffd0d7; border-radius: 10px; text-align: center; font-size: 14px; outline: none; margin-bottom: 12px; }
-        .admin-card-btns { display: flex; gap: 8px; }
-        .admin-card-btns button { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-cancel { background: #eee; color: #666; }
     </style>
 </head>
 <body>
@@ -61,8 +51,8 @@
 <div class="container">
     <div class="nav-bar">
         <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
-        <a href="bang-gia.html" class="nav-link">🏷️ Bảng Giá</a>
-        <a href="noi-quy.html" class="nav-link">📜 Nội Quy</a>
+        <a href="bang-gia.html" id="linkBangGia" class="nav-link">🏷️ Bảng Giá</a>
+        <a href="noi-quy.html" id="linkNoiQuy" class="nav-link">📜 Nội Quy</a>
     </div>
 
     <div class="header">
@@ -73,28 +63,23 @@
 
     <!-- KHUNG CHỌN CƠ SỞ VÀ PHÒNG -->
     <div class="room-switch-box">
-        <label for="roomSelect">🏠 Chọn Cơ sở & Phòng xem không gian:</label>
+        <label for="roomSelect">📍 Chọn Cơ sở & Phòng:</label>
         <select id="roomSelect" onchange="changeRoomView()">
             <optgroup label="Cơ sở 1">
-                <option value="p101" selected>Cơ sở 1 - Phòng P101</option>
+                <option value="cs1_p101" selected>Cơ sở 1 - P101</option>
             </optgroup>
             <optgroup label="Cơ sở 2">
-                <option value="p205">Cơ sở 2 - Phòng 205</option>
-                <option value="p305">Cơ sở 2 - Phòng 305</option>
+                <option value="cs2_p205">Cơ sở 2 - Phòng 205</option>
+                <option value="cs2_p305">Cơ sở 2 - Phòng 305</option>
             </optgroup>
         </select>
     </div>
 
-    <!-- MỤC TIỆN NGHI -->
+    <!-- MỤC TIỆN NGHI TỰ ĐỘNG CẬP NHẬT THEO CƠ SỞ -->
     <div class="section">
         <div class="section-title">✨ Tiện nghi homestay</div>
-        <div class="amenities">
-            <div class="amenity-item">📽️ Máy chiếu Netflix</div>
-            <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
-            <div class="amenity-item">🏰 Phòng decor xinh xắn</div>
-            <div class="amenity-item">🚿 WC khép kín</div>
-            <div class="amenity-item">🔑 Check-in tự động</div>
-            <div class="amenity-item">🅿️ Chỗ đỗ xe miễn phí</div>
+        <div class="amenities" id="amenitiesContainer">
+            <!-- Nội dung tiện nghi sẽ tự tải bằng JavaScript -->
         </div>
     </div>
 
@@ -102,26 +87,7 @@
     <div class="section">
         <div class="section-title" id="galleryTitle">🖼️ Không gian Cơ sở 1 - P101</div>
         <div class="gallery" id="galleryContainer">
-            <!-- Mặc định load hình Cơ sở 1 - P101 -->
-            <div class="gallery-card">
-                <img src="home1.jpg" alt="Phòng ngủ">
-                <p>🛏️ Giường ngủ Cute</p>
-            </div>
-            <div class="gallery-card">
-                <img src="home2.jpg" alt="Khu vực bếp">
-                <p>🍳 Bếp nấu đầy đủ</p>
-            </div>
-            <div class="gallery-card">
-                <img src="home3.jpg" alt="Máy chiếu chill">
-                <p>📽️ Khung cảnh máy chiếu</p>
-            </div>
-            <div class="gallery-card">
-                <video controls preload="metadata">
-                    <source src="video-wc.mp4" type="video/mp4">
-                    Trình duyệt không hỗ trợ video.
-                </video>
-                <p>📹 Video homestay</p>
-            </div>
+            <!-- Nội dung hình ảnh/video sẽ tự tải bằng JavaScript -->
         </div>
     </div>
 
@@ -150,13 +116,21 @@
 </div>
 
 <script>
-    // Cấu hình thông tin hình ảnh và vị trí bản đồ cho từng phòng/cơ sở
+    // Cấu hình thông tin riêng biệt cho từng phòng / cơ sở
     const roomData = {
-        p101: {
+        cs1_p101: {
             title: "🖼️ Không gian Cơ sở 1 - P101",
             mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 1)",
             mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
             mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
+            amenitiesHtml: `
+                <div class="amenity-item">📽️ Máy chiếu Netflix</div>
+                <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
+                <div class="amenity-item">🏰 Phòng decor Mickey</div>
+                <div class="amenity-item">🚿 WC khép kín</div>
+                <div class="amenity-item">🔑 Check-in tự động</div>
+                <div class="amenity-item">🅿️ Chỗ đỗ xe miễn phí</div>
+            `,
             galleryHtml: `
                 <div class="gallery-card"><img src="home1.jpg" alt="P101"><p>🛏️ Giường ngủ Cute</p></div>
                 <div class="gallery-card"><img src="home2.jpg" alt="Bếp P101"><p>🍳 Bếp nấu đầy đủ</p></div>
@@ -169,11 +143,19 @@
                 </div>
             `
         },
-        p205: {
+        cs2_p205: {
             title: "🖼️ Không gian Cơ sở 2 - Phòng 205",
             mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 2)",
             mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
             mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
+            amenitiesHtml: `
+                <div class="amenity-item">📽️ Máy chiếu HD</div>
+                <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
+                <div class="amenity-item">✨ Phòng decor phong cách mới</div>
+                <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
+                <div class="amenity-item">🔑 Check-in tự động 24/7</div>
+                <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
+            `,
             galleryHtml: `
                 <div class="gallery-card"><img src="home205_1.jpg" alt="Phòng 205"><p>🛏️ Không gian phòng 205</p></div>
                 <div class="gallery-card"><img src="home205_2.jpg" alt="Góc chill 205"><p>✨ Góc trang trí chill</p></div>
@@ -181,11 +163,19 @@
                 <div class="gallery-card"><img src="home205_4.jpg" alt="WC 205"><p>🚿 Phòng tắm khép kín</p></div>
             `
         },
-        p305: {
+        cs2_p305: {
             title: "🖼️ Không gian Cơ sở 2 - Phòng 305",
             mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 2)",
             mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
             mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
+            amenitiesHtml: `
+                <div class="amenity-item">📽️ Máy chiếu HD</div>
+                <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
+                <div class="amenity-item">✨ Phòng decor phong cách mới</div>
+                <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
+                <div class="amenity-item">🔑 Check-in tự động 24/7</div>
+                <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
+            `,
             galleryHtml: `
                 <div class="gallery-card"><img src="home305_1.jpg" alt="Phòng 305"><p>🛏️ Không gian phòng 305</p></div>
                 <div class="gallery-card"><img src="home305_2.jpg" alt="Góc chill 305"><p>✨ Góc trang trí chill</p></div>
@@ -195,11 +185,27 @@
         }
     };
 
+    window.onload = function() {
+        // Tải phòng đã chọn trước đó (nếu có)
+        const savedRoom = localStorage.getItem('selectedRoom') || 'cs1_p101';
+        const select = document.getElementById('roomSelect');
+        if (select) {
+            select.value = savedRoom;
+        }
+        changeRoomView();
+    };
+
     function changeRoomView() {
         const selectedRoom = document.getElementById('roomSelect').value;
-        const data = roomData[selectedRoom];
+        localStorage.setItem('selectedRoom', selectedRoom); // Lưu phòng đang chọn
 
+        // Cập nhật đường link truyền mã phòng sang bang-gia.html và noi-quy.html
+        document.getElementById('linkBangGia').href = `bang-gia.html?room=${selectedRoom}`;
+        document.getElementById('linkNoiQuy').href = `noi-quy.html?room=${selectedRoom}`;
+
+        const data = roomData[selectedRoom];
         if (data) {
+            document.getElementById('amenitiesContainer').innerHTML = data.amenitiesHtml;
             document.getElementById('galleryTitle').innerText = data.title;
             document.getElementById('galleryContainer').innerHTML = data.galleryHtml;
             document.getElementById('mapTitle').innerText = data.mapTitle;
