@@ -79,7 +79,7 @@
     <div class="section">
         <div class="section-title">✨ Tiện nghi homestay</div>
         <div class="amenities" id="amenitiesContainer">
-            <!-- Nội dung tiện nghi sẽ tự tải bằng JavaScript -->
+            <!-- Tải tiện nghi tự động bằng JavaScript -->
         </div>
     </div>
 
@@ -87,7 +87,7 @@
     <div class="section">
         <div class="section-title" id="galleryTitle">🖼️ Không gian Cơ sở 1 - P101</div>
         <div class="gallery" id="galleryContainer">
-            <!-- Nội dung hình ảnh/video sẽ tự tải bằng JavaScript -->
+            <!-- Tải hình ảnh/video tự động bằng JavaScript -->
         </div>
     </div>
 
@@ -149,7 +149,7 @@
             mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
             mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
             amenitiesHtml: `
-                <div class="amenity-item">📽️ Máy chiếu HD</div>
+                <div class="amenity-item">📺 Tivi Netflix</div>
                 <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
                 <div class="amenity-item">✨ Phòng decor phong cách mới</div>
                 <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
@@ -159,8 +159,13 @@
             galleryHtml: `
                 <div class="gallery-card"><img src="home205_1.jpg" alt="Phòng 205"><p>🛏️ Không gian phòng 205</p></div>
                 <div class="gallery-card"><img src="home205_2.jpg" alt="Góc chill 205"><p>✨ Góc trang trí chill</p></div>
-                <div class="gallery-card"><img src="home205_3.jpg" alt="Máy chiếu 205"><p>📽️ Máy chiếu Netflix</p></div>
-                <div class="gallery-card"><img src="home205_4.jpg" alt="WC 205"><p>🚿 Phòng tắm khép kín</p></div>
+                <div class="gallery-card"><img src="home205_3.jpg" alt="Tivi 205"><p>📺 Tivi Netflix</p></div>
+                <div class="gallery-card">
+                    <video controls preload="metadata">
+                        <source src="video-wc205.mp4" type="video/mp4">
+                    </video>
+                    <p>📹 Video homestay</p>
+                </div>
             `
         },
         cs2_p305: {
@@ -169,7 +174,7 @@
             mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
             mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
             amenitiesHtml: `
-                <div class="amenity-item">📽️ Máy chiếu HD</div>
+                <div class="amenity-item">📺 Tivi Netflix</div>
                 <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
                 <div class="amenity-item">✨ Phòng decor phong cách mới</div>
                 <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
@@ -179,14 +184,18 @@
             galleryHtml: `
                 <div class="gallery-card"><img src="home305_1.jpg" alt="Phòng 305"><p>🛏️ Không gian phòng 305</p></div>
                 <div class="gallery-card"><img src="home305_2.jpg" alt="Góc chill 305"><p>✨ Góc trang trí chill</p></div>
-                <div class="gallery-card"><img src="home305_3.jpg" alt="Máy chiếu 305"><p>📽️ Máy chiếu Netflix</p></div>
-                <div class="gallery-card"><img src="home305_4.jpg" alt="WC 305"><p>🚿 Phòng tắm khép kín</p></div>
+                <div class="gallery-card"><img src="home305_3.jpg" alt="Tivi 305"><p>📺 Tivi Netflix</p></div>
+                <div class="gallery-card">
+                    <video controls preload="metadata">
+                        <source src="video-wc305.mp4" type="video/mp4">
+                    </video>
+                    <p>📹 Video homestay</p>
+                </div>
             `
         }
     };
 
     window.onload = function() {
-        // Tải phòng đã chọn trước đó (nếu có)
         const savedRoom = localStorage.getItem('selectedRoom') || 'cs1_p101';
         const select = document.getElementById('roomSelect');
         if (select) {
@@ -197,9 +206,8 @@
 
     function changeRoomView() {
         const selectedRoom = document.getElementById('roomSelect').value;
-        localStorage.setItem('selectedRoom', selectedRoom); // Lưu phòng đang chọn
+        localStorage.setItem('selectedRoom', selectedRoom);
 
-        // Cập nhật đường link truyền mã phòng sang bang-gia.html và noi-quy.html
         document.getElementById('linkBangGia').href = `bang-gia.html?room=${selectedRoom}`;
         document.getElementById('linkNoiQuy').href = `noi-quy.html?room=${selectedRoom}`;
 
