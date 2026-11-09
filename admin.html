@@ -100,6 +100,13 @@
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .form-item label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
         .form-item input, .form-item select { width: 100%; padding: 6px 8px; border: 1px solid #ffd0d7; border-radius: 6px; font-size: 12px; outline: none; }
+        
+        /* MODAL CẢNH BÁO XÁC NHẬN PHÒNG */
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1100; }
+        .confirm-card { background: white; width: 90%; max-width: 380px; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #d93025; }
+        .confirm-card h3 { color: #d93025; margin-bottom: 10px; font-size: 16px; }
+        .confirm-card p { font-size: 13px; color: #555; margin-bottom: 15px; line-height: 1.5; }
+        .room-target-highlight { background: #ffe3e8; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; margin-bottom: 15px; }
     </style>
 
     <!-- FIREBASE SDK -->
@@ -174,7 +181,7 @@
         <div class="paste-booking-form">
             <h4>📋 Dán nội dung tin nhắn chốt phòng </h4>
             <textarea id="pasteText" placeholder="................................"></textarea>
-            <button class="btn-add-booking" onclick="processPastedBooking()">✨ Phân Tích & Lưu Đơn</button>
+            <button class="btn-add-booking" onclick="confirmAndProcessBooking()">✨ Phân Tích & Lưu Đơn</button>
         </div>
 
         <div class="filter-search-bar">
@@ -411,6 +418,20 @@
     </div>
 </div>
 
+<!-- MODAL XÁC NHẬN PHÒNG KHI DÁN ĐƠN -->
+<div class="confirm-modal" id="confirmRoomModal">
+    <div class="confirm-card">
+        <h3>⚠️ CẢNH BÁO XÁC NHẬN PHÒNG</h3>
+        <p>Bạn đang chuẩn bị lưu đơn vào:</p>
+        <div class="room-target-highlight" id="confirmRoomNameText">Cơ sở 1 - P101</div>
+        <p style="font-size: 12px; color: #666;">Hãy chắc chắn rằng bạn không chọn nhầm phòng (ví dụ: chốt phòng 205 nhưng lại đang đứng ở 305).</p>
+        <div style="display: flex; gap: 8px; margin-top: 15px;">
+            <button class="btn-add-booking" style="flex:1; background:#2e7d32;" onclick="executeProcessedBooking()">✅ Đúng phòng, Lưu ngay</button>
+            <button class="btn-add-booking" style="flex:1; background:#ff4d4f;" onclick="closeConfirmModal()">❌ Hủy bỏ</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
@@ -547,9 +568,27 @@
         return new Date(year, month - 1, day, hour, 0, 0).getTime();
     }
 
-    async function processPastedBooking() {
+    // BƯỚC 1: BẤM NÚT LƯU ĐƠN -> HIỆN MODAL CẢNH BÁO XÁC NHẬN PHÒNG
+    function confirmAndProcessBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) { alert("Vui lòng dán nội dung tin nhắn chốt phòng!"); return; }
+
+        const roomSelect = document.getElementById('globalRoomSelect');
+        const roomNameText = roomSelect.options[roomSelect.selectedIndex].text;
+
+        document.getElementById('confirmRoomNameText').innerText = `📍 ${roomNameText}`;
+        document.getElementById('confirmRoomModal').style.display = 'flex';
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmRoomModal').style.display = 'none';
+    }
+
+    // BƯỚC 2: XÁC NHẬN ĐÚNG PHÒNG THÌ TIẾN HÀNH LƯU VÀO FIREBASE
+    async function executeProcessedBooking() {
+        closeConfirmModal();
+        const text = document.getElementById('pasteText').value.trim();
+        if (!text) return;
 
         let name = "", phone = "", totalBill = 0, paid = 0, checkin = "", checkout = "", note = "";
 
@@ -856,7 +895,6 @@
         const year = parseInt(document.getElementById('statFilterYear').value);
         const monthKey = `${year}_${month}`;
 
-        // Lưu trực tiếp vào kho chi phí của phòng đang chọn trên thanh menu (P205 hoặc P305 độc lập)
         db.ref(`rooms/${currentRoomId}/expenses`).push({
             name: "", qty: "", priceStr: "", price: 0, note: "", monthKey: monthKey
         });
@@ -891,7 +929,6 @@
         let customers = roomObj.customers || {};
         let expenses = roomObj.expenses || {};
 
-        // 1. Tính tổng thu riêng của phòng đang chọn
         Object.values(customers).forEach(item => {
             if ((item.monthKey || "2026_10") === targetMonthKey) {
                 totalIncome += parseMoneyInput(item.paid) + parseMoneyInput(item.minibar);
@@ -902,7 +939,6 @@
         tbody.innerHTML = "";
         let totalExpenseSum = 0, count = 0;
 
-        // 2. Tính tổng chi phí riêng của phòng đang chọn
         Object.keys(expenses).forEach(key => {
             const item = expenses[key];
             if ((item.monthKey || "2026_10") === targetMonthKey) {
