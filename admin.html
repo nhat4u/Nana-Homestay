@@ -134,13 +134,14 @@
         </select>
     </div>
 
-    <!-- 5 TAB CHUẨN GỐC -->
+    <!-- 6 TAB HOÀN CHỈNH -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'tabSchedule')">📅 1. Quản Lý Lịch </button>
         <button class="tab-btn" onclick="switchTab(event, 'tabCustomers')">👥 2. Danh Sách Khách Book</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 3. Thống Kê Thu Chi (Phòng)</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabAllRoomsSummary')">📊 4. Tổng Doanh Thu & Chi Tổng</button>
-        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 5. Trang Chủ</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabSanyCustomers')">🎀 3. Danh Sách Khách Book Sany</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabStats')">💰 4. Thống Kê Thu Chi (Phòng)</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabAllRoomsSummary')">📊 5. Tổng Doanh Thu & Chi Tổng</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabHomeView')">🏠 6. Trang Chủ</button>
     </div>
 
     <!-- TAB 1: QUẢN LÝ LỊCH THÁNG -->
@@ -244,7 +245,62 @@
         </div>
     </div>
 
-    <!-- TAB 3: THỐNG KÊ THU CHI (PHÒNG) -->
+    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY -->
+    <div id="tabSanyCustomers" class="tab-content">
+        <div class="filter-search-bar">
+            <div class="filter-group">
+                <label for="sanyFilterMonth">📅 Lọc xem Tháng:</label>
+                <select id="sanyFilterMonth" onchange="renderSanyCustomerTable()">
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11" selected>Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                </select>
+                <select id="sanyFilterYear" onchange="renderSanyCustomerTable()">
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <input type="text" id="sanySearchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderSanyCustomerTable()">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="cust-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">STT</th>
+                        <th style="width: 120px;">Tên khách</th>
+                        <th style="width: 110px;">SĐT</th>
+                        <th style="width: 150px;">Giờ check in - out</th>
+                        <th style="width: 90px;">Ngày book</th>
+                        <th style="width: 90px;">Tổng bill</th>
+                        <th style="width: 90px;">Đã CK</th>
+                        <th style="width: 90px;">Còn lại</th>
+                        <th>Ghi chú</th>
+                        <th style="width: 60px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="sanyCustomerBody">
+                </tbody>
+                <tfoot>
+                    <tr class="row-total-summary">
+                        <td colspan="5" style="font-size: 15px; text-align: center;">Tổng cộng Sany</td>
+                        <td class="txt-red-summary" id="sanySumTotalBill">0k</td>
+                        <td class="txt-red-summary" id="sanySumPaid">0k</td>
+                        <td class="txt-red-summary" id="sanySumRemaining">0k</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <button class="btn-add-row" onclick="addNewSanyRow()">➕ Thêm hàng mới</button>
+    </div>
+
+    <!-- TAB 4: THỐNG KÊ THU CHI (PHÒNG) -->
     <div id="tabStats" class="tab-content">
         <div class="month-picker-box">
             <label for="statFilterMonth">📅 Xem Thống Kê Tháng:</label>
@@ -305,7 +361,7 @@
         </div>
     </div>
 
-    <!-- TAB 4: TỔNG DOANH THU & CHI TỔNG -->
+    <!-- TAB 5: TỔNG DOANH THU & CHI TỔNG -->
     <div id="tabAllRoomsSummary" class="tab-content">
         <div class="month-picker-box">
             <label for="allFilterMonth">📅 Chọn Tháng Tổng Kết:</label>
@@ -357,7 +413,7 @@
         </div>
     </div>
 
-    <!-- TAB 5: TRANG CHỦ -->
+    <!-- TAB 6: TRANG CHỦ -->
     <div id="tabHomeView" class="tab-content">
         <iframe src="index.html" class="iframe-container" title="Giao diện Trang chủ"></iframe>
     </div>
@@ -451,12 +507,14 @@
     let currentRoomId = "cs1_p101";
     let allRoomsDataCache = {};
     let currentCustomers = {};
+    let sanyCustomersCache = {};
     let customersListener = null;
 
     window.onload = async function() {
         await checkAndMigrateOldData();
         initRoomDataListeners();
         listenToAllRoomsFirebase();
+        listenToSanyCustomers();
     };
 
     async function checkAndMigrateOldData() {
@@ -503,6 +561,13 @@
         });
     }
 
+    function listenToSanyCustomers() {
+        db.ref('sany_customers').on('value', (snapshot) => {
+            sanyCustomersCache = snapshot.val() || {};
+            renderSanyCustomerTable();
+        });
+    }
+
     function onRoomChanged() {
         initRoomDataListeners();
     }
@@ -514,6 +579,7 @@
         event.target.classList.add('active');
         document.getElementById(tabId).classList.add('active');
 
+        if (tabId === 'tabSanyCustomers') renderSanyCustomerTable();
         if (tabId === 'tabStats') renderStatsAndExpenses();
         if (tabId === 'tabAllRoomsSummary') renderAllRoomsSummary();
     }
@@ -889,6 +955,101 @@
         });
     }
 
+    // --- TAB 3: XỬ LÝ BẢNG KHÁCH BOOK SANY ---
+    function addNewSanyRow() {
+        const month = parseInt(document.getElementById('sanyFilterMonth').value);
+        const year = parseInt(document.getElementById('sanyFilterYear').value);
+        const monthKey = `${year}_${month}`;
+
+        db.ref('sany_customers').push({
+            name: "",
+            phone: "",
+            time: "",
+            bookDate: "",
+            totalBillStr: "",
+            totalBill: 0,
+            paidStr: "",
+            paid: 0,
+            note: "",
+            monthKey: monthKey
+        });
+    }
+
+    function updateSanyCell(key, field, value) {
+        if (field === 'totalBillStr') {
+            db.ref(`sany_customers/${key}`).update({
+                totalBillStr: value,
+                totalBill: parseMoneyInput(value)
+            });
+        } else if (field === 'paidStr') {
+            db.ref(`sany_customers/${key}`).update({
+                paidStr: value,
+                paid: parseMoneyInput(value)
+            });
+        } else {
+            db.ref(`sany_customers/${key}/${field}`).set(value);
+        }
+    }
+
+    function deleteSanyCustomer(key) {
+        if (confirm("Bạn có chắc chắn muốn xóa khách này khỏi danh sách Sany?")) {
+            db.ref(`sany_customers/${key}`).remove();
+        }
+    }
+
+    function renderSanyCustomerTable() {
+        const tbody = document.getElementById('sanyCustomerBody');
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        const selectedMonth = parseInt(document.getElementById('sanyFilterMonth').value);
+        const selectedYear = parseInt(document.getElementById('sanyFilterYear').value);
+        const targetMonthKey = `${selectedYear}_${selectedMonth}`;
+        const searchQuery = document.getElementById('sanySearchInput').value.toLowerCase().trim();
+
+        let sumBill = 0, sumPaid = 0, sumRemaining = 0, count = 0;
+
+        Object.keys(sanyCustomersCache).forEach(key => {
+            const item = sanyCustomersCache[key];
+            if ((item.monthKey || "2026_11") !== targetMonthKey) return;
+
+            if (searchQuery !== "") {
+                const match = Object.values(item).some(val => (val || "").toString().toLowerCase().includes(searchQuery));
+                if (!match) return;
+            }
+
+            count++;
+            let billVal = parseMoneyInput(item.totalBillStr || item.totalBill);
+            let paidVal = parseMoneyInput(item.paidStr || item.paid);
+            let remainingVal = billVal - paidVal;
+
+            sumBill += billVal;
+            sumPaid += paidVal;
+            sumRemaining += remainingVal;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${count}</b></td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên khách..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" placeholder="SĐT..." onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.time || ''}" placeholder="ví dụ: 14h-16h 11/11" onchange="updateSanyCell('${key}', 'time', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.bookDate || ''}" placeholder="dd/mm" onchange="updateSanyCell('${key}', 'bookDate', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
+                    <td style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateSanyCell('${key}', 'note', this.value)"></td>
+                    <td><button class="btn-del-cust" onclick="deleteSanyCustomer('${key}')">Xóa</button></td>
+                </tr>
+            `;
+        });
+
+        if (count === 0) tbody.innerHTML = `<tr><td colspan="10" style="padding:15px; color:#666;">Chưa có khách book Sany nào trong tháng này.</td></tr>`;
+
+        document.getElementById('sanySumTotalBill').innerText = formatK(sumBill);
+        document.getElementById('sanySumPaid').innerText = formatK(sumPaid);
+        document.getElementById('sanySumRemaining').innerText = formatK(sumRemaining);
+    }
+
     // --- XỬ LÝ THỐNG KÊ THU CHI CHO TỪNG PHÒNG ĐỘC LẬP ---
     function addNewExpenseRow() {
         const month = parseInt(document.getElementById('statFilterMonth').value);
@@ -968,7 +1129,7 @@
         document.getElementById('statNetProfit').innerText = formatK(netProfit);
     }
 
-    // --- TAB 4: TỔNG DOANH THU & CHI TỔNG ---
+    // --- TAB 5: TỔNG DOANH THU & CHI TỔNG ---
     async function renderAllRoomsSummary() {
         const month = parseInt(document.getElementById('allFilterMonth').value);
         const year = parseInt(document.getElementById('allFilterYear').value);
