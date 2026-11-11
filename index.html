@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Lịch Dọn Phòng Của Cô</title>
+    <title>Nana Homestay - Lịch Dọn Phòng </title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,10 @@
         .app-header h1 { color: var(--primary); font-size: 20px; font-weight: 700; }
         .app-header p { font-size: 13px; color: #8a626a; margin-top: 4px; }
 
-        .today-banner { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; font-weight: 700; color: var(--primary); font-size: 14px; }
+        /* THANH CHỌN NGÀY CHO CÔ */
+        .date-picker-box { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; }
+        .date-picker-box label { display: block; font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 6px; }
+        .date-picker-box input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; font-size: 15px; background: white; outline: none; text-align: center; cursor: pointer; }
 
         .task-list { display: flex; flex-direction: column; gap: 12px; }
         .task-card { background: #fafafa; border-radius: 15px; padding: 15px; border: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
@@ -51,8 +54,10 @@
         <p>Nana Homestay</p>
     </div>
 
-    <div class="today-banner" id="todayText">
-        📅 Lịch dọn ngày hôm nay
+    <!-- Ô CHỌN NGÀY -->
+    <div class="date-picker-box">
+        <label for="filterDate">📅 Chọn ngày xem lịch dọn:</label>
+        <input type="date" id="filterDate" onchange="renderCleanerTasks()">
     </div>
 
     <!-- DANH SÁCH PHÒNG CẦN DỌN -->
@@ -83,11 +88,12 @@
     let allRoomsCache = {};
 
     window.onload = function() {
+        // Mặc định điền sẵn ngày hôm nay khi mở app
         const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
         const yyyy = today.getFullYear();
-        document.getElementById('todayText').innerText = `📅 Lịch dọn ngày: ${dd}/${mm}/${yyyy}`;
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('filterDate').value = `${yyyy}-${mm}-${dd}`;
 
         listenToFirebase();
     };
@@ -103,9 +109,12 @@
         const taskList = document.getElementById('taskList');
         taskList.innerHTML = "";
 
-        const today = new Date();
-        const targetDayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
-        const targetMonthKey = `${today.getFullYear()}_${today.getMonth() + 1}`;
+        const selectedDateStr = document.getElementById('filterDate').value; // yyyy-mm-dd
+        if (!selectedDateStr) return;
+
+        const [y, m, d] = selectedDateStr.split('-');
+        const targetDayStr = `${d}/${m}`;
+        const targetMonthKey = `${y}_${parseInt(m)}`;
 
         let hasTask = false;
 
@@ -117,8 +126,12 @@
                 let cust = customers[custKey];
                 if ((cust.monthKey || "2026_11") !== targetMonthKey) return;
 
-                // Chỉ hiển thị nếu phần Dọn được chọn là "Cô"
-                if (cust.cleaner === "Cô") {
+                // Kiểm tra xem ngày checkout của khách có trùng với ngày đang chọn không
+                let checkoutStr = cust.checkout || "";
+                let isTargetCheckout = checkoutStr.includes(targetDayStr);
+
+                // Chỉ hiển thị nếu phân công cho "Cô" và đúng ngày khách checkout
+                if (cust.cleaner === "Cô" && isTargetCheckout) {
                     hasTask = true;
                     let isDone = cust.cleanStatus === 'done';
 
@@ -132,8 +145,7 @@
                         </div>
                         <div class="task-details">
                             👤 <b>Khách:</b> ${cust.name || 'Khách'}<br>
-                            🚪 <b>Check-out (Khách ra):</b> ${cust.checkout || 'Chưa rõ'}<br>
-                            🔑 <b>Check-in (Khách mới):</b> ${cust.checkin || 'Chưa rõ'}
+                            🚪 <b>Giờ Check-out (Khách ra):</b> ${cust.checkout || 'Chưa rõ'}
                         </div>
                         <div class="note-box">
                             <label>📝 Ghi chú (Thêm giờ, ra muộn...):</label>
@@ -150,7 +162,7 @@
         });
 
         if (!hasTask) {
-            taskList.innerHTML = `<div class="empty-msg">🎉 Hôm nay (${targetDayStr}) cô chưa có phòng nào cần dọn ở Cơ sở 2 cả!</div>`;
+            taskList.innerHTML = `<div class="empty-msg">🎉 Ngày ${targetDayStr} cô không có phòng nào cần dọn ở Cơ sở 2 cả!</div>`;
         }
     }
 
