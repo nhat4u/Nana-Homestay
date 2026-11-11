@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - App Lịch Dọn Phòng</title>
+    <title>Nana Homestay - Lịch Dọn Dẹp Cơ Sở 2</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,34 +11,41 @@
         :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
-        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(209,122,133,0.15); padding: 15px; }
+        .container { width: 100%; max-width: 480px; background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(209,122,133,0.15); padding: 15px; }
 
         .app-header { text-align: center; padding-bottom: 12px; border-bottom: 2px dashed #ffd0d7; margin-bottom: 15px; }
         .app-header h1 { color: var(--primary); font-size: 20px; font-weight: 700; }
-        .app-header p { font-size: 12px; color: #8a626a; margin-top: 3px; }
+        .app-header p { font-size: 13px; color: #8a626a; margin-top: 4px; }
 
-        .filter-bar { display: flex; flex-direction: column; gap: 10px; background: #fff0f3; padding: 12px; border-radius: 12px; border: 1px solid #ffd0d7; margin-bottom: 15px; }
-        .filter-item { display: flex; align-items: center; justify-content: space-between; }
-        .filter-item label { font-weight: 700; font-size: 13px; color: var(--primary); }
-        .filter-item input, .filter-item select { padding: 6px 10px; border-radius: 8px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; font-size: 13px; background: white; }
+        /* BỘ CHỌN NGƯỜI DỌN TO RÕ */
+        .cleaner-select-box { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; }
+        .cleaner-select-box label { display: block; font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 8px; }
+        .cleaner-select-box select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; font-size: 15px; background: white; outline: none; cursor: pointer; text-align-last: center; }
 
+        /* THÔNG TIN NGÀY HÔM NAY */
+        .today-info { text-align: center; font-size: 13px; font-weight: 700; color: #666; margin-bottom: 12px; background: #fff0f3; padding: 6px; border-radius: 8px; }
+
+        /* THẺ PHÒNG DỌN */
         .task-list { display: flex; flex-direction: column; gap: 12px; }
-        .task-card { background: white; border-radius: 15px; padding: 14px; border: 1.5px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: relative; }
-        .task-card.urgent { border-color: #ff4d4f; background: #fff1f0; }
+        .task-card { background: #fafafa; border-radius: 15px; padding: 15px; border: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .task-card.done-card { background: #f6ffed; border-color: #b7eb8f; }
 
-        .task-room { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .badge-urgent { background: #ff4d4f; color: white; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; }
-
-        .task-info { font-size: 13px; line-height: 1.6; color: #444; margin-bottom: 10px; }
-        .task-info b { color: #000; }
+        .room-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         
-        .task-note { background: #fffbe6; border: 1px dashed #ffe58f; padding: 8px 10px; border-radius: 8px; font-size: 12px; color: #d48806; margin-bottom: 10px; }
+        .task-details { font-size: 13px; line-height: 1.6; color: #444; margin-bottom: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
+        .task-details b { color: #000; }
 
-        .btn-status { width: 100%; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-        .btn-pending { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
-        .btn-done { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+        /* Ô NOTE DÀNH CHO CHỦ ĐIỀN HOẶC XEM */
+        .note-box { margin-bottom: 10px; }
+        .note-box label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
+        .note-input { width: 100%; padding: 8px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; background: #fffbe6; }
 
-        .empty-msg { text-align: center; padding: 30px 10px; color: #888; font-size: 13px; font-weight: 600; }
+        /* NÚT BẤM TRẠNG THÁI TO RÕ */
+        .btn-clean-status { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; }
+        .btn-not-done { background: #fffbe6; color: #d48806; border: 1.5px solid #ffe58f; }
+        .btn-is-done { background: #f6ffed; color: #389e0d; border: 1.5px solid #b7eb8f; }
+
+        .empty-msg { text-align: center; padding: 30px 10px; color: #888; font-size: 14px; font-weight: 600; }
     </style>
 
     <!-- FIREBASE SDK -->
@@ -49,30 +56,27 @@
 
 <div class="container">
     <div class="app-header">
-        <h1>🧹 Nana Homestay - Lịch Dọn Phòng</h1>
-        <p>Cập nhật lịch làm việc & báo cáo dọn xong 24/7</p>
+        <h1>🧹 Lịch Dọn Cơ Sở 2</h1>
+        <p>Nana Homestay</p>
     </div>
 
-    <!-- BỘ LỌC NGÀY VÀ PHÒNG -->
-    <div class="filter-bar">
-        <div class="filter-item">
-            <label for="filterDate">📅 Chọn Ngày:</label>
-            <input type="date" id="filterDate" onchange="renderCleanerSchedule()">
-        </div>
-        <div class="filter-item">
-            <label for="filterRoom">📍 Phòng:</label>
-            <select id="filterRoom" onchange="renderCleanerSchedule()">
-                <option value="all" selected>-- Tất cả các phòng --</option>
-                <option value="cs1_p101">Cơ sở 1 - P101</option>
-                <option value="cs2_p205">Cơ sở 2 - Phòng 205</option>
-                <option value="cs2_p305">Cơ sở 2 - Phòng 305</option>
-            </select>
-        </div>
+    <!-- CHỈ CẦN CHỌN TÊN NGƯỜI DỌN -->
+    <div class="cleaner-select-box">
+        <label for="cleanerSelect">👇 Bấm chọn tên người dọn:</label>
+        <select id="cleanerSelect" onchange="saveCleanerAndRender()">
+            <option value="Bác" selected>Bác</option>
+            <option value="Nhật">Nhật</option>
+            <option value="Cún">Cún</option>
+        </select>
     </div>
 
-    <!-- DANH SÁCH CÁC CA DỌN PHÒNG -->
+    <div class="today-info" id="todayText">
+        📅 Lịch dọn ngày hôm nay
+    </div>
+
+    <!-- DANH SÁCH PHÒNG CƠ SỞ 2 -->
     <div class="task-list" id="taskList">
-        <div class="empty-msg">Đang tải lịch dọn phòng...</div>
+        <div class="empty-msg">Đang tải lịch dọn...</div>
     </div>
 </div>
 
@@ -90,119 +94,105 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const roomNames = {
-        cs1_p101: "Cơ sở 1 - P101",
-        cs2_p205: "Cơ sở 2 - P205",
-        cs2_p305: "Cơ sở 2 - P305"
-    };
+    // Chỉ lấy cố định Cơ sở 2 (Phòng 205 và Phòng 305)
+    const cs2Rooms = [
+        { id: "cs2_p205", name: "Cơ sở 2 - Phòng 205" },
+        { id: "cs2_p305", name: "Cơ sở 2 - Phòng 305" }
+    ];
 
     let allRoomsCache = {};
 
     window.onload = function() {
-        // Đặt mặc định là ngày hôm nay
+        const savedCleaner = localStorage.getItem('selectedCleaner');
+        if (savedCleaner) {
+            document.getElementById('cleanerSelect').value = savedCleaner;
+        }
+
+        // Hiển thị ngày hôm nay lên giao diện
         const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
-        document.getElementById('filterDate').value = `${yyyy}-${mm}-${dd}`;
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        document.getElementById('todayText').innerText = `📅 Lịch dọn ngày: ${dd}/${mm}/${yyyy}`;
 
         listenToFirebase();
     };
 
+    function saveCleanerAndRender() {
+        const selectedCleaner = document.getElementById('cleanerSelect').value;
+        localStorage.setItem('selectedCleaner', selectedCleaner);
+        renderCleanerTasks();
+    }
+
     function listenToFirebase() {
         db.ref('rooms').on('value', (snapshot) => {
             allRoomsCache = snapshot.val() || {};
-            renderCleanerSchedule();
+            renderCleanerTasks();
         });
     }
 
-    function parseTimeStr(timeStr) {
-        if (!timeStr) return null;
-        let match = timeStr.match(/([0-9]{1,2})\s*h/i);
-        return match ? parseInt(match[1]) : null;
-    }
-
-    function renderCleanerSchedule() {
+    function renderCleanerTasks() {
         const taskList = document.getElementById('taskList');
         taskList.innerHTML = "";
 
-        const selectedDateStr = document.getElementById('filterDate').value; // yyyy-mm-dd
-        if (!selectedDateStr) return;
+        const currentCleaner = document.getElementById('cleanerSelect').value; // Bác / Nhật / Cún
+        const today = new Date();
+        const targetDayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+        const targetMonthKey = `${today.getFullYear()}_${today.getMonth() + 1}`;
 
-        const [y, m, d] = selectedDateStr.split('-');
-        const targetDayStr = `${d}/${m}`;
-        const targetMonthKey = `${y}_${parseInt(m)}`;
-        const selectedRoomFilter = document.getElementById('filterRoom').value;
+        let hasTask = false;
 
-        let tasks = [];
+        cs2Rooms.forEach(room => {
+            let roomData = allRoomsCache[room.id] || {};
+            let customers = roomData.customers || {};
 
-        // Lặp qua các phòng để lấy lượt đặt phòng
-        Object.keys(allRoomsCache).forEach(roomId => {
-            if (selectedRoomFilter !== 'all' && selectedRoomFilter !== roomId) return;
-
-            let customers = allRoomsCache[roomId].customers || {};
+            // Tìm đơn khách trong phòng này khớp với người dọn được chọn
             Object.keys(customers).forEach(custKey => {
                 let cust = customers[custKey];
                 if ((cust.monthKey || "2026_11") !== targetMonthKey) return;
 
-                // Kiểm tra xem khách checkout có trùng ngày đang xem không
-                let checkoutStr = cust.checkout || "";
-                let isTodayCheckout = checkoutStr.includes(targetDayStr) || (!checkoutStr.includes('/') && cust.bookDate === targetDayStr);
+                // Kiểm tra xem đơn này có đúng là do người này dọn không
+                if (cust.cleaner === currentCleaner) {
+                    hasTask = true;
+                    let isDone = cust.cleanStatus === 'done';
 
-                if (isTodayCheckout || cust.checkin.includes(targetDayStr)) {
-                    tasks.push({
-                        roomId: roomId,
-                        custKey: custKey,
-                        roomName: roomNames[roomId] || roomId,
-                        custName: cust.name || "Khách",
-                        checkin: cust.checkin || "Chưa rõ",
-                        checkout: cust.checkout || "Chưa rõ",
-                        cleaner: cust.cleaner || "Chưa phân công",
-                        cleanStatus: cust.cleanStatus || "pending", // pending | done
-                        note: cust.note || ""
-                    });
+                    let card = document.createElement('div');
+                    card.className = `task-card ${isDone ? 'done-card' : ''}`;
+
+                    card.innerHTML = `
+                        <div class="room-title">
+                            🏠 ${room.name}
+                            <span>${isDone ? '✅ Đã dọn' : '🟡 Chưa dọn'}</span>
+                        </div>
+                        <div class="task-details">
+                            👤 <b>Khách:</b> ${cust.name || 'Khách'}<br>
+                            🚪 <b>Check-out (Khách ra):</b> ${cust.checkout || 'Chưa rõ'}<br>
+                            🔑 <b>Check-in (Khách mới):</b> ${cust.checkin || 'Chưa rõ'}
+                        </div>
+                        <div class="note-box">
+                            <label>📝 Ghi chú / Giờ phát sinh (Thêm giờ, ra muộn...):</label>
+                            <input type="text" class="note-input" value="${cust.note || ''}" placeholder="Ví dụ: Khách xin out muộn 11h..." onchange="updateNote('${room.id}', '${custKey}', this.value)">
+                        </div>
+                        <button class="btn-clean-status ${isDone ? 'btn-is-done' : 'btn-not-done'}" 
+                                onclick="toggleStatus('${room.id}', '${custKey}', '${cust.cleanStatus || 'pending'}')">
+                            ${isDone ? '✅ ĐÃ DỌN XONG (Bấm để hủy)' : '🟡 BẤM VÀO ĐÂY KHI DỌN XONG'}
+                        </button>
+                    `;
+                    taskList.appendChild(card);
                 }
             });
         });
 
-        // Sắp xếp các ca theo giờ
-        if (tasks.length === 0) {
-            taskList.innerHTML = `<div class="empty-msg">🎉 Không có ca dọn phòng nào trong ngày ${targetDayStr}!</div>`;
-            return;
+        if (!hasTask) {
+            taskList.innerHTML = `<div class="empty-msg">🎉 Hôm nay (${targetDayStr}) <b>${currentCleaner}</b> không có phòng nào cần dọn ở Cơ sở 2 cả!</div>`;
         }
-
-        tasks.forEach(task => {
-            let outHour = parseTimeStr(task.checkout);
-            let inHour = parseTimeStr(task.checkin);
-            
-            // Cảnh báo gấp nếu thời gian chuyển giao khách dưới 2 tiếng
-            let isUrgent = (outHour !== null && inHour !== null && (inHour - outHour <= 2 && inHour - outHour >= 0));
-
-            let card = document.createElement('div');
-            card.className = `task-card ${isUrgent ? 'urgent' : ''}`;
-
-            card.innerHTML = `
-                <div class="task-room">
-                    🏠 ${task.roomName}
-                    ${isUrgent ? `<span class="badge-urgent">⚡ CA GẤP (Khách mới vào lúc ${task.checkin})</span>` : ''}
-                </div>
-                <div class="task-info">
-                    • <b>Giờ Check-out (Khách ra):</b> ${task.checkout}<br>
-                    • <b>Giờ Check-in (Khách mới vào):</b> ${task.checkin}<br>
-                    • <b>Người dọn:</b> ${task.cleaner}
-                </div>
-                ${task.note ? `<div class="task-note">📝 <b>Ghi chú từ chủ:</b> ${task.note}</div>` : ''}
-                <button class="btn-status ${task.cleanStatus === 'done' ? 'btn-done' : 'btn-pending'}" 
-                        onclick="toggleCleanStatus('${task.roomId}', '${task.custKey}', '${task.cleanStatus}')">
-                    ${task.cleanStatus === 'done' ? '✅ ĐÃ DỌN XONG (Bấm để đổi)' : '🟡 CHƯA DỌN (Bấm khi dọn xong)'}
-                </button>
-            `;
-
-            taskList.appendChild(card);
-        });
     }
 
-    function toggleCleanStatus(roomId, custKey, currentStatus) {
+    function updateNote(roomId, custKey, val) {
+        db.ref(`rooms/${roomId}/customers/${custKey}/note`).set(val);
+    }
+
+    function toggleStatus(roomId, custKey, currentStatus) {
         const newStatus = (currentStatus === 'done') ? 'pending' : 'done';
         db.ref(`rooms/${roomId}/customers/${custKey}/cleanStatus`).set(newStatus);
     }
