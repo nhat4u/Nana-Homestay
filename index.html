@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Lịch Dọn Dẹp Cơ Sở 2</title>
+    <title>Nana Homestay - Lịch Dọn Phòng Của Cô</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,15 +17,8 @@
         .app-header h1 { color: var(--primary); font-size: 20px; font-weight: 700; }
         .app-header p { font-size: 13px; color: #8a626a; margin-top: 4px; }
 
-        /* BỘ CHỌN NGƯỜI DỌN TO RÕ */
-        .cleaner-select-box { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; }
-        .cleaner-select-box label { display: block; font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 8px; }
-        .cleaner-select-box select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; font-size: 15px; background: white; outline: none; cursor: pointer; text-align-last: center; }
+        .today-banner { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; font-weight: 700; color: var(--primary); font-size: 14px; }
 
-        /* THÔNG TIN NGÀY HÔM NAY */
-        .today-info { text-align: center; font-size: 13px; font-weight: 700; color: #666; margin-bottom: 12px; background: #fff0f3; padding: 6px; border-radius: 8px; }
-
-        /* THẺ PHÒNG DỌN */
         .task-list { display: flex; flex-direction: column; gap: 12px; }
         .task-card { background: #fafafa; border-radius: 15px; padding: 15px; border: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .task-card.done-card { background: #f6ffed; border-color: #b7eb8f; }
@@ -35,12 +28,10 @@
         .task-details { font-size: 13px; line-height: 1.6; color: #444; margin-bottom: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
         .task-details b { color: #000; }
 
-        /* Ô NOTE DÀNH CHO CHỦ ĐIỀN HOẶC XEM */
         .note-box { margin-bottom: 10px; }
         .note-box label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
         .note-input { width: 100%; padding: 8px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; background: #fffbe6; }
 
-        /* NÚT BẤM TRẠNG THÁI TO RÕ */
         .btn-clean-status { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; }
         .btn-not-done { background: #fffbe6; color: #d48806; border: 1.5px solid #ffe58f; }
         .btn-is-done { background: #f6ffed; color: #389e0d; border: 1.5px solid #b7eb8f; }
@@ -56,25 +47,15 @@
 
 <div class="container">
     <div class="app-header">
-        <h1>🧹 Lịch Dọn Cơ Sở 2</h1>
+        <h1>🧹 Lịch Dọn Phòng Cơ Sở 2</h1>
         <p>Nana Homestay</p>
     </div>
 
-    <!-- CHỈ CẦN CHỌN TÊN NGƯỜI DỌN -->
-    <div class="cleaner-select-box">
-        <label for="cleanerSelect">👇 Bấm chọn tên người dọn:</label>
-        <select id="cleanerSelect" onchange="saveCleanerAndRender()">
-            <option value="Bác" selected>Bác</option>
-            <option value="Nhật">Nhật</option>
-            <option value="Cún">Cún</option>
-        </select>
-    </div>
-
-    <div class="today-info" id="todayText">
+    <div class="today-banner" id="todayText">
         📅 Lịch dọn ngày hôm nay
     </div>
 
-    <!-- DANH SÁCH PHÒNG CƠ SỞ 2 -->
+    <!-- DANH SÁCH PHÒNG CẦN DỌN -->
     <div class="task-list" id="taskList">
         <div class="empty-msg">Đang tải lịch dọn...</div>
     </div>
@@ -94,7 +75,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Chỉ lấy cố định Cơ sở 2 (Phòng 205 và Phòng 305)
     const cs2Rooms = [
         { id: "cs2_p205", name: "Cơ sở 2 - Phòng 205" },
         { id: "cs2_p305", name: "Cơ sở 2 - Phòng 305" }
@@ -103,12 +83,6 @@
     let allRoomsCache = {};
 
     window.onload = function() {
-        const savedCleaner = localStorage.getItem('selectedCleaner');
-        if (savedCleaner) {
-            document.getElementById('cleanerSelect').value = savedCleaner;
-        }
-
-        // Hiển thị ngày hôm nay lên giao diện
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
         const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -117,12 +91,6 @@
 
         listenToFirebase();
     };
-
-    function saveCleanerAndRender() {
-        const selectedCleaner = document.getElementById('cleanerSelect').value;
-        localStorage.setItem('selectedCleaner', selectedCleaner);
-        renderCleanerTasks();
-    }
 
     function listenToFirebase() {
         db.ref('rooms').on('value', (snapshot) => {
@@ -135,7 +103,6 @@
         const taskList = document.getElementById('taskList');
         taskList.innerHTML = "";
 
-        const currentCleaner = document.getElementById('cleanerSelect').value; // Bác / Nhật / Cún
         const today = new Date();
         const targetDayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
         const targetMonthKey = `${today.getFullYear()}_${today.getMonth() + 1}`;
@@ -146,13 +113,12 @@
             let roomData = allRoomsCache[room.id] || {};
             let customers = roomData.customers || {};
 
-            // Tìm đơn khách trong phòng này khớp với người dọn được chọn
             Object.keys(customers).forEach(custKey => {
                 let cust = customers[custKey];
                 if ((cust.monthKey || "2026_11") !== targetMonthKey) return;
 
-                // Kiểm tra xem đơn này có đúng là do người này dọn không
-                if (cust.cleaner === currentCleaner) {
+                // Chỉ hiển thị nếu phần Dọn được chọn là "Cô"
+                if (cust.cleaner === "Cô") {
                     hasTask = true;
                     let isDone = cust.cleanStatus === 'done';
 
@@ -170,8 +136,8 @@
                             🔑 <b>Check-in (Khách mới):</b> ${cust.checkin || 'Chưa rõ'}
                         </div>
                         <div class="note-box">
-                            <label>📝 Ghi chú / Giờ phát sinh (Thêm giờ, ra muộn...):</label>
-                            <input type="text" class="note-input" value="${cust.note || ''}" placeholder="Ví dụ: Khách xin out muộn 11h..." onchange="updateNote('${room.id}', '${custKey}', this.value)">
+                            <label>📝 Ghi chú từ chủ nhà (Thêm giờ, ra muộn...):</label>
+                            <input type="text" class="note-input" value="${cust.note || ''}" placeholder="Chưa có ghi chú..." readonly style="background: #fdfdfd; cursor: default;">
                         </div>
                         <button class="btn-clean-status ${isDone ? 'btn-is-done' : 'btn-not-done'}" 
                                 onclick="toggleStatus('${room.id}', '${custKey}', '${cust.cleanStatus || 'pending'}')">
@@ -184,12 +150,8 @@
         });
 
         if (!hasTask) {
-            taskList.innerHTML = `<div class="empty-msg">🎉 Hôm nay (${targetDayStr}) <b>${currentCleaner}</b> không có phòng nào cần dọn ở Cơ sở 2 cả!</div>`;
+            taskList.innerHTML = `<div class="empty-msg">🎉 Hôm nay (${targetDayStr}) cô chưa có phòng nào cần dọn ở Cơ sở 2 cả!</div>`;
         }
-    }
-
-    function updateNote(roomId, custKey, val) {
-        db.ref(`rooms/${roomId}/customers/${custKey}/note`).set(val);
     }
 
     function toggleStatus(roomId, custKey, currentStatus) {
