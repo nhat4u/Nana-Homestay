@@ -1032,11 +1032,11 @@
             tbody.innerHTML += `
                 <tr>
                     <td><b>${count}</b></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên khách..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" placeholder="SĐT..." onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.checkin || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.checkout || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.bookDate || ''}" placeholder="dd/mm" onchange="updateSanyCell('${key}', 'bookDate', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.bookDate || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'bookDate', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
                     <td style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
