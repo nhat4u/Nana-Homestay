@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Trang Quản Lý Đa Phòng</title>
+    <title>Nana Homestay - Trang Quản Lý </title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -245,7 +245,7 @@
         </div>
     </div>
 
-    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY -->
+    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY (ĐÃ TÁCH CỘT CHECK-IN VÀ CHECK-OUT) -->
     <div id="tabSanyCustomers" class="tab-content">
         <div class="filter-search-bar">
             <div class="filter-group">
@@ -275,7 +275,8 @@
                         <th style="width: 30px;">STT</th>
                         <th style="width: 120px;">Tên khách</th>
                         <th style="width: 110px;">SĐT</th>
-                        <th style="width: 150px;">Giờ check in - out</th>
+                        <th style="width: 100px;">Check-in</th>
+                        <th style="width: 100px;">Check-out</th>
                         <th style="width: 90px;">Ngày book</th>
                         <th style="width: 90px;">Tổng bill</th>
                         <th style="width: 90px;">Đã CK</th>
@@ -288,7 +289,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="row-total-summary">
-                        <td colspan="5" style="font-size: 15px; text-align: center;">Tổng cộng Sany</td>
+                        <td colspan="6" style="font-size: 15px; text-align: center;">Tổng cộng Sany</td>
                         <td class="txt-red-summary" id="sanySumTotalBill">0k</td>
                         <td class="txt-red-summary" id="sanySumPaid">0k</td>
                         <td class="txt-red-summary" id="sanySumRemaining">0k</td>
@@ -892,7 +893,7 @@
                 <td>
                     <select class="admin-select-cleaner" onchange="updateCustomerField('${key}', 'cleaner', this.value)">
                         <option value="" ${!item.cleaner ? 'selected' : ''}>-- Chọn --</option>
-                        <option value="Bác" ${item.cleaner === 'Bác' ? 'selected' : ''}>Bác</option>
+                        <option value="Cô" ${item.cleaner === 'Cô' ? 'selected' : ''}>Cô</option>
                         <option value="Nhật" ${item.cleaner === 'Nhật' ? 'selected' : ''}>Nhật</option>
                         <option value="Cún" ${item.cleaner === 'Cún' ? 'selected' : ''}>Cún</option>
                     </select>
@@ -955,7 +956,7 @@
         });
     }
 
-    // --- TAB 3: XỬ LÝ BẢNG KHÁCH BOOK SANY ---
+    // --- TAB 3: XỬ LÝ BẢNG KHÁCH BOOK SANY (CHECK-IN VÀ CHECK-OUT TÁCH RIÊNG) ---
     function addNewSanyRow() {
         const month = parseInt(document.getElementById('sanyFilterMonth').value);
         const year = parseInt(document.getElementById('sanyFilterYear').value);
@@ -964,7 +965,8 @@
         db.ref('sany_customers').push({
             name: "",
             phone: "",
-            time: "",
+            checkin: "",
+            checkout: "",
             bookDate: "",
             totalBillStr: "",
             totalBill: 0,
@@ -1032,7 +1034,8 @@
                     <td><b>${count}</b></td>
                     <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" placeholder="Tên khách..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" placeholder="SĐT..." onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.time || ''}" placeholder="ví dụ: 14h-16h 11/11" onchange="updateSanyCell('${key}', 'time', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.checkin || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.checkout || ''}" placeholder="..." onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.bookDate || ''}" placeholder="dd/mm" onchange="updateSanyCell('${key}', 'bookDate', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
@@ -1043,7 +1046,7 @@
             `;
         });
 
-        if (count === 0) tbody.innerHTML = `<tr><td colspan="10" style="padding:15px; color:#666;">Chưa có khách book Sany nào trong tháng này.</td></tr>`;
+        if (count === 0) tbody.innerHTML = `<tr><td colspan="11" style="padding:15px; color:#666;">Chưa có khách book Sany nào trong tháng này.</td></tr>`;
 
         document.getElementById('sanySumTotalBill').innerText = formatK(sumBill);
         document.getElementById('sanySumPaid').innerText = formatK(sumPaid);
