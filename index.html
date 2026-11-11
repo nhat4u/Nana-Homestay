@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Trang Chủ</title>
-    <!-- Khai báo Logo hiển thị khi thêm vào màn hình chính iPhone -->
+    <title>Nana Homestay - App Lịch Dọn Phòng</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,214 +11,200 @@
         :root { --primary: #d17a85; --bg: #fff0f3; --card: #ffffff; --text: #5a3d42; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; }
-        .container { width: 100%; max-width: 430px; background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(209,122,133,0.15); padding-bottom: 20px; }
-        
-        .nav-bar { display: flex; background: #ffe3e8; border-bottom: 2px dashed var(--primary); align-items: center; }
-        .nav-link { flex: 1; text-align: center; padding: 12px 5px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 13px; }
-        .nav-link.active { background: var(--primary); color: white; }
+        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(209,122,133,0.15); padding: 15px; }
 
-        .header { text-align: center; padding: 20px 15px 10px; }
-        .header .logo-img { width: 70px; height: 70px; object-fit: contain; border-radius: 50%; }
-        .header h1 { color: var(--primary); font-size: 24px; margin-top: 5px; }
-        
-        /* Bộ chọn Cơ sở & Phòng */
-        .room-switch-box { margin: 10px 20px; background: #fff0f3; border: 1.5px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; }
-        .room-switch-box label { display: block; font-weight: 700; color: var(--primary); font-size: 13px; margin-bottom: 6px; }
-        .room-switch-box select { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; font-size: 13.5px; background: white; cursor: pointer; }
+        .app-header { text-align: center; padding-bottom: 12px; border-bottom: 2px dashed #ffd0d7; margin-bottom: 15px; }
+        .app-header h1 { color: var(--primary); font-size: 20px; font-weight: 700; }
+        .app-header p { font-size: 12px; color: #8a626a; margin-top: 3px; }
 
-        .section { padding: 12px 20px; }
-        .section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 8px; }
-        
-        .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
-        .amenity-item { background: #ffe3e8; padding: 8px 12px; border-radius: 10px; color: var(--primary); font-weight: 600; }
+        .filter-bar { display: flex; flex-direction: column; gap: 10px; background: #fff0f3; padding: 12px; border-radius: 12px; border: 1px solid #ffd0d7; margin-bottom: 15px; }
+        .filter-item { display: flex; align-items: center; justify-content: space-between; }
+        .filter-item label { font-weight: 700; font-size: 13px; color: var(--primary); }
+        .filter-item input, .filter-item select { padding: 6px 10px; border-radius: 8px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; font-size: 13px; background: white; }
 
-        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .gallery-card { background: #fff0f3; border-radius: 12px; overflow: hidden; border: 1px solid #ffd0d7; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
-        .gallery-card img, .gallery-card video { width: 100%; height: 120px; object-fit: cover; display: block; border-radius: 12px 12px 0 0; background: #ffe3e8; }
-        .gallery-card p { font-size: 11px; font-weight: 700; color: var(--primary); padding: 6px 4px; }
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+        .task-card { background: white; border-radius: 15px; padding: 14px; border: 1.5px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); position: relative; }
+        .task-card.urgent { border-color: #ff4d4f; background: #fff1f0; }
 
-        /* Style bản đồ & liên hệ */
-        .map-box { background: #fff0f3; border-radius: 15px; overflow: hidden; border: 1px solid #ffd0d7; height: 180px; margin-bottom: 10px; }
-        .map-box iframe { width: 100%; height: 100%; border: 0; }
-        .btn-map { display: block; background: #4285F4; color: white; text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(66,133,244,0.25); }
+        .task-room { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .badge-urgent { background: #ff4d4f; color: white; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; }
+
+        .task-info { font-size: 13px; line-height: 1.6; color: #444; margin-bottom: 10px; }
+        .task-info b { color: #000; }
         
-        .contact-box { background: #fff0f3; border: 1px dashed #ffd0d7; border-radius: 15px; padding: 12px 15px; margin-top: 10px; }
+        .task-note { background: #fffbe6; border: 1px dashed #ffe58f; padding: 8px 10px; border-radius: 8px; font-size: 12px; color: #d48806; margin-bottom: 10px; }
+
+        .btn-status { width: 100%; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .btn-pending { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+        .btn-done { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+
+        .empty-msg { text-align: center; padding: 30px 10px; color: #888; font-size: 13px; font-weight: 600; }
     </style>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <div class="nav-bar">
-        <a href="index.html" class="nav-link active">🏠 Trang Chủ</a>
-        <a href="bang-gia.html" id="linkBangGia" class="nav-link">🏷️ Bảng Giá</a>
-        <a href="noi-quy.html" id="linkNoiQuy" class="nav-link">📜 Nội Quy</a>
+    <div class="app-header">
+        <h1>🧹 Nana Homestay - Lịch Dọn Phòng</h1>
+        <p>Cập nhật lịch làm việc & báo cáo dọn xong 24/7</p>
     </div>
 
-    <div class="header">
-        <img src="logo.png" alt="Nana Homestay Logo" class="logo-img">
-        <h1>Nana Homestay</h1>
-        <p style="font-size: 12px; color: #8a626a; margin-top: 4px;">• <b>Instagram/Threads:</b> @nana.homestayy</p>
-    </div>
-
-    <!-- KHUNG CHỌN CƠ SỞ VÀ PHÒNG -->
-    <div class="room-switch-box">
-        <label for="roomSelect">📍 Chọn Cơ sở & Phòng:</label>
-        <select id="roomSelect" onchange="changeRoomView()">
-            <optgroup label="Cơ sở 1">
-                <option value="cs1_p101" selected>Cơ sở 1 - P101</option>
-            </optgroup>
-            <optgroup label="Cơ sở 2">
+    <!-- BỘ LỌC NGÀY VÀ PHÒNG -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label for="filterDate">📅 Chọn Ngày:</label>
+            <input type="date" id="filterDate" onchange="renderCleanerSchedule()">
+        </div>
+        <div class="filter-item">
+            <label for="filterRoom">📍 Phòng:</label>
+            <select id="filterRoom" onchange="renderCleanerSchedule()">
+                <option value="all" selected>-- Tất cả các phòng --</option>
+                <option value="cs1_p101">Cơ sở 1 - P101</option>
                 <option value="cs2_p205">Cơ sở 2 - Phòng 205</option>
                 <option value="cs2_p305">Cơ sở 2 - Phòng 305</option>
-            </optgroup>
-        </select>
-    </div>
-
-    <!-- MỤC TIỆN NGHI TỰ ĐỘNG CẬP NHẬT THEO CƠ SỞ -->
-    <div class="section">
-        <div class="section-title">✨ Tiện nghi homestay</div>
-        <div class="amenities" id="amenitiesContainer">
-            <!-- Tải tiện nghi tự động bằng JavaScript -->
+            </select>
         </div>
     </div>
 
-    <!-- HÌNH ẢNH PHÒNG TỰ ĐỘNG THAY ĐỔI THEO PHÒNG CHỌN -->
-    <div class="section">
-        <div class="section-title" id="galleryTitle">🖼️ Không gian Cơ sở 1 - P101</div>
-        <div class="gallery" id="galleryContainer">
-            <!-- Tải hình ảnh/video tự động bằng JavaScript -->
-        </div>
-    </div>
-
-    <!-- BẢN ĐỒ CHỈ ĐƯỜNG TỰ ĐỘNG THAY ĐỔI THEO CƠ SỞ -->
-    <div class="section">
-        <div class="section-title" id="mapTitle">🗺️ Bản đồ chỉ đường (Cơ sở 1)</div>
-        <div class="map-box">
-            <iframe 
-                id="mapIframe"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn" 
-                allowfullscreen="" 
-                loading="lazy">
-            </iframe>
-        </div>
-        <a href="https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7" id="mapBtn" target="_blank" class="btn-map">📍 Mở Chỉ Đường Trên Google Maps</a>
-
-        <!-- Thông tin liên hệ -->
-        <div class="contact-box">
-            <div class="section-title" style="margin-bottom: 5px; border-left: none; padding-left: 0;">📞 Liên Hệ & Hỗ Trợ</div>
-            <p style="font-size: 12.5px; line-height: 1.6; color: #5a3d42;">
-                • <b>Hotline/Zalo:</b> 0836859883 / 0962292229<br>
-                • <b>Instagram:</b> @nana.homestayy
-            </p>
-        </div>
+    <!-- DANH SÁCH CÁC CA DỌN PHÒNG -->
+    <div class="task-list" id="taskList">
+        <div class="empty-msg">Đang tải lịch dọn phòng...</div>
     </div>
 </div>
 
 <script>
-    // Cấu hình thông tin riêng biệt cho từng phòng / cơ sở
-    const roomData = {
-        cs1_p101: {
-            title: "🖼️ Không gian Cơ sở 1 - P101",
-            mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 1)",
-            mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
-            mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
-            amenitiesHtml: `
-                <div class="amenity-item">📽️ Máy chiếu Netflix</div>
-                <div class="amenity-item">🍳 Bếp nấu & Gia vị</div>
-                <div class="amenity-item">🏰 Phòng decor Mickey</div>
-                <div class="amenity-item">🚿 WC khép kín</div>
-                <div class="amenity-item">🔑 Check-in tự động</div>
-                <div class="amenity-item">🅿️ Chỗ đỗ xe miễn phí</div>
-            `,
-            galleryHtml: `
-                <div class="gallery-card"><img src="home1.jpg" alt="P101"><p>🛏️ Giường ngủ Cute</p></div>
-                <div class="gallery-card"><img src="home2.jpg" alt="Bếp P101"><p>🍳 Bếp nấu đầy đủ</p></div>
-                <div class="gallery-card"><img src="home3.jpg" alt="Máy chiếu P101"><p>📽️ Khung cảnh máy chiếu</p></div>
-                <div class="gallery-card">
-                    <video controls preload="metadata">
-                        <source src="video-wc.mp4" type="video/mp4">
-                    </video>
-                    <p>📹 Video homestay</p>
-                </div>
-            `
-        },
-        cs2_p205: {
-            title: "🖼️ Không gian Cơ sở 2 - Phòng 205",
-            mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 2)",
-            mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
-            mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
-            amenitiesHtml: `
-                <div class="amenity-item">📺 Tivi Netflix</div>
-                <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
-                <div class="amenity-item">✨ Phòng decor phong cách mới</div>
-                <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
-                <div class="amenity-item">🔑 Check-in tự động 24/7</div>
-                <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
-            `,
-            galleryHtml: `
-                <div class="gallery-card"><img src="home205_1.jpg" alt="Phòng 205"><p>🛏️ Không gian phòng 205</p></div>
-                <div class="gallery-card"><img src="home205_2.jpg" alt="Góc chill 205"><p>✨ Góc trang trí chill</p></div>
-                <div class="gallery-card"><img src="home205_3.jpg" alt="Tivi 205"><p>📺 Tivi Netflix</p></div>
-                <div class="gallery-card">
-                    <video controls preload="metadata">
-                        <source src="video-wc205.mp4" type="video/mp4">
-                    </video>
-                    <p>📹 Video homestay</p>
-                </div>
-            `
-        },
-        cs2_p305: {
-            title: "🖼️ Không gian Cơ sở 2 - Phòng 305",
-            mapTitle: "🗺️ Bản đồ chỉ đường (Cơ sở 2)",
-            mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.123!2d105.789!3d21.071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA0JzE1LjYiTiAxMDXCsDQ3JzIwLjQiRQ!5e0!3m2!1svi!2svn!4v1680000000000!5m2!1svi!2svn",
-            mapBtnLink: "https://maps.app.goo.gl/5KeYNUgYW6Rz8n3z7",
-            amenitiesHtml: `
-                <div class="amenity-item">📺 Tivi Netflix</div>
-                <div class="amenity-item">🍳 Bếp nấu hiện đại</div>
-                <div class="amenity-item">✨ Phòng decor phong cách mới</div>
-                <div class="amenity-item">🚿 WC khép kín sạch sẽ</div>
-                <div class="amenity-item">🔑 Check-in tự động 24/7</div>
-                <div class="amenity-item">🅿️ Chỗ đỗ xe rộng rãi</div>
-            `,
-            galleryHtml: `
-                <div class="gallery-card"><img src="home305_1.jpg" alt="Phòng 305"><p>🛏️ Không gian phòng 305</p></div>
-                <div class="gallery-card"><img src="home305_2.jpg" alt="Góc chill 305"><p>✨ Góc trang trí chill</p></div>
-                <div class="gallery-card"><img src="home305_3.jpg" alt="Tivi 305"><p>📺 Tivi Netflix</p></div>
-                <div class="gallery-card">
-                    <video controls preload="metadata">
-                        <source src="video-wc305.mp4" type="video/mp4">
-                    </video>
-                    <p>📹 Video homestay</p>
-                </div>
-            `
-        }
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqGCFOectf_Dl7JjhlNyh5j6Sl2_tl1Sc",
+      authDomain: "nana-homestay.firebaseapp.com",
+      projectId: "nana-homestay",
+      storageBucket: "nana-homestay.firebasestorage.app",
+      messagingSenderId: "479892350682",
+      appId: "1:479892350682:web:485d4dd69befd3dfc7a7e3",
+      measurementId: "G-4ZE4FVEZHS"
     };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const roomNames = {
+        cs1_p101: "Cơ sở 1 - P101",
+        cs2_p205: "Cơ sở 2 - P205",
+        cs2_p305: "Cơ sở 2 - P305"
+    };
+
+    let allRoomsCache = {};
 
     window.onload = function() {
-        const savedRoom = localStorage.getItem('selectedRoom') || 'cs1_p101';
-        const select = document.getElementById('roomSelect');
-        if (select) {
-            select.value = savedRoom;
-        }
-        changeRoomView();
+        // Đặt mặc định là ngày hôm nay
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('filterDate').value = `${yyyy}-${mm}-${dd}`;
+
+        listenToFirebase();
     };
 
-    function changeRoomView() {
-        const selectedRoom = document.getElementById('roomSelect').value;
-        localStorage.setItem('selectedRoom', selectedRoom);
+    function listenToFirebase() {
+        db.ref('rooms').on('value', (snapshot) => {
+            allRoomsCache = snapshot.val() || {};
+            renderCleanerSchedule();
+        });
+    }
 
-        document.getElementById('linkBangGia').href = `bang-gia.html?room=${selectedRoom}`;
-        document.getElementById('linkNoiQuy').href = `noi-quy.html?room=${selectedRoom}`;
+    function parseTimeStr(timeStr) {
+        if (!timeStr) return null;
+        let match = timeStr.match(/([0-9]{1,2})\s*h/i);
+        return match ? parseInt(match[1]) : null;
+    }
 
-        const data = roomData[selectedRoom];
-        if (data) {
-            document.getElementById('amenitiesContainer').innerHTML = data.amenitiesHtml;
-            document.getElementById('galleryTitle').innerText = data.title;
-            document.getElementById('galleryContainer').innerHTML = data.galleryHtml;
-            document.getElementById('mapTitle').innerText = data.mapTitle;
-            document.getElementById('mapIframe').src = data.mapUrl;
-            document.getElementById('mapBtn').href = data.mapBtnLink;
+    function renderCleanerSchedule() {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = "";
+
+        const selectedDateStr = document.getElementById('filterDate').value; // yyyy-mm-dd
+        if (!selectedDateStr) return;
+
+        const [y, m, d] = selectedDateStr.split('-');
+        const targetDayStr = `${d}/${m}`;
+        const targetMonthKey = `${y}_${parseInt(m)}`;
+        const selectedRoomFilter = document.getElementById('filterRoom').value;
+
+        let tasks = [];
+
+        // Lặp qua các phòng để lấy lượt đặt phòng
+        Object.keys(allRoomsCache).forEach(roomId => {
+            if (selectedRoomFilter !== 'all' && selectedRoomFilter !== roomId) return;
+
+            let customers = allRoomsCache[roomId].customers || {};
+            Object.keys(customers).forEach(custKey => {
+                let cust = customers[custKey];
+                if ((cust.monthKey || "2026_11") !== targetMonthKey) return;
+
+                // Kiểm tra xem khách checkout có trùng ngày đang xem không
+                let checkoutStr = cust.checkout || "";
+                let isTodayCheckout = checkoutStr.includes(targetDayStr) || (!checkoutStr.includes('/') && cust.bookDate === targetDayStr);
+
+                if (isTodayCheckout || cust.checkin.includes(targetDayStr)) {
+                    tasks.push({
+                        roomId: roomId,
+                        custKey: custKey,
+                        roomName: roomNames[roomId] || roomId,
+                        custName: cust.name || "Khách",
+                        checkin: cust.checkin || "Chưa rõ",
+                        checkout: cust.checkout || "Chưa rõ",
+                        cleaner: cust.cleaner || "Chưa phân công",
+                        cleanStatus: cust.cleanStatus || "pending", // pending | done
+                        note: cust.note || ""
+                    });
+                }
+            });
+        });
+
+        // Sắp xếp các ca theo giờ
+        if (tasks.length === 0) {
+            taskList.innerHTML = `<div class="empty-msg">🎉 Không có ca dọn phòng nào trong ngày ${targetDayStr}!</div>`;
+            return;
         }
+
+        tasks.forEach(task => {
+            let outHour = parseTimeStr(task.checkout);
+            let inHour = parseTimeStr(task.checkin);
+            
+            // Cảnh báo gấp nếu thời gian chuyển giao khách dưới 2 tiếng
+            let isUrgent = (outHour !== null && inHour !== null && (inHour - outHour <= 2 && inHour - outHour >= 0));
+
+            let card = document.createElement('div');
+            card.className = `task-card ${isUrgent ? 'urgent' : ''}`;
+
+            card.innerHTML = `
+                <div class="task-room">
+                    🏠 ${task.roomName}
+                    ${isUrgent ? `<span class="badge-urgent">⚡ CA GẤP (Khách mới vào lúc ${task.checkin})</span>` : ''}
+                </div>
+                <div class="task-info">
+                    • <b>Giờ Check-out (Khách ra):</b> ${task.checkout}<br>
+                    • <b>Giờ Check-in (Khách mới vào):</b> ${task.checkin}<br>
+                    • <b>Người dọn:</b> ${task.cleaner}
+                </div>
+                ${task.note ? `<div class="task-note">📝 <b>Ghi chú từ chủ:</b> ${task.note}</div>` : ''}
+                <button class="btn-status ${task.cleanStatus === 'done' ? 'btn-done' : 'btn-pending'}" 
+                        onclick="toggleCleanStatus('${task.roomId}', '${task.custKey}', '${task.cleanStatus}')">
+                    ${task.cleanStatus === 'done' ? '✅ ĐÃ DỌN XONG (Bấm để đổi)' : '🟡 CHƯA DỌN (Bấm khi dọn xong)'}
+                </button>
+            `;
+
+            taskList.appendChild(card);
+        });
+    }
+
+    function toggleCleanStatus(roomId, custKey, currentStatus) {
+        const newStatus = (currentStatus === 'done') ? 'pending' : 'done';
+        db.ref(`rooms/${roomId}/customers/${custKey}/cleanStatus`).set(newStatus);
     }
 </script>
 
