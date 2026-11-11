@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nana Homestay - Lịch Dọn Phòng </title>
+    <title>Nana Homestay - Lịch Dọn Phòng Của Cô</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,6 @@
         .app-header h1 { color: var(--primary); font-size: 20px; font-weight: 700; }
         .app-header p { font-size: 13px; color: #8a626a; margin-top: 4px; }
 
-        /* THANH CHỌN NGÀY CHO CÔ */
         .date-picker-box { background: #ffe3e8; border: 2px solid var(--primary); border-radius: 15px; padding: 12px; text-align: center; margin-bottom: 15px; }
         .date-picker-box label { display: block; font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 6px; }
         .date-picker-box input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--primary); font-weight: 700; color: #5a3d42; font-size: 15px; background: white; outline: none; text-align: center; cursor: pointer; }
@@ -26,23 +25,25 @@
         .task-card { background: #fafafa; border-radius: 15px; padding: 15px; border: 2px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .task-card.done-card { background: #f6ffed; border-color: #b7eb8f; }
 
-        .room-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .room-title { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
-        .task-details { font-size: 13px; line-height: 1.6; color: #444; margin-bottom: 10px; background: white; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
+        .task-details { font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 10px; background: white; padding: 12px; border-radius: 10px; border: 1px solid #ddd; }
         .task-details b { color: #000; }
+        
+        /* LÀM TO RÕ GIỜ KHÁCH RA CHO CÔ DỄ NHÌN */
+        .checkout-big { font-size: 18px; font-weight: 700; color: #d93025; background: #fff1f0; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 3px; }
 
-        .note-box { margin-bottom: 10px; }
-        .note-box label { display: block; font-size: 11px; font-weight: 700; color: #8a626a; margin-bottom: 3px; }
-        .note-input { width: 100%; padding: 8px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 12px; outline: none; background: #fffbe6; }
+        .note-box { margin-bottom: 12px; }
+        .note-box label { display: block; font-size: 12px; font-weight: 700; color: #8a626a; margin-bottom: 4px; }
+        .note-input { width: 100%; padding: 10px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; font-weight: 600; outline: none; background: #fffbe6; color: #b78103; }
 
-        .btn-clean-status { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; }
+        .btn-clean-status { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; text-align: center; }
         .btn-not-done { background: #fffbe6; color: #d48806; border: 1.5px solid #ffe58f; }
         .btn-is-done { background: #f6ffed; color: #389e0d; border: 1.5px solid #b7eb8f; }
 
         .empty-msg { text-align: center; padding: 30px 10px; color: #888; font-size: 14px; font-weight: 600; }
     </style>
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
@@ -54,13 +55,11 @@
         <p>Nana Homestay</p>
     </div>
 
-    <!-- Ô CHỌN NGÀY -->
     <div class="date-picker-box">
         <label for="filterDate">📅 Chọn ngày xem lịch dọn:</label>
         <input type="date" id="filterDate" onchange="renderCleanerTasks()">
     </div>
 
-    <!-- DANH SÁCH PHÒNG CẦN DỌN -->
     <div class="task-list" id="taskList">
         <div class="empty-msg">Đang tải lịch dọn...</div>
     </div>
@@ -88,7 +87,6 @@
     let allRoomsCache = {};
 
     window.onload = function() {
-        // Mặc định điền sẵn ngày hôm nay khi mở app
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -109,7 +107,7 @@
         const taskList = document.getElementById('taskList');
         taskList.innerHTML = "";
 
-        const selectedDateStr = document.getElementById('filterDate').value; // yyyy-mm-dd
+        const selectedDateStr = document.getElementById('filterDate').value;
         if (!selectedDateStr) return;
 
         const [y, m, d] = selectedDateStr.split('-');
@@ -126,18 +124,16 @@
                 let cust = customers[custKey];
                 if ((cust.monthKey || "2026_11") !== targetMonthKey) return;
 
-                // Kiểm tra xem ngày checkout của khách có trùng với ngày đang chọn không
                 let checkoutStr = cust.checkout || "";
-                let isTargetCheckout = checkoutStr.includes(targetDayStr);
-
-                // Chỉ hiển thị nếu phân công cho "Cô" và đúng ngày khách checkout
-                if (cust.cleaner === "Cô" && isTargetCheckout) {
+                if (cust.cleaner === "Cô" && checkoutStr.includes(targetDayStr)) {
                     hasTask = true;
                     let isDone = cust.cleanStatus === 'done';
 
+                    // Chỉ lọc lấy phần giờ (ví dụ "15h" từ chuỗi "15h (11/11)")
+                    let timeOnly = cust.checkout.split(' ')[0] || cust.checkout;
+
                     let card = document.createElement('div');
                     card.className = `task-card ${isDone ? 'done-card' : ''}`;
-
                     card.innerHTML = `
                         <div class="room-title">
                             🏠 ${room.name}
@@ -145,11 +141,11 @@
                         </div>
                         <div class="task-details">
                             👤 <b>Khách:</b> ${cust.name || 'Khách'}<br>
-                            🚪 <b>Giờ Check-out (Khách ra):</b> ${cust.checkout || 'Chưa rõ'}
+                            🚪 <b>Giờ khách ra:</b> <div class="checkout-big">${timeOnly}</div>
                         </div>
                         <div class="note-box">
-                            <label>📝 Ghi chú (Thêm giờ, ra muộn...):</label>
-                            <input type="text" class="note-input" value="${cust.note || ''}" placeholder="Chưa có ghi chú..." readonly style="background: #fdfdfd; cursor: default;">
+                            <label>📝 Ghi chú:</label>
+                            <input type="text" class="note-input" value="${cust.cleanNote || ''}" placeholder="Không có ghi chú..." readonly>
                         </div>
                         <button class="btn-clean-status ${isDone ? 'btn-is-done' : 'btn-not-done'}" 
                                 onclick="toggleStatus('${room.id}', '${custKey}', '${cust.cleanStatus || 'pending'}')">
