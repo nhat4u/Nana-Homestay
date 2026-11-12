@@ -122,6 +122,13 @@
         .confirm-card h3 { color: #d93025; margin-bottom: 10px; font-size: 16px; }
         .confirm-card p { font-size: 13px; color: #555; margin-bottom: 15px; line-height: 1.5; }
         .room-target-highlight { background: #ffe3e8; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; margin-bottom: 15px; }
+
+        /* CSS TỐI ƯU RIÊNG CHO BẢNG SANY (TO, RÕ, DỄ NHÌN TRÊN MOBILE) */
+        .sany-table th { font-size: 12px !important; padding: 8px 6px !important; background: #ffe3e8 !important; }
+        .sany-table td { padding: 6px 4px !important; }
+        .sany-big-input { font-size: 14px !important; font-weight: 700 !important; color: #2e7d32; padding: 6px 4px !important; }
+        .sany-trans-input { font-size: 14px !important; font-weight: 700 !important; color: #1565c0 !important; background: #f0f7ff !important; border-radius: 4px; padding: 6px 4px !important; }
+        .sany-room-input { font-size: 12px !important; width: 55px !important; text-align: center !important; font-weight: 600; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -268,35 +275,34 @@
                 </select>
             </div>
             <div class="search-box">
-                <input type="text" id="sanySearchInput" placeholder="🔍 Tìm tên khách, SĐT, số phòng..." oninput="renderSanyCustomerTable()">
+                <input type="text" id="sanySearchInput" placeholder="🔍 Tìm tên khách, số phòng..." oninput="renderSanyCustomerTable()">
             </div>
         </div>
         <div class="table-container">
-            <table class="cust-table">
+            <table class="cust-table sany-table">
                 <thead>
                     <tr>
-                        <th style="width: 30px;">STT</th>
-                        <th style="width: 120px;">Tên khách</th>
-                        <th style="width: 105px;">SĐT</th>
-                        <th style="width: 95px;">Check-in</th>
-                        <th style="width: 95px;">Check-out</th>
-                        <th style="width: 85px;">Số phòng</th>
-                        <th style="width: 85px;">Tổng bill</th>
-                        <th style="width: 85px;">Đã CK</th>
-                        <th style="width: 85px;">Còn lại</th>
-                        <th style="width: 85px;">Sany</th>
+                        <th style="width: 25px;">STT</th>
+                        <th style="width: 110px;">Tên khách</th>
+                        <th style="width: 100px;">Check-in</th>
+                        <th style="width: 100px;">Check-out</th>
+                        <th style="width: 50px;">Phòng</th>
+                        <th style="width: 80px;">Tổng bill</th>
+                        <th style="width: 90px;">Đã CK</th>
+                        <th style="width: 80px;">Còn lại</th>
+                        <th style="width: 90px;">Sany</th>
                         <th>Ghi chú</th>
-                        <th style="width: 60px;">Thao tác</th>
+                        <th style="width: 55px;">Xóa</th>
                     </tr>
                 </thead>
                 <tbody id="sanyCustomerBody"></tbody>
                 <tfoot>
                     <tr class="row-total-summary">
-                        <td colspan="6" style="font-size: 15px; text-align: center;">Tổng cộng Sany</td>
+                        <td colspan="5" style="font-size: 14px; text-align: center;">Tổng cộng Sany</td>
                         <td class="txt-red-summary" id="sanySumTotalBill">0k</td>
                         <td class="txt-red-summary" id="sanySumPaid">0k</td>
                         <td class="txt-red-summary" id="sanySumRemaining">0k</td>
-                        <td class="txt-red-summary" id="sanySumTransferred">0k</td>
+                        <td class="txt-red-summary" id="sanySumTransferred" style="color: #1565c0;">0k</td>
                         <td colspan="2"></td>
                     </tr>
                 </tfoot>
@@ -593,10 +599,6 @@
         return price > rates.fullday ? rates.fullday : price;
     }
 
-    function getBookingTimestamp(hour, day, month, year) {
-        return new Date(year, month - 1, day, hour, 0, 0).getTime();
-    }
-
     function confirmAndProcessBooking() {
         const text = document.getElementById('pasteText').value.trim();
         if (!text) { alert("Vui lòng dán nội dung tin nhắn chốt phòng!"); return; }
@@ -846,13 +848,12 @@
         });
     }
 
-    // --- LOGIC TAB 3: SANY ---
+    // --- LOGIC TAB 3: SANY (ĐÃ BỎ SĐT, TĂNG CỠ CHỮ CHECK-IN/OUT, ĐÃ CK, SANY) ---
     function addNewSanyRow() {
         const month = parseInt(document.getElementById('sanyFilterMonth').value);
         const year = parseInt(document.getElementById('sanyFilterYear').value);
         db.ref('sany_customers').push({
             name: "",
-            phone: "",
             checkin: "",
             checkout: "",
             roomNumber: "",
@@ -911,16 +912,15 @@
             tbody.innerHTML += `
                 <tr>
                     <td><b>${count}</b></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.name || ''}" onchange="updateSanyCell('${key}', 'name', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.checkin || ''}" onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.checkout || ''}" onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${displayRoom}" placeholder="" onchange="updateSanyCell('${key}', 'roomNumber', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input left-align" style="font-weight:700;" value="${item.name || ''}" placeholder="Tên khách..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkin || ''}" placeholder="Check-in..." onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkout || ''}" placeholder="Check-out..." onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input sany-room-input" value="${displayRoom}" placeholder="Phòng" onchange="updateSanyCell('${key}', 'roomNumber', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
                     <td style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
-                    <td><input type="text" class="exp-tbl-input" style="color: #1565c0; font-weight: 700;" value="${item.sanyPaidStr || (sanyPaidVal ? formatK(sanyPaidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'sanyPaidStr', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" onchange="updateSanyCell('${key}', 'note', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input sany-trans-input" value="${item.sanyPaidStr || (sanyPaidVal ? formatK(sanyPaidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'sanyPaidStr', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateSanyCell('${key}', 'note', this.value)"></td>
                     <td><button class="btn-del-cust" onclick="deleteSanyCustomer('${key}')">Xóa</button></td>
                 </tr>`;
         });
