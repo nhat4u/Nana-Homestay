@@ -57,7 +57,7 @@
         .filter-group select { padding: 5px 10px; border-radius: 6px; border: 1px solid #ffd0d7; font-weight: 700; color: #5a3d42; outline: none; }
         .search-box input { padding: 6px 12px; border: 1px solid #ffd0d7; border-radius: 8px; font-size: 13px; outline: none; min-width: 220px; }
 
-        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 10px; }
+        .table-container { overflow-x: auto; max-width: 100%; border: 1px solid #eee; border-radius: 10px; -webkit-overflow-scrolling: touch; }
         table.sched-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
         table.sched-table th, table.sched-table td { border: 1px solid #eee; padding: 5px 6px; white-space: nowrap; }
         table.sched-table th { background: #ffe3e8; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
@@ -123,12 +123,24 @@
         .confirm-card p { font-size: 13px; color: #555; margin-bottom: 15px; line-height: 1.5; }
         .room-target-highlight { background: #ffe3e8; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; margin-bottom: 15px; }
 
-        /* CSS TỐI ƯU RIÊNG CHO BẢNG SANY (TO, RÕ, DỄ NHÌN TRÊN MOBILE) */
-        .sany-table th { font-size: 12px !important; padding: 8px 6px !important; background: #ffe3e8 !important; }
-        .sany-table td { padding: 6px 4px !important; }
-        .sany-big-input { font-size: 14px !important; font-weight: 700 !important; color: #2e7d32; padding: 6px 4px !important; }
-        .sany-trans-input { font-size: 14px !important; font-weight: 700 !important; color: #1565c0 !important; background: #f0f7ff !important; border-radius: 4px; padding: 6px 4px !important; }
-        .sany-room-input { font-size: 12px !important; width: 55px !important; text-align: center !important; font-weight: 600; }
+        /* CSS TỐI ƯU KHOẢNG TRỐNG & CUỘN NGANG CHO BẢNG SANY TRÊN ĐIỆN THOẠI */
+        .sany-table { min-width: 780px; } /* Đảm bảo bảng đủ rộng để không bị bóp chữ, cho phép vuốt ngang */
+        .sany-table th { font-size: 12px !important; padding: 10px 8px !important; background: #ffe3e8 !important; white-space: nowrap; }
+        .sany-table td { padding: 8px 6px !important; white-space: nowrap; }
+        
+        /* Set chiều rộng tối thiểu rộng rãi cho từng cột Sany */
+        .col-stt { width: 35px; }
+        .col-name { width: 130px; }
+        .col-time { width: 150px; } /* Cột Check-in / Check-out rộng rãi */
+        .col-room { width: 60px; }  /* Phòng nhỏ gọn */
+        .col-money { width: 90px; }
+        .col-note { width: 140px; }
+        .col-action { width: 65px; }
+
+        .sany-big-input { font-size: 14px !important; font-weight: 700 !important; color: #2e7d32; padding: 8px 6px !important; width: 100% !important; min-width: 135px; }
+        .sany-trans-input { font-size: 14px !important; font-weight: 700 !important; color: #1565c0 !important; background: #f0f7ff !important; border-radius: 4px; padding: 8px 6px !important; width: 100% !important; min-width: 85px; }
+        .sany-room-input { font-size: 12px !important; width: 100% !important; text-align: center !important; font-weight: 600; }
+        .sany-name-input { font-size: 13px !important; font-weight: 700 !important; width: 100% !important; min-width: 110px; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -256,7 +268,7 @@
         </div>
     </div>
 
-    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY -->
+    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY (ĐÃ TĂNG ĐỘ RỘNG & HỖ TRỢ VUỐT NGANG) -->
     <div id="tabSanyCustomers" class="tab-content">
         <div class="filter-search-bar">
             <div class="filter-group">
@@ -282,17 +294,17 @@
             <table class="cust-table sany-table">
                 <thead>
                     <tr>
-                        <th style="width: 25px;">STT</th>
-                        <th style="width: 110px;">Tên khách</th>
-                        <th style="width: 100px;">Check-in</th>
-                        <th style="width: 100px;">Check-out</th>
-                        <th style="width: 50px;">Phòng</th>
-                        <th style="width: 80px;">Tổng bill</th>
-                        <th style="width: 90px;">Đã CK</th>
-                        <th style="width: 80px;">Còn lại</th>
-                        <th style="width: 90px;">Sany</th>
-                        <th>Ghi chú</th>
-                        <th style="width: 55px;">Xóa</th>
+                        <th class="col-stt">STT</th>
+                        <th class="col-name">Tên khách</th>
+                        <th class="col-time">Check-in</th>
+                        <th class="col-time">Check-out</th>
+                        <th class="col-room">Phòng</th>
+                        <th class="col-money">Tổng bill</th>
+                        <th class="col-money">Đã CK</th>
+                        <th class="col-money">Còn lại</th>
+                        <th class="col-money">Sany</th>
+                        <th class="col-note">Ghi chú</th>
+                        <th class="col-action">Xóa</th>
                     </tr>
                 </thead>
                 <tbody id="sanyCustomerBody"></tbody>
@@ -848,7 +860,7 @@
         });
     }
 
-    // --- LOGIC TAB 3: SANY (ĐÃ BỎ SĐT, TĂNG CỠ CHỮ CHECK-IN/OUT, ĐÃ CK, SANY) ---
+    // --- LOGIC TAB 3: SANY (CÁC Ô RỘNG RÃI, VUỐT NGANG THẢ GA KHÔNG LO MẤT CHỮ) ---
     function addNewSanyRow() {
         const month = parseInt(document.getElementById('sanyFilterMonth').value);
         const year = parseInt(document.getElementById('sanyFilterYear').value);
@@ -911,17 +923,17 @@
 
             tbody.innerHTML += `
                 <tr>
-                    <td><b>${count}</b></td>
-                    <td><input type="text" class="exp-tbl-input left-align" style="font-weight:700;" value="${item.name || ''}" placeholder="" onchange="updateSanyCell('${key}', 'name', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkin || ''}" placeholder="" onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkout || ''}" placeholder="" onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input sany-room-input" value="${displayRoom}" placeholder="" onchange="updateSanyCell('${key}', 'roomNumber', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input sany-big-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
-                    <td style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
-                    <td><input type="text" class="exp-tbl-input sany-trans-input" value="${item.sanyPaidStr || (sanyPaidVal ? formatK(sanyPaidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'sanyPaidStr', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateSanyCell('${key}', 'note', this.value)"></td>
-                    <td><button class="btn-del-cust" onclick="deleteSanyCustomer('${key}')">Xóa</button></td>
+                    <td class="col-stt"><b>${count}</b></td>
+                    <td class="col-name"><input type="text" class="exp-tbl-input left-align sany-name-input" value="${item.name || ''}" placeholder="Tên khách..." onchange="updateSanyCell('${key}', 'name', this.value)"></td>
+                    <td class="col-time"><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkin || ''}" placeholder="Check-in..." onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
+                    <td class="col-time"><input type="text" class="exp-tbl-input sany-big-input" value="${item.checkout || ''}" placeholder="Check-out..." onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
+                    <td class="col-room"><input type="text" class="exp-tbl-input sany-room-input" value="${displayRoom}" placeholder="Phòng" onchange="updateSanyCell('${key}', 'roomNumber', this.value)"></td>
+                    <td class="col-money"><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
+                    <td class="col-money"><input type="text" class="exp-tbl-input sany-big-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
+                    <td class="col-money" style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
+                    <td class="col-money"><input type="text" class="exp-tbl-input sany-trans-input" value="${item.sanyPaidStr || (sanyPaidVal ? formatK(sanyPaidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'sanyPaidStr', this.value)"></td>
+                    <td class="col-note"><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" placeholder="Ghi chú..." onchange="updateSanyCell('${key}', 'note', this.value)"></td>
+                    <td class="col-action"><button class="btn-del-cust" onclick="deleteSanyCustomer('${key}')">Xóa</button></td>
                 </tr>`;
         });
         document.getElementById('sanySumTotalBill').innerText = formatK(sumBill);
