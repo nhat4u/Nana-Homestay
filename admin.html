@@ -249,7 +249,7 @@
         </div>
     </div>
 
-    <!-- TAB 3 -->
+    <!-- TAB 3: DANH SÁCH KHÁCH BOOK SANY -->
     <div id="tabSanyCustomers" class="tab-content">
         <div class="filter-search-bar">
             <div class="filter-group">
@@ -268,7 +268,7 @@
                 </select>
             </div>
             <div class="search-box">
-                <input type="text" id="sanySearchInput" placeholder="🔍 Tìm tên khách, SĐT, ngày..." oninput="renderSanyCustomerTable()">
+                <input type="text" id="sanySearchInput" placeholder="🔍 Tìm tên khách, SĐT, số phòng..." oninput="renderSanyCustomerTable()">
             </div>
         </div>
         <div class="table-container">
@@ -277,13 +277,14 @@
                     <tr>
                         <th style="width: 30px;">STT</th>
                         <th style="width: 120px;">Tên khách</th>
-                        <th style="width: 110px;">SĐT</th>
-                        <th style="width: 100px;">Check-in</th>
-                        <th style="width: 100px;">Check-out</th>
-                        <th style="width: 90px;">Ngày book</th>
-                        <th style="width: 90px;">Tổng bill</th>
-                        <th style="width: 90px;">Đã CK</th>
-                        <th style="width: 90px;">Còn lại</th>
+                        <th style="width: 105px;">SĐT</th>
+                        <th style="width: 95px;">Check-in</th>
+                        <th style="width: 95px;">Check-out</th>
+                        <th style="width: 85px;">Số phòng</th>
+                        <th style="width: 85px;">Tổng bill</th>
+                        <th style="width: 85px;">Đã CK</th>
+                        <th style="width: 85px;">Còn lại</th>
+                        <th style="width: 85px;">Sany</th>
                         <th>Ghi chú</th>
                         <th style="width: 60px;">Thao tác</th>
                     </tr>
@@ -295,6 +296,7 @@
                         <td class="txt-red-summary" id="sanySumTotalBill">0k</td>
                         <td class="txt-red-summary" id="sanySumPaid">0k</td>
                         <td class="txt-red-summary" id="sanySumRemaining">0k</td>
+                        <td class="txt-red-summary" id="sanySumTransferred">0k</td>
                         <td colspan="2"></td>
                     </tr>
                 </tfoot>
@@ -844,16 +846,37 @@
         });
     }
 
+    // --- LOGIC TAB 3: SANY ---
     function addNewSanyRow() {
         const month = parseInt(document.getElementById('sanyFilterMonth').value);
         const year = parseInt(document.getElementById('sanyFilterYear').value);
-        db.ref('sany_customers').push({ name: "", phone: "", checkin: "", checkout: "", bookDate: "", totalBillStr: "", totalBill: 0, paidStr: "", paid: 0, note: "", monthKey: `${year}_${month}` });
+        db.ref('sany_customers').push({
+            name: "",
+            phone: "",
+            checkin: "",
+            checkout: "",
+            roomNumber: "",
+            totalBillStr: "",
+            totalBill: 0,
+            paidStr: "",
+            paid: 0,
+            sanyPaidStr: "",
+            sanyPaid: 0,
+            note: "",
+            monthKey: `${year}_${month}`
+        });
     }
 
     function updateSanyCell(key, field, value) {
-        if (field === 'totalBillStr') db.ref(`sany_customers/${key}`).update({ totalBillStr: value, totalBill: parseMoneyInput(value) });
-        else if (field === 'paidStr') db.ref(`sany_customers/${key}`).update({ paidStr: value, paid: parseMoneyInput(value) });
-        else db.ref(`sany_customers/${key}/${field}`).set(value);
+        if (field === 'totalBillStr') {
+            db.ref(`sany_customers/${key}`).update({ totalBillStr: value, totalBill: parseMoneyInput(value) });
+        } else if (field === 'paidStr') {
+            db.ref(`sany_customers/${key}`).update({ paidStr: value, paid: parseMoneyInput(value) });
+        } else if (field === 'sanyPaidStr') {
+            db.ref(`sany_customers/${key}`).update({ sanyPaidStr: value, sanyPaid: parseMoneyInput(value) });
+        } else {
+            db.ref(`sany_customers/${key}/${field}`).set(value);
+        }
     }
 
     function deleteSanyCustomer(key) { if (confirm("Xóa khách này?")) db.ref(`sany_customers/${key}`).remove(); }
@@ -866,7 +889,7 @@
         const selectedYear = parseInt(document.getElementById('sanyFilterYear').value);
         const targetMonthKey = `${selectedYear}_${selectedMonth}`;
         const searchQuery = document.getElementById('sanySearchInput').value.toLowerCase().trim();
-        let sumBill = 0, sumPaid = 0, sumRemaining = 0, count = 0;
+        let sumBill = 0, sumPaid = 0, sumRemaining = 0, sumSanyPaid = 0, count = 0;
 
         Object.keys(sanyCustomersCache).forEach(key => {
             const item = sanyCustomersCache[key];
@@ -876,7 +899,14 @@
             let billVal = parseMoneyInput(item.totalBillStr || item.totalBill);
             let paidVal = parseMoneyInput(item.paidStr || item.paid);
             let remainingVal = billVal - paidVal;
-            sumBill += billVal; sumPaid += paidVal; sumRemaining += remainingVal;
+            let sanyPaidVal = parseMoneyInput(item.sanyPaidStr || item.sanyPaid);
+
+            sumBill += billVal;
+            sumPaid += paidVal;
+            sumRemaining += remainingVal;
+            sumSanyPaid += sanyPaidVal;
+
+            let displayRoom = item.roomNumber !== undefined ? item.roomNumber : (item.bookDate || '');
 
             tbody.innerHTML += `
                 <tr>
@@ -885,10 +915,11 @@
                     <td><input type="text" class="exp-tbl-input" value="${item.phone || ''}" onchange="updateSanyCell('${key}', 'phone', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.checkin || ''}" onchange="updateSanyCell('${key}', 'checkin', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.checkout || ''}" onchange="updateSanyCell('${key}', 'checkout', this.value)"></td>
-                    <td><input type="text" class="exp-tbl-input" value="${item.bookDate || ''}" onchange="updateSanyCell('${key}', 'bookDate', this.value)"></td>
+                    <td><input type="text" class="exp-tbl-input" value="${displayRoom}" placeholder="Phòng..." onchange="updateSanyCell('${key}', 'roomNumber', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.totalBillStr || (billVal ? formatK(billVal) : '')}" onchange="updateSanyCell('${key}', 'totalBillStr', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input" value="${item.paidStr || (paidVal ? formatK(paidVal) : '')}" onchange="updateSanyCell('${key}', 'paidStr', this.value)"></td>
                     <td style="font-weight: 700; color: ${remainingVal > 0 ? '#c62828' : '#2e7d32'};">${formatK(remainingVal)}</td>
+                    <td><input type="text" class="exp-tbl-input" style="color: #1565c0; font-weight: 700;" value="${item.sanyPaidStr || (sanyPaidVal ? formatK(sanyPaidVal) : '')}" placeholder="0k" onchange="updateSanyCell('${key}', 'sanyPaidStr', this.value)"></td>
                     <td><input type="text" class="exp-tbl-input left-align" value="${item.note || ''}" onchange="updateSanyCell('${key}', 'note', this.value)"></td>
                     <td><button class="btn-del-cust" onclick="deleteSanyCustomer('${key}')">Xóa</button></td>
                 </tr>`;
@@ -896,6 +927,7 @@
         document.getElementById('sanySumTotalBill').innerText = formatK(sumBill);
         document.getElementById('sanySumPaid').innerText = formatK(sumPaid);
         document.getElementById('sanySumRemaining').innerText = formatK(sumRemaining);
+        document.getElementById('sanySumTransferred').innerText = formatK(sumSanyPaid);
     }
 
     function addNewExpenseRow() {
